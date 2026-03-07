@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json.schemastore.org/copilot-skills.json",
+  "name": "pydoll-cf-waf-bypasser",
+  "displayName": "Pydoll CF WAF Bypasser",
+  "description": "教会 AI 编程助手使用 Pydoll 进行隐蔽浏览器自动化，绕过 Cloudflare WAF、Turnstile 验证码及其他人机验证系统。",
+  "version": "1.0.0",
+  "skills": [
+    {
+      "id": "pydoll-browser",
+      "name": "Pydoll 浏览器自动化",
+      "description": "使用 pydoll 库进行隐蔽的无头浏览器自动化操作，专门用于绕过 Cloudflare WAF、Turnstile 验证码及其他人机验证系统。也适用于反爬虫检测绕过、拟真浏览器操作、爬取受保护网站、处理 Shadow DOM、模拟人类用户行为。",
+      "instructions": ".claude/skills/pydoll-browser/SKILL.md",
+      "examples": [
+        {
+          "prompt": "帮我写一个绕过 Cloudflare 的爬虫脚本",
+          "description": "生成使用 Pydoll 绕过 Cloudflare 保护的 Python 爬虫"
+        },
+        {
+          "prompt": "用 pydoll 访问被 WAF 保护的网站并截图",
+          "description": "绕过 WAF 保护并对目标页面截图"
+        },
+        {
+          "prompt": "写一个隐蔽的浏览器爬虫，模拟人类行为",
+          "description": "生成带反检测配置和人性化交互的隐蔽爬虫"
+        },
+        {
+          "prompt": "如何绕过 Cloudflare Managed Challenge",
+          "description": "使用 headless=False + xvfb 绕过 Managed Challenge"
+        },
+        {
+          "prompt": "Write a concurrent scraper that bypasses Cloudflare",
+          "description": "并发爬取多个受 Cloudflare 保护的页面"
+        }
+      ],
+      "keywords": [
+        "cloudflare",
+        "turnstile",
+        "waf",
+        "bypass",
+        "captcha",
+        "pydoll",
+        "scrape",
+        "browser",
+        "automation",
+        "anti-detection",
+        "stealth",
+        "headless",
+        "shadow-dom",
+        "datadome",
+        "perimeterx"
+      ]
+    }
+  ]
+}
