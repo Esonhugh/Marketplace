@@ -1,9 +1,9 @@
 {
   "skills": [
     {
-      "name": "pydoll-browser",
-      "path": "skills/pydoll-browser/SKILL.md",
-      "description": "使用 pydoll 库进行隐蔽的无头浏览器自动化操作，专门用于绕过 Cloudflare WAF、Turnstile 验证码及其他人机验证系统。当用户需要绕过人机 WAF（如 Cloudflare、DataDome、PerimeterX 等）时，务必调用此 skill。也适用于：反爬虫检测绕过、拟真浏览器操作、爬取受保护网站、处理 Shadow DOM、模拟人类用户行为、Web 自动化测试。",
+      "name": "pydoll-antibot-bypasser",
+      "path": "plugins/pydoll-antibot-bypasser/skills/pydoll-antibot-bypasser/SKILL.md",
+      "description": "Stealth browser automation using pydoll library, specialized in bypassing Cloudflare WAF, Turnstile CAPTCHA, and other bot detection systems. Must invoke this skill when users need to bypass WAF (Cloudflare, DataDome, PerimeterX, etc.) or human verification. Also suitable for: anti-scraping bypass, stealth browser operations, crawling protected websites, handling Shadow DOM, simulating human behavior, and web automation testing.",
       "triggers": [
         "cloudflare",
         "turnstile",
@@ -11,23 +11,13 @@
         "bypass",
         "captcha",
         "pydoll",
-        "反爬",
-        "绕过",
-        "验证码",
-        "人机验证",
-        "爬虫",
-        "爬取",
         "scrape",
         "scraping",
         "browser automation",
-        "浏览器自动化",
         "shadow dom",
         "anti-detection",
-        "反检测",
         "stealth",
-        "隐蔽",
         "headless",
-        "无头浏览器",
         "datadome",
         "perimeterx",
         "akamai"

@@ -1,0 +1,35 @@
+{
+  "name": "pydoll-cf-waf-bypasser-skills",
+  "owner": {
+    "name": "Esonhugh"
+  },
+  "metadata": {
+    "description": "Claude Code plugin marketplace for stealth browser automation and WAF bypass skills",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "pydoll-antibot-bypasser",
+      "source": "./plugins/pydoll-antibot-bypasser",
+      "description": "Stealth browser automation skill using Pydoll, specialized in bypassing Cloudflare WAF, Turnstile CAPTCHA, and other bot detection systems.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Esonhugh"
+      },
+      "category": "automation",
+      "homepage": "https://github.com/Esonhugh/pydoll-cf-waf-bypasser-skills",
+      "keywords": [
+        "cloudflare",
+        "waf-bypass",
+        "antibot",
+        "web-scraping",
+        "browser-automation",
+        "pydoll",
+        "stealth",
+        "captcha",
+        "turnstile",
+        "anti-detection"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "pydoll-antibot-bypasser",
+  "version": "1.0.0",
+  "description": "Stealth browser automation skill using Pydoll, specialized in bypassing Cloudflare WAF, Turnstile CAPTCHA, and other bot detection systems.",
+  "author": {
+    "name": "Esonhugh",
+    "url": "https://github.com/Esonhugh"
+  },
+  "homepage": "https://github.com/Esonhugh/pydoll-cf-waf-bypasser-skills",
+  "repository": "https://github.com/Esonhugh/pydoll-cf-waf-bypasser-skills",
+  "license": "MIT",
+  "keywords": [
+    "cloudflare",
+    "waf-bypass",
+    "antibot",
+    "web-scraping",
+    "browser-automation",
+    "pydoll",
+    "stealth",
+    "captcha",
+    "turnstile",
+    "anti-detection"
+  ]
+}
