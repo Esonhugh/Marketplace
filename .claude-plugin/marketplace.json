@@ -1,11 +1,11 @@
 {
-  "name": "pydoll-cf-waf-bypasser-skills",
+  "name": "esonhugh-marketplace",
   "owner": {
     "name": "Esonhugh"
   },
   "metadata": {
-    "description": "Claude Code plugin marketplace for stealth browser automation and WAF bypass skills",
-    "version": "1.0.0"
+    "description": "Esonhugh's private Claude Code plugin marketplace — stealth automation, trading analysis, and more",
+    "version": "1.1.0"
   },
   "plugins": [
     {
@@ -29,6 +29,28 @@
         "captcha",
         "turnstile",
         "anti-detection"
+      ]
+    },
+    {
+      "name": "ibkr-trade-analyzer",
+      "source": "./plugins/ibkr-trade-analyzer",
+      "description": "Analyze Interactive Brokers (IBKR) trading history with read-only access. Generates reports on trading patterns, P&L performance, portfolio structure, and fee analysis via Flex Web Service API or local CSV/XML files.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Esonhugh"
+      },
+      "category": "finance",
+      "keywords": [
+        "ibkr",
+        "interactive-brokers",
+        "trading",
+        "portfolio",
+        "analysis",
+        "flex-query",
+        "pnl",
+        "sharpe-ratio",
+        "trade-history",
+        "finance"
       ]
     }
   ]

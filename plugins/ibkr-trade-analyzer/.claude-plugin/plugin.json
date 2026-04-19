@@ -1,0 +1,22 @@
+{
+  "name": "ibkr-trade-analyzer",
+  "version": "1.0.0",
+  "description": "Analyze Interactive Brokers (IBKR) trading history with read-only access. Generates comprehensive reports on trading patterns, P&L performance, portfolio structure, and fee analysis. Supports Flex Web Service API and local CSV/XML file import.",
+  "author": {
+    "name": "Esonhugh",
+    "url": "https://github.com/Esonhugh"
+  },
+  "license": "MIT",
+  "keywords": [
+    "ibkr",
+    "interactive-brokers",
+    "trading",
+    "portfolio",
+    "analysis",
+    "flex-query",
+    "pnl",
+    "sharpe-ratio",
+    "trade-history",
+    "finance"
+  ]
+}
