@@ -90,10 +90,19 @@ class OpenPosition:
 
 
 @dataclass
+class CashBalance:
+    currency: str = ""
+    ending_cash: float = 0.0
+    ending_settled_cash: float = 0.0
+
+
+@dataclass
 class AccountData:
     trades: list[Trade] = field(default_factory=list)
     cash_transactions: list[CashTransaction] = field(default_factory=list)
     open_positions: list[OpenPosition] = field(default_factory=list)
+    cash_balances: list[CashBalance] = field(default_factory=list)
+    conversion_rates: dict[str, float] = field(default_factory=dict)  # e.g. {"CNH": 0.137, "HKD": 0.128}
     account_id: str = ""
     base_currency: str = "USD"
 
@@ -253,6 +262,25 @@ class DataLoader:
         has_unrealized = any(p.unrealized_pnl != 0 or p.cost_basis_price != 0 for p in data.open_positions)
         if not has_unrealized and data.open_positions and data.trades:
             DataLoader._compute_unrealized_pnl(data.trades, data.open_positions)
+
+        # Cash balances
+        for node in root.iter("CashReportCurrency"):
+            ccy = node.get("currency", "")
+            if ccy and ccy != "BASE_SUMMARY":
+                cb = CashBalance(
+                    currency=ccy,
+                    ending_cash=DataLoader._float(node.get("endingCash", "0")),
+                    ending_settled_cash=DataLoader._float(node.get("endingSettledCash", "0")),
+                )
+                data.cash_balances.append(cb)
+
+        # Conversion rates (to base currency)
+        for node in root.iter("ConversionRate"):
+            from_ccy = node.get("fromCurrency", "")
+            to_ccy = node.get("toCurrency", "")
+            rate = DataLoader._float(node.get("rate", "0"))
+            if from_ccy and to_ccy == data.base_currency and rate > 0:
+                data.conversion_rates[from_ccy] = rate
 
         return data
 
@@ -611,9 +639,15 @@ class PnLAnalyzer:
 class PortfolioAnalyzer:
     """Position structure analysis."""
 
-    def __init__(self, positions: list[OpenPosition], trades: list[Trade]):
+    def __init__(self, positions: list[OpenPosition], trades: list[Trade],
+                 cash_balances: list[CashBalance] | None = None,
+                 conversion_rates: dict[str, float] | None = None,
+                 base_currency: str = "USD"):
         self.positions = positions
         self.trades = trades
+        self.cash_balances = cash_balances or []
+        self.conversion_rates = conversion_rates or {}
+        self.base_currency = base_currency
 
     def summary(self) -> dict[str, Any]:
         if not self.positions:
@@ -640,7 +674,7 @@ class PortfolioAnalyzer:
         top5_pct = sum(v for _, v in sorted_symbols[:5]) / total_value * 100
         top10_pct = sum(v for _, v in sorted_symbols[:10]) / total_value * 100
 
-        return {
+        result = {
             "total_positions": len(self.positions),
             "total_value": total_value,
             "unrealized_pnl": sum(p.unrealized_pnl for p in self.positions),
@@ -664,6 +698,13 @@ class PortfolioAnalyzer:
             "currencies": self._currency_breakdown(),
         }
 
+        # Cash analysis
+        cash_analysis = self._cash_analysis(total_value)
+        if cash_analysis:
+            result["cash"] = cash_analysis
+
+        return result
+
     def _from_trades(self) -> dict[str, Any]:
         """Fallback: derive asset distribution from trade history."""
         if not self.trades:
@@ -678,6 +719,138 @@ class PortfolioAnalyzer:
             "note": "No open position data; showing trade distribution by asset type",
             "by_asset": {k: {"count": v, "pct": v / total * 100} for k, v in by_asset.items()},
         }
+
+    def _cash_analysis(self, position_value: float) -> dict[str, Any]:
+        """Analyze cash balances across currencies."""
+        if not self.cash_balances:
+            return {}
+
+        balances = []
+        total_cash_base = 0.0
+
+        for cb in self.cash_balances:
+            if abs(cb.ending_cash) < 0.01:
+                continue
+            # Convert to base currency
+            if cb.currency == self.base_currency:
+                base_value = cb.ending_cash
+            elif cb.currency in self.conversion_rates:
+                base_value = cb.ending_cash * self.conversion_rates[cb.currency]
+            else:
+                # Fallback: try to infer from CASH trades
+                base_value = self._estimate_fx_value(cb.currency, cb.ending_cash)
+
+            total_cash_base += base_value
+            balances.append({
+                "currency": cb.currency,
+                "amount": cb.ending_cash,
+                "base_value": base_value,
+                "rate": base_value / cb.ending_cash if cb.ending_cash != 0 else 0,
+            })
+
+        total_account = position_value + total_cash_base
+        # Safe haven assets (treasury ETFs counted as quasi-cash)
+        safe_etfs = {"SGOV", "SHV", "BIL", "SCHO", "VGSH"}
+        quasi_cash = sum(
+            abs(p.position_value) for p in self.positions if p.symbol in safe_etfs
+        )
+
+        return {
+            "balances": sorted(balances, key=lambda x: x["base_value"], reverse=True),
+            "total_cash_base": total_cash_base,
+            "total_account_value": total_account,
+            "cash_pct": total_cash_base / total_account * 100 if total_account > 0 else 0,
+            "quasi_cash": quasi_cash,
+            "quasi_cash_pct": quasi_cash / total_account * 100 if total_account > 0 else 0,
+            "total_liquid": total_cash_base + quasi_cash,
+            "total_liquid_pct": (total_cash_base + quasi_cash) / total_account * 100 if total_account > 0 else 0,
+            "equity_value": position_value - quasi_cash,
+            "equity_pct": (position_value - quasi_cash) / total_account * 100 if total_account > 0 else 0,
+            "fx_analysis": self._fx_analysis(),
+        }
+
+    def _fx_analysis(self) -> list[dict]:
+        """Analyze FX conversion trades: cost, timing, average rate."""
+        fx_trades = [t for t in self.trades if t.asset_category == "CASH"]
+        if not fx_trades:
+            return []
+
+        by_pair: dict[str, list] = {}
+        for t in fx_trades:
+            pair = t.symbol  # e.g. "USD.CNH", "USD.HKD"
+            by_pair.setdefault(pair, []).append(t)
+
+        result = []
+        for pair, trades in sorted(by_pair.items()):
+            total_qty = sum(abs(t.quantity) for t in trades)
+            total_proceeds = sum(abs(t.proceeds) for t in trades)
+            total_commission = sum(abs(t.commission) for t in trades)
+            n_trades = len(trades)
+
+            # Average rate
+            avg_rate = total_proceeds / total_qty if total_qty > 0 else 0
+
+            # Rate range
+            rates = [abs(t.proceeds / t.quantity) if t.quantity != 0 else 0 for t in trades]
+            rates = [r for r in rates if r > 0]
+            min_rate = min(rates) if rates else 0
+            max_rate = max(rates) if rates else 0
+
+            # Current rate from conversion_rates
+            parts = pair.split(".")
+            current_rate = None
+            if len(parts) == 2:
+                # e.g. USD.CNH means buying USD with CNH, rate = CNH per USD
+                quote_ccy = parts[1]
+                if quote_ccy in self.conversion_rates:
+                    # conversion_rates has CNH->USD rate, we need USD->CNH = 1/rate
+                    current_rate = 1.0 / self.conversion_rates[quote_ccy] if self.conversion_rates[quote_ccy] > 0 else None
+
+            # Date range
+            dates = [t.date_time for t in trades if t.date_time]
+            first_date = min(dates).strftime("%Y-%m-%d") if dates else ""
+            last_date = max(dates).strftime("%Y-%m-%d") if dates else ""
+
+            entry = {
+                "pair": pair,
+                "n_trades": n_trades,
+                "total_base_amount": total_qty,
+                "total_quote_amount": total_proceeds,
+                "total_commission": total_commission,
+                "avg_rate": avg_rate,
+                "min_rate": min_rate,
+                "max_rate": max_rate,
+                "current_rate": current_rate,
+                "first_date": first_date,
+                "last_date": last_date,
+            }
+
+            # P&L vs current rate
+            if current_rate and avg_rate > 0:
+                # For USD.CNH: bought USD at avg_rate CNH/USD, current is current_rate CNH/USD
+                # If current_rate > avg_rate, USD got more expensive in CNH terms
+                rate_change_pct = (current_rate - avg_rate) / avg_rate * 100
+                entry["rate_change_pct"] = rate_change_pct
+                # Unrealized FX gain/loss on the converted amount
+                # (This is the gain/loss on the foreign currency holding from rate movement)
+                entry["fx_impact_note"] = (
+                    f"Rate moved {rate_change_pct:+.2f}% since your avg conversion"
+                )
+
+            result.append(entry)
+
+        return result
+
+    def _estimate_fx_value(self, currency: str, amount: float) -> float:
+        """Fallback: estimate base currency value from FX trade history."""
+        fx_trades = [t for t in self.trades if t.asset_category == "CASH" and currency in t.symbol]
+        if fx_trades:
+            # Use the last trade's rate as approximation
+            last = sorted(fx_trades, key=lambda t: t.date_time or datetime.min)[-1]
+            if last.quantity != 0:
+                rate = abs(last.proceeds / last.quantity)
+                return amount / rate if rate > 0 else 0
+        return 0
 
     def _currency_breakdown(self) -> dict[str, float]:
         ccy: dict[str, float] = {}
@@ -876,6 +1049,18 @@ class ReportGenerator:
         if div != 0:
             lines.append(f"  - Net dividend income: ${div:,.2f}")
 
+        cash = self.port_s.get("cash", {})
+        if cash:
+            lines.append("")
+            lines.append("Account Breakdown:")
+            lines.append(f"  - Cash: ${cash.get('total_cash_base', 0):,.2f} ({cash.get('cash_pct', 0):.1f}%)")
+            lines.append(f"  - Quasi-cash (treasury): ${cash.get('quasi_cash', 0):,.2f} ({cash.get('quasi_cash_pct', 0):.1f}%)")
+            lines.append(f"  - Equity: ${cash.get('equity_value', 0):,.2f} ({cash.get('equity_pct', 0):.1f}%)")
+            lines.append(f"  - Total account: ${cash.get('total_account_value', 0):,.2f}")
+            for b in cash.get("balances", []):
+                if b["currency"] != self.port_s.get("base_currency", "USD"):
+                    lines.append(f"    {b['currency']}: {b['amount']:,.2f} (≈${b['base_value']:,.2f})")
+
         # Style profile
         profile = self._build_style_profile()
         if profile:
@@ -984,6 +1169,48 @@ class ReportGenerator:
         else:
             note = pa.get("note", "No open position data available.")
             sections.append(f"_{note}_\n")
+
+        # Cash & FX analysis
+        cash = self.port_s.get("cash", {})
+        if cash:
+            sections.append("## Cash & Currency Analysis\n")
+            sections.append("### Cash Balances\n")
+            sections.append("| Currency | Amount | USD Equivalent | Rate |")
+            sections.append("|----------|--------|---------------|------|")
+            for b in cash.get("balances", []):
+                rate_str = f"{b['rate']:.4f}" if b["rate"] > 0 else "—"
+                sections.append(f"| {b['currency']} | {b['amount']:,.2f} | ${b['base_value']:,.2f} | {rate_str} |")
+            sections.append("")
+
+            total_acct = cash.get("total_account_value", 0)
+            sections.append("### Account Composition\n")
+            sections.append("| Category | Value | % of Account |")
+            sections.append("|----------|-------|-------------|")
+            sections.append(f"| Cash (all currencies) | ${cash.get('total_cash_base', 0):,.2f} | {cash.get('cash_pct', 0):.1f}% |")
+            sections.append(f"| Quasi-cash (treasury ETFs) | ${cash.get('quasi_cash', 0):,.2f} | {cash.get('quasi_cash_pct', 0):.1f}% |")
+            sections.append(f"| **Total Liquid** | **${cash.get('total_liquid', 0):,.2f}** | **{cash.get('total_liquid_pct', 0):.1f}%** |")
+            sections.append(f"| Equity positions | ${cash.get('equity_value', 0):,.2f} | {cash.get('equity_pct', 0):.1f}% |")
+            sections.append(f"| **Total Account** | **${total_acct:,.2f}** | **100%** |")
+            sections.append("")
+
+            # FX analysis
+            fx = cash.get("fx_analysis", [])
+            if fx:
+                sections.append("### FX Conversion History\n")
+                for f in fx:
+                    pair = f["pair"]
+                    sections.append(f"**{pair}** ({f['n_trades']} trades, {f['first_date']} ~ {f['last_date']})\n")
+                    sections.append("| Metric | Value |")
+                    sections.append("|--------|-------|")
+                    sections.append(f"| Total Converted | {f['total_base_amount']:,.2f} base / {f['total_quote_amount']:,.2f} quote |")
+                    sections.append(f"| Avg Rate | {f['avg_rate']:.4f} |")
+                    sections.append(f"| Rate Range | {f['min_rate']:.4f} ~ {f['max_rate']:.4f} |")
+                    if f.get("current_rate"):
+                        sections.append(f"| Current Rate | {f['current_rate']:.4f} |")
+                    sections.append(f"| FX Commission | ${f['total_commission']:,.2f} |")
+                    if f.get("rate_change_pct") is not None:
+                        sections.append(f"| Rate Change | {f['rate_change_pct']:+.2f}% since avg conversion |")
+                    sections.append("")
 
         # Costs
         sections.append("## Fees & Cash Flow\n")
@@ -1563,7 +1790,10 @@ def main():
     print("Analyzing...")
     ta = TradeAnalyzer(data.trades)
     pa = PnLAnalyzer(data.trades)
-    porta = PortfolioAnalyzer(data.open_positions, data.trades)
+    porta = PortfolioAnalyzer(data.open_positions, data.trades,
+                              cash_balances=data.cash_balances,
+                              conversion_rates=data.conversion_rates,
+                              base_currency=data.base_currency)
     ca = CostAnalyzer(data.trades, data.cash_transactions)
 
     trade_summary = ta.summary()
