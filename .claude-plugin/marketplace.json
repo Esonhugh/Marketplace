@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Esonhugh's private Claude Code plugin marketplace — stealth automation, trading analysis, and more",
-    "version": "1.1.0"
+    "version": "1.2.0"
   },
   "plugins": [
     {
@@ -51,6 +51,28 @@
         "sharpe-ratio",
         "trade-history",
         "finance"
+      ]
+    },
+    {
+      "name": "finance-market-analysis",
+      "source": "./plugins/finance-market-analysis",
+      "description": "Market analysis toolkit: earnings analysis (preview/recap/estimate revisions), portfolio risk (stock correlation, ETF premium/discount), and SEPA trend-following entry methodology. Forked from himself65/finance-skills.",
+      "version": "1.0.0",
+      "author": {
+        "name": "himself65"
+      },
+      "category": "finance",
+      "homepage": "https://github.com/himself65/finance-skills",
+      "keywords": [
+        "finance",
+        "earnings",
+        "stock-correlation",
+        "etf-premium",
+        "sepa",
+        "minervini",
+        "market-analysis",
+        "estimate-revisions",
+        "portfolio-risk"
       ]
     }
   ]

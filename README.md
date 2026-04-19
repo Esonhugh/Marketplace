@@ -75,6 +75,37 @@ Analyze Interactive Brokers (IBKR) trading history with **read-only** access. Su
 
 ---
 
+### finance-market-analysis
+
+Market analysis toolkit for stock investors. Contains 6 skills covering earnings analysis, portfolio risk assessment, and trend-following entry methodology. Forked from [himself65/finance-skills](https://github.com/himself65/finance-skills).
+
+**Install:**
+
+```bash
+/plugin install finance-market-analysis@Esonhugh/Marketplace
+```
+
+**Included Skills:**
+
+| Skill | Description |
+|:---|:---|
+| `earnings-preview` | Pre-earnings briefing: consensus estimates, beat/miss history, analyst sentiment, key metrics to watch |
+| `earnings-recap` | Post-earnings analysis: actual vs estimated, price reaction, margin trends, earnings-day move comparison |
+| `estimate-analysis` | EPS/revenue revision trends (7d/30d/60d/90d), revision breadth ratio, growth estimates vs peers/sector/S&P 500 |
+| `stock-correlation` | Co-movement discovery, rolling correlation, sector clustering, regime-conditional correlation (crisis detection) |
+| `etf-premium` | ETF premium/discount vs NAV, automatic peer comparison by category, screener across 80+ ETFs |
+| `sepa-strategy` | Mark Minervini's SEPA methodology: Weinstein stage analysis, 8-condition trend template, VCP pattern, position sizing, stop-loss evolution |
+
+**Use Cases:**
+- Earnings season prep for individual stock holdings (NET, AMZN, BRK B, etc.)
+- Portfolio concentration risk assessment via correlation analysis
+- ETF selection and monitoring (SGOV, QQQI, TQQQ premium/discount tracking)
+- Stock entry timing using trend template and VCP breakout patterns
+
+**Requirements:** Python >= 3.10, yfinance
+
+---
+
 ### pydoll-antibot-bypasser
 
 A Claude Code skill that teaches Claude how to write stealth browser automation scripts using [Pydoll](https://github.com/autoscrape-labs/pydoll) — an async-native, zero-WebDriver Chromium automation library specialized in bypassing WAF protections and bot detection systems.
@@ -120,9 +151,19 @@ A Claude Code skill that teaches Claude how to write stealth browser automation 
 ```
 Marketplace/
 ├── .claude-plugin/
-│   └── marketplace.json              # Marketplace catalog
+│   └── marketplace.json                  # Marketplace catalog
 ├── plugins/
-│   ├── ibkr-trade-analyzer/          # Plugin: IBKR Trade Analyzer
+│   ├── finance-market-analysis/          # Plugin: Finance Market Analysis
+│   │   ├── .claude-plugin/
+│   │   │   └── plugin.json
+│   │   └── skills/
+│   │       ├── earnings-preview/
+│   │       ├── earnings-recap/
+│   │       ├── estimate-analysis/
+│   │       ├── etf-premium/
+│   │       ├── sepa-strategy/
+│   │       └── stock-correlation/
+│   ├── ibkr-trade-analyzer/              # Plugin: IBKR Trade Analyzer
 │   │   ├── .claude-plugin/
 │   │   │   └── plugin.json
 │   │   └── skills/
@@ -130,7 +171,7 @@ Marketplace/
 │   │           ├── SKILL.md
 │   │           └── scripts/
 │   │               └── ibkr_analyzer.py
-│   └── pydoll-antibot-bypasser/      # Plugin: Pydoll Antibot Bypasser
+│   └── pydoll-antibot-bypasser/          # Plugin: Pydoll Antibot Bypasser
 │       ├── .claude-plugin/
 │       │   └── plugin.json
 │       └── skills/
