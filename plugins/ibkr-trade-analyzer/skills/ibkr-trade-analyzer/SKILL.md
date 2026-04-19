@@ -111,11 +111,22 @@ Sharpe ratio, P&L by asset type and symbol, top 10 best/worst trades
 
 **Portfolio Structure:**
 Asset type allocation, sector concentration, long/short ratio,
-position concentration (top N holdings), currency exposure
+position concentration (top N holdings with per-position cost basis and unrealized P&L),
+currency exposure
 
 **Fees & Cash Flow:**
 Total commissions and trends, per-trade costs, interest income/expense,
 dividend income, financing costs, fee-to-PnL ratio
+
+**Trading Style Profile:**
+Auto-generated qualitative summary: trading frequency classification (day/swing/position),
+directional bias, risk profile, asset preference (ETF vs stock), income vs growth orientation,
+concentration level, cash management style, average position sizing
+
+**Portfolio Risk Assessment:**
+Scored 0-100 across 6 dimensions: concentration risk (single-stock exposure), leverage
+(leveraged ETF decay risk), drawdown history, directional risk (hedging), liquidity buffer
+(treasury/cash allocation), and fee drag. Includes specific warnings and strengths.
 
 **Price History & Trade Overlay:**
 For the top traded stock symbols, fetches historical price data via yfinance and

@@ -876,6 +876,23 @@ class ReportGenerator:
         if div != 0:
             lines.append(f"  - Net dividend income: ${div:,.2f}")
 
+        # Style profile
+        profile = self._build_style_profile()
+        if profile:
+            lines.append("")
+            lines.append("Trading Style:")
+            for label, value in profile:
+                lines.append(f"  - {label}: {value}")
+
+        risk = self._build_risk_assessment()
+        if risk:
+            lines.append("")
+            lines.append(f"Risk Score: {risk['overall_score']}/100 ({risk['overall_level']})")
+            for w in risk.get("warnings", []):
+                lines.append(f"  ⚠ {w}")
+            for s in risk.get("strengths", []):
+                lines.append(f"  ✓ {s}")
+
         lines.append("=" * 55)
         summary = "\n".join(lines)
         print(summary)
@@ -980,8 +997,315 @@ class ReportGenerator:
         sections.append(f"| Net Interest | ${self.cost_s.get('interest_net', 0):,.2f} |")
         sections.append("")
 
+        # Style profile
+        profile = self._build_style_profile()
+        if profile:
+            sections.append("## Trading Style Profile\n")
+            for label, value in profile:
+                sections.append(f"- **{label}:** {value}")
+            sections.append("")
+
+        # Risk assessment
+        risk_report = self._build_risk_assessment()
+        if risk_report:
+            sections.append("## Portfolio Risk Assessment\n")
+            # Overall score
+            score = risk_report.get("overall_score", 0)
+            level = risk_report.get("overall_level", "")
+            sections.append(f"**Overall Risk Score: {score}/100 ({level})**\n")
+
+            # Detail table
+            details = risk_report.get("details", [])
+            if details:
+                sections.append("| Risk Factor | Score | Rating | Detail |")
+                sections.append("|-------------|-------|--------|--------|")
+                for d in details:
+                    sections.append(f"| {d['factor']} | {d['score']}/100 | {d['rating']} | {d['detail']} |")
+                sections.append("")
+
+            # Warnings
+            warnings = risk_report.get("warnings", [])
+            if warnings:
+                sections.append("### Risk Warnings\n")
+                for w in warnings:
+                    sections.append(f"- {w}")
+                sections.append("")
+
+            # Strengths
+            strengths = risk_report.get("strengths", [])
+            if strengths:
+                sections.append("### Strengths\n")
+                for s in strengths:
+                    sections.append(f"- {s}")
+                sections.append("")
+
         out.write_text("\n".join(sections), encoding="utf-8")
         return out
+
+    # ---- Style profile ----
+
+    def _build_style_profile(self) -> list[tuple[str, str]]:
+        """Generate a qualitative trading style summary from quantitative data."""
+        profile: list[tuple[str, str]] = []
+
+        # 1. Trading frequency classification
+        tpd = self.trade_s.get("trades_per_day", 0)
+        if tpd >= 5:
+            freq = "Day Trader (high frequency)"
+        elif tpd >= 1:
+            freq = "Active Trader"
+        elif tpd >= 0.2:
+            freq = "Swing Trader (low frequency)"
+        else:
+            freq = "Position Trader / Long-term Investor"
+        profile.append(("Trading Frequency", f"{freq} ({tpd:.1f} trades/day)"))
+
+        # 2. Directional bias
+        long_pct = self.port_s.get("long_pct", 0)
+        short_pct = self.port_s.get("short_pct", 0)
+        if short_pct == 0:
+            bias = "Pure Long — no short exposure"
+        elif long_pct > 80:
+            bias = f"Long-biased ({long_pct:.0f}% long / {short_pct:.0f}% short)"
+        elif short_pct > 80:
+            bias = f"Short-biased ({short_pct:.0f}% short)"
+        else:
+            bias = f"Balanced ({long_pct:.0f}% long / {short_pct:.0f}% short)"
+        profile.append(("Directional Bias", bias))
+
+        # 3. Risk profile from drawdown and win rate
+        dd = self.pnl_s.get("max_drawdown_pct", 0)
+        wr = self.trade_s.get("win_rate", 0)
+        sharpe = self.pnl_s.get("sharpe_ratio", 0)
+        if dd < 5 and wr > 70:
+            risk = "Conservative — low drawdown, high win rate"
+        elif dd < 15:
+            risk = "Moderate"
+        else:
+            risk = "Aggressive — high drawdown tolerance"
+        if sharpe > 2:
+            risk += f", excellent risk-adjusted returns (Sharpe {sharpe:.2f})"
+        elif sharpe > 1:
+            risk += f", good risk-adjusted returns (Sharpe {sharpe:.2f})"
+        profile.append(("Risk Profile", risk))
+
+        # 4. Asset preference
+        holdings = self.port_s.get("top_holdings", [])
+        if holdings:
+            etf_keywords = {"ETF", "SGOV", "TQQQ", "QQQI", "QQQ", "SPY", "IVV", "VOO", "VTI", "AGG", "BND"}
+            etf_pct = sum(h["pct"] for h in holdings if h["symbol"] in etf_keywords or h["symbol"].endswith("Q"))
+            stock_pct = 100 - etf_pct
+            if etf_pct > 70:
+                pref = f"ETF-centric ({etf_pct:.0f}% ETFs)"
+            elif stock_pct > 70:
+                pref = f"Individual stock picker ({stock_pct:.0f}% stocks)"
+            else:
+                pref = f"Mixed ({stock_pct:.0f}% stocks, {etf_pct:.0f}% ETFs)"
+            profile.append(("Asset Preference", pref))
+
+        # 5. Income vs Growth orientation
+        div = self.cost_s.get("dividend_income", 0)
+        total_pnl = self.pnl_s.get("total_realized_pnl", 0)
+        unrealized = self.port_s.get("unrealized_pnl", 0)
+        total_return = total_pnl + unrealized + div
+        if total_return > 0:
+            div_share = div / total_return * 100 if div > 0 else 0
+            if div_share > 40:
+                orient = f"Income-oriented — dividends contribute {div_share:.0f}% of total return"
+            elif div_share > 15:
+                orient = f"Balanced growth + income (dividends = {div_share:.0f}% of return)"
+            else:
+                orient = f"Growth-oriented — capital gains dominate ({100 - div_share:.0f}% of return)"
+            profile.append(("Investment Style", orient))
+
+        # 6. Concentration
+        top5 = self.port_s.get("top5_concentration_pct", 0)
+        n_pos = self.port_s.get("total_positions", 0)
+        if top5 > 90:
+            conc = f"Highly concentrated — top 5 = {top5:.0f}% across {n_pos} positions"
+        elif top5 > 60:
+            conc = f"Moderately concentrated — top 5 = {top5:.0f}%"
+        else:
+            conc = f"Well diversified — top 5 = {top5:.0f}%"
+        profile.append(("Concentration", conc))
+
+        # 7. Cash management
+        if holdings:
+            cash_etfs = {"SGOV", "SHV", "BIL", "SCHO", "VGSH"}
+            cash_pct = sum(h["pct"] for h in holdings if h["symbol"] in cash_etfs)
+            if cash_pct > 30:
+                profile.append(("Cash Management", f"Active — {cash_pct:.0f}% in short-term treasury ETFs as cash substitute"))
+            elif cash_pct > 10:
+                profile.append(("Cash Management", f"Moderate cash reserve ({cash_pct:.0f}% in treasury ETFs)"))
+
+        # 8. Position sizing
+        avg_size = self.trade_s.get("avg_trade_size", 0)
+        total_value = self.port_s.get("total_value", 0)
+        if avg_size > 0 and total_value > 0:
+            size_pct = avg_size / total_value * 100
+            profile.append(("Avg Position Size", f"${avg_size:,.0f} ({size_pct:.1f}% of portfolio per trade)"))
+
+        return profile
+
+    def _build_risk_assessment(self) -> dict:
+        """Score portfolio risk across multiple dimensions (0=safe, 100=dangerous)."""
+        details = []
+        warnings = []
+        strengths = []
+
+        # 1. Concentration risk (single-stock exposure)
+        holdings = self.port_s.get("top_holdings", [])
+        top5 = self.port_s.get("top5_concentration_pct", 0)
+        if holdings:
+            max_single = max(h["pct"] for h in holdings)
+            max_sym = max(holdings, key=lambda h: h["pct"])["symbol"]
+            # Score: 0-30% single = low, 30-50% = medium, >50% = high
+            if max_single > 50:
+                conc_score = min(90, 50 + int((max_single - 50)))
+                conc_rating = "HIGH"
+                warnings.append(f"{max_sym} alone is {max_single:.0f}% of portfolio — single-asset risk is elevated")
+            elif max_single > 30:
+                conc_score = 30 + int((max_single - 30))
+                conc_rating = "MEDIUM"
+            else:
+                conc_score = int(max_single)
+                conc_rating = "LOW"
+                strengths.append(f"No single position exceeds 30% — good diversification")
+            details.append({
+                "factor": "Concentration",
+                "score": conc_score,
+                "rating": conc_rating,
+                "detail": f"Largest position: {max_sym} at {max_single:.0f}%, top 5 = {top5:.0f}%",
+            })
+
+        # 2. Leverage / leveraged ETF exposure
+        if holdings:
+            leveraged_etfs = {"TQQQ", "SQQQ", "UPRO", "SPXU", "TNA", "TZA", "SOXL", "SOXS", "FNGU", "FNGD", "LABU", "LABD"}
+            lev_pct = sum(h["pct"] for h in holdings if h["symbol"] in leveraged_etfs)
+            if lev_pct > 10:
+                lev_score = min(90, int(lev_pct * 3))
+                lev_rating = "HIGH"
+                warnings.append(f"{lev_pct:.1f}% in leveraged ETFs — daily rebalancing causes decay in sideways markets")
+            elif lev_pct > 0:
+                lev_score = max(10, int(lev_pct * 3))
+                lev_rating = "LOW"
+                strengths.append(f"Minimal leveraged ETF exposure ({lev_pct:.1f}%)")
+            else:
+                lev_score = 0
+                lev_rating = "NONE"
+                strengths.append("No leveraged ETF exposure")
+            details.append({
+                "factor": "Leverage",
+                "score": lev_score,
+                "rating": lev_rating,
+                "detail": f"{lev_pct:.1f}% in leveraged ETFs",
+            })
+
+        # 3. Drawdown risk
+        dd = self.pnl_s.get("max_drawdown_pct", 0)
+        if dd < 5:
+            dd_score = int(dd * 4)
+            dd_rating = "LOW"
+            strengths.append(f"Max drawdown only {dd:.1f}% — excellent capital preservation")
+        elif dd < 20:
+            dd_score = 20 + int((dd - 5) * 2)
+            dd_rating = "MEDIUM"
+        else:
+            dd_score = min(95, 50 + int(dd - 20))
+            dd_rating = "HIGH"
+            warnings.append(f"Max drawdown {dd:.1f}% — significant capital at risk")
+        details.append({
+            "factor": "Drawdown",
+            "score": dd_score,
+            "rating": dd_rating,
+            "detail": f"Max drawdown: {dd:.1f}%",
+        })
+
+        # 4. Directional risk (all-long or all-short)
+        long_pct = self.port_s.get("long_pct", 100)
+        if long_pct == 100 or long_pct == 0:
+            dir_score = 60
+            dir_rating = "MEDIUM"
+            warnings.append("100% directional — no hedging against market downturns")
+        elif long_pct > 80 or long_pct < 20:
+            dir_score = 40
+            dir_rating = "MEDIUM"
+        else:
+            dir_score = 15
+            dir_rating = "LOW"
+            strengths.append("Balanced long/short exposure provides natural hedge")
+        details.append({
+            "factor": "Directional",
+            "score": dir_score,
+            "rating": dir_rating,
+            "detail": f"{long_pct:.0f}% long / {100 - long_pct:.0f}% short",
+        })
+
+        # 5. Liquidity risk (cash + treasury allocation as buffer)
+        if holdings:
+            safe_assets = {"SGOV", "SHV", "BIL", "SCHO", "VGSH"}
+            safe_pct = sum(h["pct"] for h in holdings if h["symbol"] in safe_assets)
+            if safe_pct > 30:
+                liq_score = 10
+                liq_rating = "LOW"
+                strengths.append(f"{safe_pct:.0f}% in treasury/cash — strong liquidity buffer")
+            elif safe_pct > 10:
+                liq_score = 30
+                liq_rating = "LOW"
+            else:
+                liq_score = 55
+                liq_rating = "MEDIUM"
+                warnings.append(f"Only {safe_pct:.0f}% in safe/liquid assets — limited buffer for drawdowns")
+            details.append({
+                "factor": "Liquidity",
+                "score": liq_score,
+                "rating": liq_rating,
+                "detail": f"{safe_pct:.0f}% in treasury/cash equivalents",
+            })
+
+        # 6. Fee drag
+        fee_ratio = self.cost_s.get("fee_to_pnl_ratio_pct", 0)
+        if fee_ratio > 30:
+            fee_score = 70
+            fee_rating = "HIGH"
+            warnings.append(f"Fees consume {fee_ratio:.0f}% of gross profit — consider reducing trade frequency or using commission-free alternatives")
+        elif fee_ratio > 15:
+            fee_score = 40
+            fee_rating = "MEDIUM"
+        elif fee_ratio > 0:
+            fee_score = max(5, int(fee_ratio * 2))
+            fee_rating = "LOW"
+        else:
+            fee_score = 0
+            fee_rating = "LOW"
+        details.append({
+            "factor": "Fee Drag",
+            "score": fee_score,
+            "rating": fee_rating,
+            "detail": f"Fees = {fee_ratio:.1f}% of gross profit",
+        })
+
+        if not details:
+            return {}
+
+        # Overall score = weighted average
+        overall = sum(d["score"] for d in details) / len(details)
+        if overall < 25:
+            level = "Low Risk"
+        elif overall < 50:
+            level = "Moderate Risk"
+        elif overall < 75:
+            level = "Elevated Risk"
+        else:
+            level = "High Risk"
+
+        return {
+            "overall_score": int(overall),
+            "overall_level": level,
+            "details": details,
+            "warnings": warnings,
+            "strengths": strengths,
+        }
 
     # ---- HTML report ----
 
