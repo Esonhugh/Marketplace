@@ -118,6 +118,12 @@ currency exposure
 Total commissions and trends, per-trade costs, interest income/expense,
 dividend income, financing costs, fee-to-PnL ratio
 
+**Cash & Currency Analysis:**
+Multi-currency cash balances with USD equivalent, account composition breakdown
+(cash / quasi-cash treasury ETFs / equity), total liquidity ratio.
+FX conversion history with avg rate, rate range, current rate comparison,
+rate change since conversion, and FX commission tracking per currency pair.
+
 **Trading Style Profile:**
 Auto-generated qualitative summary: trading frequency classification (day/swing/position),
 directional bias, risk profile, asset preference (ETF vs stock), income vs growth orientation,
