@@ -650,7 +650,17 @@ class PortfolioAnalyzer:
             "short_pct": short_value / total_value * 100,
             "top5_concentration_pct": top5_pct,
             "top10_concentration_pct": top10_pct,
-            "top_holdings": [{"symbol": s, "value": v, "pct": v / total_value * 100} for s, v in sorted_symbols[:10]],
+            "top_holdings": [
+                {
+                    "symbol": s,
+                    "value": v,
+                    "pct": v / total_value * 100,
+                    "quantity": next((p.quantity for p in self.positions if p.symbol == s), 0),
+                    "cost_basis": next((p.cost_basis_price for p in self.positions if p.symbol == s), 0),
+                    "unrealized_pnl": next((p.unrealized_pnl for p in self.positions if p.symbol == s), 0),
+                }
+                for s, v in sorted_symbols[:10]
+            ],
             "currencies": self._currency_breakdown(),
         }
 
@@ -943,10 +953,16 @@ class ReportGenerator:
             holdings = pa.get("top_holdings", [])
             if holdings:
                 sections.append("### Top Holdings\n")
-                sections.append("| Symbol | Value | % |")
-                sections.append("|--------|-------|---|")
+                sections.append("| Symbol | Qty | Cost Basis | Market Value | Unrealized P&L | % |")
+                sections.append("|--------|-----|-----------|-------------|----------------|---|")
                 for h in holdings:
-                    sections.append(f"| {h['symbol']} | ${h['value']:,.2f} | {h['pct']:.1f}% |")
+                    qty = h.get("quantity", 0)
+                    cb = h.get("cost_basis", 0)
+                    upnl = h.get("unrealized_pnl", 0)
+                    qty_str = f"{qty:g}" if qty == int(qty) else f"{qty:.4f}"
+                    cb_str = f"${cb:,.2f}" if cb > 0 else "N/A"
+                    upnl_str = f"${upnl:+,.2f}" if cb > 0 else "N/A"
+                    sections.append(f"| {h['symbol']} | {qty_str} | {cb_str} | ${h['value']:,.2f} | {upnl_str} | {h['pct']:.1f}% |")
                 sections.append("")
         else:
             note = pa.get("note", "No open position data available.")
@@ -1038,16 +1054,16 @@ class ReportGenerator:
                               yaxis_title="Day", template="plotly_white", height=400)
             charts["frequency_heatmap"] = fig.to_json()
 
-        # 5. Position concentration
+        # 5. Position concentration with unrealized P&L
         holdings = self.port_s.get("top_holdings", [])
         if holdings:
-            fig = go.Figure(go.Bar(
-                x=[h["symbol"] for h in holdings],
-                y=[h["pct"] for h in holdings],
-                marker_color="#FF9800",
-            ))
-            fig.update_layout(title="Top Holdings Concentration (%)", xaxis_title="Symbol",
-                              yaxis_title="% of Portfolio", template="plotly_white", height=400)
+            symbols = [h["symbol"] for h in holdings]
+            upnl = [h.get("unrealized_pnl", 0) for h in holdings]
+            colors = ["#4CAF50" if v >= 0 else "#F44336" for v in upnl]
+            fig = make_subplots(rows=1, cols=2, subplot_titles=("Portfolio Weight (%)", "Unrealized P&L ($)"))
+            fig.add_trace(go.Bar(x=symbols, y=[h["pct"] for h in holdings], marker_color="#FF9800", name="Weight"), row=1, col=1)
+            fig.add_trace(go.Bar(x=symbols, y=upnl, marker_color=colors, name="Unrealized P&L"), row=1, col=2)
+            fig.update_layout(title="Top Holdings: Concentration & Unrealized P&L", template="plotly_white", height=400, showlegend=False)
             charts["concentration"] = fig.to_json()
 
         # 6. Commission trend
