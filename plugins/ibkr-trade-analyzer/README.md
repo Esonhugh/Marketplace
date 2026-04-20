@@ -1,0 +1,118 @@
+# IBKR Trade Analyzer
+
+**A Claude Code plugin for analyzing Interactive Brokers trading history — read-only, zero risk.**
+
+## What It Does
+
+This plugin connects to your IBKR account (via the read-only Flex Web Service API) or reads local CSV/XML exports, then generates comprehensive trading analysis reports covering:
+
+| Dimension | Details |
+|-----------|---------|
+| **Trading Patterns** | Frequency, holding periods, time-of-day patterns, win rate, profit factor |
+| **P&L Performance** | Realized P&L, equity curve, Sharpe ratio, max drawdown, monthly returns |
+| **Portfolio Structure** | Asset allocation, sector concentration, long/short ratio, position sizing |
+| **Fees & Cash Flow** | Commissions, interest, dividends, financing costs, fee-to-PnL ratio |
+| **Cash & Currency** | Multi-currency balances, FX conversion history, liquidity ratio |
+| **Trading Style Profile** | Auto-generated qualitative summary (day/swing/position trader, bias, risk) |
+| **Risk Assessment** | Scored 0-100 across 6 dimensions with specific warnings |
+| **Price Charts** | Historical price data with buy/sell trade markers overlaid |
+
+## Installation
+
+### Method 1: Via Marketplace (Recommended)
+
+First, add this repository as a marketplace source:
+
+```bash
+claude plugin marketplace add Esonhugh/Marketplace
+```
+
+Then install the plugin:
+
+```bash
+claude plugin install ibkr-trade-analyzer
+```
+
+### Method 2: Clone from GitHub
+
+Clone the entire marketplace repo and point Claude Code to the plugin directory:
+
+```bash
+git clone https://github.com/Esonhugh/Marketplace.git
+claude --plugin-dir ./Marketplace/plugins/ibkr-trade-analyzer
+```
+
+Or clone just the plugin into your plugins directory:
+
+```bash
+git clone --depth 1 --filter=blob:none --sparse \
+  https://github.com/Esonhugh/Marketplace.git /tmp/marketplace
+cd /tmp/marketplace && git sparse-checkout set plugins/ibkr-trade-analyzer
+cp -r plugins/ibkr-trade-analyzer ~/.claude/plugins/ibkr-trade-analyzer
+```
+
+## Usage
+
+Once installed, simply tell Claude:
+
+```
+Analyze my IBKR trading history
+```
+
+Claude will guide you through:
+
+1. **Choose data source** — Flex Web Service (online) or local file (offline)
+2. **Provide credentials** — Flex Token + Query ID, or a file path
+3. **Run analysis** — automated, produces Markdown + interactive HTML reports
+4. **Review results** — discuss findings interactively
+
+## Data Source Options
+
+### Option A: Flex Web Service (Recommended)
+
+Pulls data directly from IBKR's read-only reporting API.
+
+**Setup:**
+1. Log into [IBKR Account Management](https://www.interactivebrokers.com/sso/Login)
+2. Go to **Performance & Reports > Flex Queries**
+3. Create a new Activity Flex Query with sections: **Trades, Cash Transactions, Open Positions, Account Information**
+4. Set output format to **XML**, save and note the **Query ID**
+5. Under **Manage Flex Web Service**, get your **Flex Token**
+
+You can set environment variables to skip the prompt:
+```bash
+export IBKR_FLEX_TOKEN="your-token-here"
+export IBKR_QUERY_ID="123456"
+```
+
+### Option B: Local File
+
+Export from IBKR Client Portal or TWS, then provide the file path. Supports CSV and XML formats.
+
+## Output
+
+Reports are saved to `reports/`:
+- `ibkr-analysis-YYYY-MM-DD.md` — full Markdown report with tables
+- `ibkr-analysis-YYYY-MM-DD.html` — interactive HTML report with Plotly charts
+
+## Safety Guarantees
+
+This plugin is designed with **read-only safety** as a core principle:
+
+1. **API level** — Flex Web Service has zero write/order endpoints
+2. **Code level** — No trading execution libraries imported (no `ibapi`, no `ib_insync`)
+3. **Network level** — Only outbound HTTPS to IBKR's Flex reporting endpoints
+4. **File level** — Only writes to the `reports/` output directory
+
+## Requirements
+
+- Python >= 3.10
+- Dependencies are auto-installed via [PEP 723](https://peps.python.org/pep-0723/) inline metadata with `uv run`
+
+## License
+
+MIT
+
+## Author
+
+[Esonhugh](https://github.com/Esonhugh)
