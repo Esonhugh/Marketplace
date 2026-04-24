@@ -74,6 +74,30 @@
         "estimate-revisions",
         "portfolio-risk"
       ]
+    },
+    {
+      "name": "macos-control-bypasser",
+      "source": "./plugins/macos-control-bypasser",
+      "description": "Comprehensive macOS offensive security skill covering system internals, binary analysis, shellcode, dylib injection, Mach IPC, XPC attacks, sandbox escapes, TCC bypasses, and full penetration testing workflows.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Esonhugh"
+      },
+      "category": "security",
+      "keywords": [
+        "macos",
+        "security",
+        "tcc-bypass",
+        "sandbox-escape",
+        "dylib-injection",
+        "privilege-escalation",
+        "shellcode",
+        "mach-ipc",
+        "xpc-attacks",
+        "pentesting",
+        "kext",
+        "offensive-security"
+      ]
     }
   ]
 }

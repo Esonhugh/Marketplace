@@ -84,7 +84,7 @@ Detailed technical content is organized into reference files by topic. Read the 
 
 - `references/01-macos-internals.md` - macOS architecture, APFS, SIP, Mach-O format, Objective-C primer
 - `references/02-binary-analysis.md` - codesign, objdump, jtool2, Hopper, LLDB, DTrace
-- `references/03-shellcode.md` - x64 ASM/C shellcode, syscalls, bind shells, calling conventions
+- `references/03-shellcode.md` - x64/ARM64 shellcode, syscalls, bind/reverse shells, JIT loader, calling conventions
 - `references/04-dylib-injection.md` - DYLD_INSERT_LIBRARIES, restriction analysis, dylib hijacking, dlopen
 - `references/05-mach-ipc.md` - Mach ports, task ports, remote memory write, thread injection
 - `references/06-function-hooking.md` - DYLD_INTERPOSE, Objective-C runtime, method swizzling
