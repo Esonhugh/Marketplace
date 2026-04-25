@@ -18,6 +18,30 @@
       "prompt": "Explain CVE-2020-9934 - the TCC bypass via HOME relocation. How does it work, what's the root cause, and how would I use it in a pentest scenario on macOS 10.15.5?",
       "expected_output": "Should explain: tccd reads TCC.db from $HOME/Library/Application Support/com.apple.TCC/TCC.db. The $HOME env var can be overridden via launchctl for per-user daemons. Attacker creates fake directory structure with custom TCC.db granting permissions to their tools. Should include: mkdir -p, sqlite3 schema creation, INSERT INTO access with kTCCServiceSystemPolicyDocumentsFolder, and launchctl setenv HOME command.",
       "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "How do I write null-byte-free ARM64 shellcode for Apple Silicon macOS? I want a reverse shell connecting to 127.0.0.1:4444. Show me the full assembly and how to test it with a loader.",
+      "expected_output": "Should provide ARM64 reverse shell assembly using X16 for syscall number (no 0x2000000 prefix), svc #0x1337 (kernel ignores immediate), mvn trick for fd preservation, movk chains for string building. Should include the MAP_JIT loader from daem0nc0re/macOS_ARM64_Shellcode with explanation of W^X enforcement and com.apple.security.cs.allow-jit entitlement. Build with: as + ld with -lSystem -syslibroot, extract with objdump byte swap script.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "我在做 macOS 渗透测试，已经拿到了一个普通用户的 shell。我想实现持久化并且绕过 BTM 检测。有哪些方法？",
+      "expected_output": "Should explain in Chinese the macOS persistence mechanisms: LaunchAgents (~user and /Library), Login Items, shell startup files (.zshrc/.zshenv), Folder Actions, cron jobs. Should explain BTM (Background Task Management) and bypass techniques: database reset, SIGSTOP agent, fast-exit bug. Should reference the macos-auto-start-locations.md for the comprehensive catalog and note which locations can bypass sandbox/TCC.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "I found an Electron app on a macOS target that has TCC permissions for camera and microphone. How can I inject code into it to abuse those permissions?",
+      "expected_output": "Should explain Electron injection techniques: check Electron Fuses (RunAsNode, EnableNodeCliInspectArguments), ELECTRON_RUN_AS_NODE env var for JS execution, --inspect flag for debugger attachment, asar integrity bypass. Should also mention Dirty NIB as alternative for apps with .xib/.nib files, and Chromium CDP abuse (--remote-debugging-port). Should note that injected code inherits the host app's TCC permissions silently.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "What is MACF and how does it relate to AMFI, Sandbox, and TCC? I'm trying to understand the macOS security enforcement architecture for my security research.",
+      "expected_output": "Should explain MACF as the Mandatory Access Control Framework - the kernel-level dispatcher that routes security checks to policy modules. Sandbox.kext, AMFI.kext, and Quarantine.kext all register as MACF policy modules. Should explain MAC_CHECK macro, static vs dynamic policies, and how a syscall flows through MACF to each policy. Should describe AMFI's specific MACF hooks (cred_check_label_update_execve, vnode_check_exec, proc_check_get_task) and how launch constraints (Ventura+) add another layer. Should also mention boot-args like amfi_get_out_of_my_way.",
+      "files": []
     }
   ]
 }

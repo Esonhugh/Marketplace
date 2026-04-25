@@ -1,25 +1,32 @@
 # macOS Control Bypasser
 
-A Claude Code / Ducc skill plugin for macOS offensive security research, covering the full attack surface from system internals to complete penetration testing attack chains.
+A Claude Code / Ducc skill plugin for macOS offensive security research, covering the full attack surface from system internals and hardware coprocessors to complete penetration testing attack chains.
 
-When your AI coding agent encounters macOS security research tasks — shellcode crafting, dylib injection, sandbox escapes, TCC bypasses, or CVE analysis — this skill automatically activates and provides expert-level guidance with code examples.
+When your AI coding agent encounters macOS security research tasks — shellcode crafting, dylib injection, sandbox escapes, TCC bypasses, persistence, Gatekeeper bypass, app injection, MDM exploitation, or CVE analysis — this skill automatically activates and provides expert-level guidance with code examples.
 
 ## Capabilities
 
 | Topic | Coverage |
 |---|---|
-| macOS Internals | XNU kernel (Mach/BSD/IOKit), APFS, SIP, AMFI, Mach-O format, Objective-C runtime |
+| macOS Internals | XNU kernel (Mach/BSD/IOKit), APFS, SIP, AMFI, MACF, Mach-O format, Objective-C runtime |
 | Binary Analysis | codesign, objdump, jtool2, Hopper Disassembler, LLDB, DTrace |
-| Shellcode | x64 ASM/C shellcode, BSD syscall interface, bind shells, NULL byte elimination |
+| Shellcode | x64/ARM64 shellcode, BSD syscall interface, bind/reverse shells, MAP_JIT loader |
 | Dylib Injection | DYLD_INSERT_LIBRARIES, binary restriction analysis, dylib hijacking, dlopen hijacking |
-| Mach IPC | Mach ports, task ports, remote memory write, thread injection |
+| App-Runtime Injection | Electron fuses, Chromium CDP, Dirty NIB, Java/Python/Perl/Ruby/.NET env var injection |
+| Mach IPC | Mach ports, task ports, MIG, remote memory write, thread injection |
 | Function Hooking | DYLD_INTERPOSE, Objective-C method swizzling, function interposing |
-| XPC Attacks | XPC service vulnerabilities, authorization bypass, client verification flaws |
-| Sandbox | Sandbox internals, SBPL profiles, sandbox escape techniques |
-| TCC Bypass | TCC internals, consent databases, privacy protection circumvention |
-| Filesystem Attacks | Symlink/hardlink attacks, race conditions, privilege escalation |
-| Kernel Execution | KEXT loading, unsigned KEXT exploits, SIP disable techniques |
-| Pentesting | Full attack chain: initial access, persistence, privesc, TCC bypass, kernel execution |
+| XPC Attacks | XPC service vulnerabilities, Mach service abuse, authorization bypass, PID reuse |
+| Gatekeeper / XProtect | Quarantine attributes, notarization, XProtect, Gatekeeper bypass CVEs |
+| AMFI / MACF | AMFI.kext internals, MACF policy modules, boot-args weakening |
+| Launch Constraints | Trust cache, constraint categories, Environment Constraints (Ventura+) |
+| Sandbox | Sandbox internals, SBPL profiles, sandbox escape techniques, Office sandbox bypasses |
+| TCC Bypass | TCC internals, consent databases, credential/data theft, privacy circumvention |
+| Persistence | LaunchAgents/Daemons, Login Items, shell RC files, Folder Actions, cron, BTM bypass |
+| Privilege Escalation | Installer abuse, authorization database, symlink/hardlink races, dangerous entitlements |
+| Kernel & Hardware | KEXT loading, IOKit/DriverKit, System Extensions, ESF bypass, NVRAM, coprocessors |
+| Red Teaming | MDM/DEP exploitation, JAMF attack chains, keychain attacks, AD integration |
+| Network Services | VNC, SSH, ARD, Remote Apple Events, firewall bypass |
+| Pentesting | Full attack chain: initial access, sandbox escape, persistence, privesc, TCC bypass, kernel exec |
 
 ## Installation
 
@@ -57,9 +64,11 @@ cp -r plugins/macos-control-bypasser ~/.claude/plugins/macos-control-bypasser
 
 Once installed, the skill activates automatically when:
 - You ask about macOS security research, privilege escalation, or bypass techniques
-- You mention SIP, TCC, Sandbox, AMFI, DYLD_INSERT_LIBRARIES, or Mach ports
-- You request CVE analysis related to macOS local privilege escalation
-- You need help with shellcode, dylib injection, or KEXT exploitation
+- You mention SIP, TCC, Sandbox, AMFI, Gatekeeper, MACF, or launch constraints
+- You mention DYLD_INSERT_LIBRARIES, Mach ports, Electron injection, or Dirty NIB
+- You request CVE analysis related to macOS
+- You need help with shellcode (x64 or ARM64), dylib injection, or KEXT exploitation
+- You discuss MDM/DEP attacks, keychain exploitation, or macOS red teaming
 
 ## Usage
 
@@ -68,32 +77,48 @@ Ask your agent about any macOS offensive security topic:
 ```
 > Explain how DYLD_INSERT_LIBRARIES injection works and why it fails on Safari
 
-> Walk me through writing x64 bind shell shellcode for macOS on port 4444
+> Write ARM64 null-byte-free reverse shell shellcode for Apple Silicon with a MAP_JIT loader
 
 > Analyze CVE-2020-9934 TCC bypass via HOME environment variable relocation
 
-> How can I escape the macOS sandbox using QuickLook plugins?
+> How can I inject code into an Electron app to abuse its TCC camera permissions?
 
-> Show me how Objective-C method swizzling can be used for function hooking
+> What macOS persistence mechanisms bypass BTM detection?
+
+> Explain how MACF dispatches security checks to AMFI, Sandbox, and Quarantine
+
+> How do I exploit a JAMF MDM server for device takeover?
+
+> Show me how to attack IOKit drivers and what DriverKit changed
 ```
 
-The skill supports both English and Chinese — respond in whichever language you prefer, and the agent will follow.
+The skill supports both English and Chinese.
 
-## Key Topics
+## Reference Files
 
-### macOS Security Layers
+The skill provides 17 balanced reference files covering the full macOS attack surface:
 
-The skill covers the full macOS security stack, from outermost to innermost:
+| # | Topic | Key Content |
+|---|---|---|
+| 01 | macOS Internals | XNU, APFS, SIP, Mach-O, ObjC |
+| 02 | Binary Analysis | codesign, Hopper, LLDB, DTrace |
+| 03 | Shellcode | x64/ARM64, syscalls, bind/reverse shells, MAP_JIT loader |
+| 04 | Dylib Injection | DYLD, restriction analysis, hijacking, dlopen |
+| 05 | Mach IPC | Mach ports, task ports, thread injection |
+| 06 | Function Hooking | DYLD_INTERPOSE, method swizzling |
+| 07 | XPC Attacks | Services, authorization, CVEs |
+| 08 | Sandbox | SBPL, internals, escape techniques |
+| 09 | TCC Bypass | Internals, consent databases, privacy bypass |
+| 10 | Symlink/Hardlink | Filesystem attacks, privilege escalation CVEs |
+| 11 | Kernel Execution | KEXT loading, unsigned KEXT exploits |
+| 12 | Pentesting | Full attack chain walkthrough |
+| 13 | Persistence | LaunchAgents/Daemons, shell RC, Login Items, BTM bypass |
+| 14 | Gatekeeper/AMFI/MACF | Quarantine, code signing, MACF, launch constraints, entitlements, SSV |
+| 15 | App-Runtime Injection | Electron, Chromium CDP, Dirty NIB, Java/Python/Perl/Ruby/.NET |
+| 16 | Red Teaming | MDM/DEP, JAMF, keychain, AD, lateral movement, firewall bypass |
+| 17 | IOKit/Kernel/Enumeration | IOKit/DriverKit, ESF, NVRAM, coprocessors, forensics, TCC theft |
 
-1. **Gatekeeper** — Controls what apps can be launched
-2. **Code Signing / Notarization** — Validates app integrity and origin
-3. **SIP (System Integrity Protection)** — Protects system files even from root
-4. **Sandbox (App Sandbox)** — Restricts app capabilities via SBPL profiles
-5. **TCC (Transparency, Consent, Control)** — Privacy protections for user data
-6. **AMFI** — Validates code signing and enforces entitlements
-7. **Hardened Runtime** — Prevents code injection and DYLD env variable use
-
-### CVE Case Studies
+## CVE Case Studies
 
 The reference materials include detailed analysis of real-world vulnerabilities:
 
@@ -101,42 +126,47 @@ The reference materials include detailed analysis of real-world vulnerabilities:
 - **CVE-2020-9939** — Unsigned KEXT loading via race condition
 - **CVE-2021-1779** — KEXT code signing bypass with hardlinks
 - **CVE-2020-29621** — Full TCC bypass via coreaudiod audio driver plugin
+- **CVE-2024-44243** — SIP bypass through kexts ("Sigma")
+- **CVE-2024-23225 / CVE-2024-23296** — In-the-wild kernel 0-days (2024)
+- **CVE-2023-41075** — MIG type-confusion kernel vulnerability
 - **CVE-2019-8805** — EndpointSecurity client verification bypass
 - **CVE-2020-0984** — Microsoft Auto Update hardened runtime bypass
+- **CVE-2020-9714** — Adobe Reader PID reuse + TOCTOU
 - **CVE-2020-3855** — DiagnosticMessages file overwrite via hardlinks
 - **CVE-2020-3762** — Adobe Reader installer privilege escalation
 - **CVE-2019-8802** — manpages privilege escalation via symlink
-
-### Full Penetration Testing Workflow
-
-The skill includes a complete macOS attack chain walkthrough:
-
-Initial Access (Word macro) → Sandbox Escape (iTerm2 AutoLaunch) → Persistence (LaunchAgent) → Privilege Escalation (XPC + PAM) → TCC Bypass (HOME relocation) → Kernel Execution (KEXT race)
+- **CVE-2021-30965** — Endpoint Security Framework bypass
+- **CVE-2020-9839 / CVE-2022-22583** — NVRAM-based attacks
 
 ## Project Structure
 
 ```
 macos-control-bypasser/
 ├── .claude-plugin/
-│   └── plugin.json                        # Plugin metadata
+│   └── plugin.json
 ├── skills/
 │   └── macos-control-bypasses/
-│       ├── SKILL.md                       # Skill definition (loaded by the agent)
+│       ├── SKILL.md                                  # Skill definition
 │       ├── evals/
-│       │   └── evals.json                 # 3 evaluation test cases
+│       │   └── evals.json                            # 7 evaluation test cases
 │       └── references/
-│           ├── 01-macos-internals.md      # XNU, APFS, SIP, Mach-O, ObjC
-│           ├── 02-binary-analysis.md      # codesign, Hopper, LLDB, DTrace
-│           ├── 03-shellcode.md            # x64 ASM/C, syscalls, bind shells
-│           ├── 04-dylib-injection.md      # DYLD injection, hijacking, dlopen
-│           ├── 05-mach-ipc.md             # Mach ports, thread injection
-│           ├── 06-function-hooking.md     # Interposing, method swizzling
-│           ├── 07-xpc-attacks.md          # XPC vulns, authorization bypass
-│           ├── 08-sandbox.md              # SBPL, sandbox escapes
-│           ├── 09-tcc-bypass.md           # TCC internals, privacy bypass
-│           ├── 10-symlink-hardlink.md     # Filesystem attacks, privesc
-│           ├── 11-kernel-execution.md     # KEXT loading, unsigned KEXT
-│           └── 12-pentesting.md           # Full attack chain walkthrough
+│           ├── 01-macos-internals.md                 # 17 balanced reference files
+│           ├── 02-binary-analysis.md                 # covering the full macOS
+│           ├── 03-shellcode.md                       # attack surface
+│           ├── 04-dylib-injection.md
+│           ├── 05-mach-ipc.md
+│           ├── 06-function-hooking.md
+│           ├── 07-xpc-attacks.md
+│           ├── 08-sandbox.md
+│           ├── 09-tcc-bypass.md
+│           ├── 10-symlink-hardlink.md
+│           ├── 11-kernel-execution.md
+│           ├── 12-pentesting.md
+│           ├── 13-persistence.md
+│           ├── 14-gatekeeper-amfi-macf.md
+│           ├── 15-app-runtime-injection.md
+│           ├── 16-red-teaming.md
+│           └── 17-iokit-kernel-enumeration.md
 ├── README.md
 └── README-zh.md
 ```

@@ -1,7 +1,7 @@
 {
   "name": "macos-control-bypasser",
-  "version": "1.0.0",
-  "description": "Comprehensive macOS offensive security skill covering system internals, binary analysis, shellcode, dylib injection, Mach IPC, XPC attacks, sandbox escapes, TCC bypasses, and full penetration testing workflows.",
+  "version": "2.0.0",
+  "description": "Comprehensive macOS offensive security skill covering system internals, binary analysis, shellcode (x64/ARM64), dylib injection, app-runtime injection (Electron/Chromium/NIB), Mach IPC, XPC attacks, Gatekeeper/AMFI/MACF bypass, sandbox escapes, TCC bypasses, persistence mechanisms, IOKit/DriverKit, MDM exploitation, keychain attacks, and full penetration testing workflows.",
   "author": {
     "name": "Esonhugh",
     "url": "https://github.com/Esonhugh"
@@ -18,7 +18,12 @@
     "mach-ipc",
     "xpc-attacks",
     "pentesting",
-    "kext",
+    "gatekeeper",
+    "amfi",
+    "electron-injection",
+    "persistence",
+    "mdm",
+    "iokit",
     "offensive-security"
   ]
 }
