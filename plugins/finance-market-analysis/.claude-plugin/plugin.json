@@ -1,12 +1,13 @@
 {
   "name": "finance-market-analysis",
-  "version": "1.0.0",
-  "description": "Market analysis toolkit for stock investors. Includes earnings analysis (preview, recap, estimate revisions), portfolio risk assessment (correlation analysis, ETF premium/discount), and trend-following entry methodology (SEPA/Minervini).",
+  "version": "1.1.0",
+  "description": "Stock analysis toolkit: earnings preview/recap, estimate revisions, company valuation, options payoff, stock liquidity, correlations, ETF premium/discount, SEPA/Minervini strategy, and yfinance data access.",
   "author": {
     "name": "himself65",
     "url": "https://github.com/himself65"
   },
   "upstream": "https://github.com/himself65/finance-skills",
+  "homepage": "https://github.com/Esonhugh/Marketplace/tree/main/plugins/finance-market-analysis",
   "license": "MIT",
   "keywords": [
     "finance",
@@ -17,6 +18,10 @@
     "minervini",
     "market-analysis",
     "estimate-revisions",
-    "portfolio-risk"
+    "portfolio-risk",
+    "options",
+    "liquidity",
+    "valuation",
+    "yfinance"
   ]
 }
