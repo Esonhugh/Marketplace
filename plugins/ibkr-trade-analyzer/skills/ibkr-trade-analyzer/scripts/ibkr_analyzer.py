@@ -149,23 +149,43 @@ class DataLoader:
             raise RuntimeError("No ReferenceCode in Flex response")
 
         # Step 2: poll for report (may take a few seconds)
-        for attempt in range(6):
-            time.sleep(5 if attempt > 0 else 1)
+        # IBKR "not ready yet" error codes:
+        #   1018 - Statement is being generated / queued
+        #   1019 - Statement generation in progress
+        PENDING_CODES = {"1018", "1019"}
+
+        for attempt in range(10):
+            time.sleep(5 if attempt > 0 else 2)
             resp2 = session.get(
                 DataLoader.FLEX_GET_URL,
                 params={"t": token, "q": ref_code, "v": "3"},
                 timeout=60,
             )
             resp2.raise_for_status()
-            if resp2.text.strip().startswith("<"):
-                # Check if it's a "still generating" response
-                try:
-                    check = ET.fromstring(resp2.text)
-                    if check.findtext("ErrorCode") == "1019":
-                        continue  # not ready yet
-                except ET.ParseError:
-                    pass
-                return DataLoader._parse_flex_xml(resp2.text, dump_path=dump_xml)
+
+            body = resp2.text.strip()
+            if not body.startswith("<"):
+                # Non-XML response (plain text error or empty) — retry
+                print(f"  Attempt {attempt + 1}: unexpected non-XML response, retrying…")
+                continue
+
+            try:
+                check = ET.fromstring(body)
+            except ET.ParseError as exc:
+                raise RuntimeError(f"Flex GetStatement returned unparseable XML: {exc}\n{body[:200]}") from exc
+
+            err_code = check.findtext("ErrorCode") or ""
+            if err_code in PENDING_CODES:
+                msg = check.findtext("ErrorMessage", "report not ready")
+                print(f"  Attempt {attempt + 1}: {msg} (code {err_code}), waiting…")
+                continue
+
+            if err_code:
+                # Any other error code is a hard failure
+                err_msg = check.findtext("ErrorMessage", "unknown error")
+                raise RuntimeError(f"Flex GetStatement failed (code {err_code}): {err_msg}")
+
+            return DataLoader._parse_flex_xml(body, dump_path=dump_xml)
 
         raise RuntimeError("Flex report not ready after multiple attempts. Try again in a few minutes.")
 
@@ -1539,21 +1559,7 @@ class ReportGenerator:
     def write_html(self) -> Path:
         out = self.output_dir / f"ibkr-analysis-{self.date_str}.html"
         charts_json = self._generate_charts_json()
-
-        template_path = Path(__file__).parent / "templates" / "report.html.j2"
-        if template_path.exists():
-            env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(template_path.parent)))
-            tmpl = env.get_template(template_path.name)
-            html = tmpl.render(
-                date=self.date_str,
-                trade_summary=self.trade_s,
-                pnl_summary=self.pnl_s,
-                portfolio_summary=self.port_s,
-                cost_summary=self.cost_s,
-                charts=charts_json,
-            )
-        else:
-            html = self._generate_standalone_html(charts_json)
+        html = self._generate_standalone_html(charts_json)
 
         out.write_text(html, encoding="utf-8")
         return out
@@ -1752,17 +1758,32 @@ def main():
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Load data
-    # Auto-detect proxy from env if not specified
-    proxy = args.proxy or os.environ.get("ALL_PROXY") or os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy")
+    # Credential resolution order:
+    #   1. CLI args (--token / --query-id)
+    #   2. Claude Code plugin userConfig env vars (set automatically when plugin is enabled)
+    #   3. Legacy env vars (IBKR_FLEX_TOKEN / IBKR_QUERY_ID)
+    token = args.token or os.environ.get("CLAUDE_PLUGIN_OPTION_FLEX_TOKEN") or os.environ.get("IBKR_FLEX_TOKEN")
+    query_id = args.query_id or os.environ.get("CLAUDE_PLUGIN_OPTION_QUERY_ID") or os.environ.get("IBKR_QUERY_ID")
+
+    # Proxy resolution order: CLI arg → plugin userConfig → legacy env vars
+    proxy = (
+        args.proxy
+        or os.environ.get("CLAUDE_PLUGIN_OPTION_PROXY")
+        or os.environ.get("ALL_PROXY")
+        or os.environ.get("HTTPS_PROXY")
+        or os.environ.get("https_proxy")
+    )
 
     if args.mode == "flex":
-        if not args.token or not args.query_id:
-            print("Error: --token and --query-id are required for flex mode", file=sys.stderr)
+        if not token or not query_id:
+            print("Error: Flex token and query ID are required for flex mode.", file=sys.stderr)
+            print("Set them via: claude plugin configure ibkr-trade-analyzer", file=sys.stderr)
+            print("Or pass --token and --query-id as CLI arguments.", file=sys.stderr)
             sys.exit(1)
         if proxy:
             print(f"Using proxy: {proxy}")
         print("Fetching data from Flex Web Service (read-only)...")
-        data = DataLoader.from_flex(args.token, args.query_id, proxy=proxy, dump_xml=args.dump_xml)
+        data = DataLoader.from_flex(token, query_id, proxy=proxy, dump_xml=args.dump_xml)
     else:
         if not args.source:
             print("Error: --source is required for file mode", file=sys.stderr)

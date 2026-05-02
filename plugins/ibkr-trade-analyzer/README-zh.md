@@ -79,7 +79,16 @@ Claude 会引导你完成：
 4. 输出格式设为 **XML**，保存后记录 **Query ID**
 5. 在 **Manage Flex Web Service** 中获取 **Flex Token**
 
-可设置环境变量跳过交互提示：
+**插件配置：** 安装插件后运行一次：
+
+```bash
+claude plugin configure ibkr-trade-analyzer
+```
+
+Claude Code 会弹出配置对话框，提示你输入 Flex Token（加密存入系统 keychain）和 Query ID。之后每次运行自动注入，无需任何文件管理。
+
+**仅供 CI/CD 或脚本使用** — 交互场景推荐使用 `claude plugin configure`，因为 Token 会存入系统 keychain 更安全。如需在自动化脚本中使用环境变量：
+
 ```bash
 export IBKR_FLEX_TOKEN="your-token-here"
 export IBKR_QUERY_ID="123456"
@@ -88,6 +97,30 @@ export IBKR_QUERY_ID="123456"
 ### 方式 B：本地文件
 
 从 IBKR Client Portal 或 TWS 导出文件，提供文件路径即可。支持 CSV 和 XML 格式。
+
+- **Client Portal**：Performance & Reports → Statements → Activity → Download（推荐 XML 格式）
+- **TWS**：Account → Account Window → Export
+
+直接运行脚本的示例命令：
+```bash
+uv run ibkr_analyzer.py --mode file --source ~/Downloads/activity.xml --output reports/
+```
+
+## 配置
+
+凭证通过 Claude Code 的内置插件设置系统管理，无需手动编辑任何文件。
+
+运行以下命令配置或更新凭证：
+
+```bash
+claude plugin configure ibkr-trade-analyzer
+```
+
+| 字段 | 是否加密 | 说明 |
+|------|----------|------|
+| `flex_token` | 是 — 存入系统 keychain | Flex Web Service token |
+| `query_id` | 否 — 存入 settings.json | Flex Query 数字 ID |
+| `proxy` | 否 | 代理地址，如 `socks5://127.0.0.1:7980`，留空自动读取 `ALL_PROXY` / `HTTPS_PROXY` |
 
 ## 输出
 
@@ -107,7 +140,8 @@ export IBKR_QUERY_ID="123456"
 ## 环境要求
 
 - Python >= 3.10
-- 依赖通过 [PEP 723](https://peps.python.org/pep-0723/) 内联元数据由 `uv run` 自动安装
+- `uv` — 用于隔离运行脚本，不污染系统 Python 环境。安装：`curl -LsSf https://astral.sh/uv/install.sh | sh`
+- 依赖通过 [PEP 723](https://peps.python.org/pep-0723/) 内联元数据由 `uv run` 自动安装，无需手动配置 venv
 
 ## 许可证
 

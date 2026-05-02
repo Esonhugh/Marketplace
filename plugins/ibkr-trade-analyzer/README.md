@@ -79,15 +79,51 @@ Pulls data directly from IBKR's read-only reporting API.
 4. Set output format to **XML**, save and note the **Query ID**
 5. Under **Manage Flex Web Service**, get your **Flex Token**
 
-You can set environment variables to skip the prompt:
+**Plugin Configuration:** Run the following once after installing the plugin:
+
+```bash
+claude plugin configure ibkr-trade-analyzer
+```
+
+Claude Code will prompt you for your Flex Token (stored securely in system keychain)
+and Query ID. Credentials are injected automatically on every future run — no files to
+manage, no `.gitignore` entries needed.
+
+**For CI/CD or scripting only** — the `claude plugin configure` route is preferred for interactive use because the token is stored in the system keychain. If you need the env var fallback for automation:
+
 ```bash
 export IBKR_FLEX_TOKEN="your-token-here"
 export IBKR_QUERY_ID="123456"
 ```
 
+## Configuration
+
+Credentials are configured at plugin enable time via Claude Code's built-in settings
+system — no manual file editing required.
+
+Run to configure or update credentials:
+
+```bash
+claude plugin configure ibkr-trade-analyzer
+```
+
+| Field | Sensitive | Description |
+|-------|-----------|-------------|
+| `flex_token` | Yes — stored in system keychain | Flex Web Service token |
+| `query_id` | No — stored in settings.json | Flex Query numeric ID |
+| `proxy` | No | Proxy URL, e.g. `socks5://127.0.0.1:7980`. Falls back to `ALL_PROXY` / `HTTPS_PROXY` env vars |
+
 ### Option B: Local File
 
 Export from IBKR Client Portal or TWS, then provide the file path. Supports CSV and XML formats.
+
+- **Client Portal**: Performance & Reports → Statements → Activity → Download (XML recommended)
+- **TWS**: Account → Account Window → Export
+
+Example command (if running the script directly):
+```bash
+uv run ibkr_analyzer.py --mode file --source ~/Downloads/activity.xml --output reports/
+```
 
 ## Output
 

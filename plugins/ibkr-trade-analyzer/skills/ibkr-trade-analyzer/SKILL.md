@@ -34,29 +34,30 @@ Use AskUserQuestion to determine the data source:
 
 **If Flex Web Service mode:**
 
-First, check if environment variables are already set:
-- `$IBKR_FLEX_TOKEN`
-- `$IBKR_QUERY_ID`
+Credentials are managed by Claude Code's plugin configuration system and injected
+automatically as environment variables when the plugin is enabled:
 
-If either is missing, use AskUserQuestion to collect them. When asking, include these
-setup instructions so the user knows where to find them:
+- `CLAUDE_PLUGIN_OPTION_FLEX_TOKEN` — Flex Web Service token
+- `CLAUDE_PLUGIN_OPTION_QUERY_ID` — Flex Query numeric ID
+- `CLAUDE_PLUGIN_OPTION_PROXY` — proxy URL (may be empty)
 
-> **How to get your Flex Token and Query ID:**
->
+The analyzer script reads these automatically — no manual credential handling needed.
+
+If the user reports that credentials are missing or invalid, guide them to reconfigure:
+
+```
+claude plugin configure ibkr-trade-analyzer
+```
+
+To set up a Flex Query for the first time:
+
 > 1. Log into [IBKR Account Management](https://www.interactivebrokers.com/sso/Login)
 > 2. Navigate to **Performance & Reports > Flex Queries**
 > 3. Click **Create New Flex Query** (Activity Flex Query type)
->    - In the "Sections" (Models) selection, check these 4 modules:
->      **Trades, Cash Transactions, Open Positions, Account Information**
->    - Other modules (NAV, Cash Report, Corporate Actions, etc.) are optional
->    - Set the output format to **XML**
->    - Save the query — note the **Query ID** shown
+>    - Enable sections: **Trades, Cash Transactions, Open Positions, Account Information**
+>    - Output format: **XML** → Save → note the **Query ID**
 > 4. Go to **Performance & Reports > Flex Queries > Manage Flex Web Service**
 >    - Generate or view your **Flex Web Service Token**
->
-> The token is a long alphanumeric string. The Query ID is a numeric ID.
-
-Ask for the token first, then the query ID, as separate AskUserQuestion calls.
 
 **If local file mode:**
 
@@ -67,25 +68,39 @@ the user can export from IBKR via:
 
 ### Step 3: Run the analysis
 
-The analyzer script is bundled at `scripts/ibkr_analyzer.py` within this skill directory.
-Locate it relative to this SKILL.md file and run it with `uv run`.
+Before running, verify `uv` is available:
 
 ```bash
-# Flex Web Service mode
-uv run .claude/skills/ibkr-trade-analyzer/scripts/ibkr_analyzer.py \
-  --mode flex --token "$TOKEN" --query-id "$QUERY_ID" --output reports/
+uv --version 2>/dev/null || echo "UV_NOT_FOUND"
 ```
 
-Or for local file mode:
+If the output contains `UV_NOT_FOUND`, tell the user:
+
+> `uv` is required to run the analyzer in an isolated environment (no system Python pollution).
+> Install it with:
+> ```bash
+> curl -LsSf https://astral.sh/uv/install.sh | sh
+> ```
+> Then restart your terminal and try again.
+
+If `uv` is available, run the analyzer. The script reads credentials from environment
+variables automatically — no need to pass `--token` or `--query-id`:
+
+```bash
+# Flex Web Service mode — credentials come from CLAUDE_PLUGIN_OPTION_* env vars
+uv run ${CLAUDE_PLUGIN_ROOT}/skills/ibkr-trade-analyzer/scripts/ibkr_analyzer.py \
+  --mode flex --output reports/
+```
 
 ```bash
 # Local file mode
-uv run .claude/skills/ibkr-trade-analyzer/scripts/ibkr_analyzer.py \
+uv run ${CLAUDE_PLUGIN_ROOT}/skills/ibkr-trade-analyzer/scripts/ibkr_analyzer.py \
   --mode file --source "$FILE_PATH" --output reports/
 ```
 
-The script uses PEP 723 inline metadata for dependencies — `uv run` handles
-installation automatically, no `pyproject.toml` or venv setup needed.
+The script uses PEP 723 inline metadata — `uv run` creates a temporary isolated venv
+automatically, installing all dependencies without touching your system Python or any
+project virtualenv.
 
 ### Step 4: Present results
 
@@ -150,7 +165,9 @@ This is important context for why the skill is designed the way it is:
 
 ## Troubleshooting
 
-- **"Token expired" error:** Flex tokens rotate — guide the user back to Account Management to regenerate
+- **`uv` not found:** Install with `curl -LsSf https://astral.sh/uv/install.sh | sh`
+- **Missing credentials:** Run `claude plugin configure ibkr-trade-analyzer` to set token and query ID
+- **"Token expired" error:** Flex tokens rotate — run `claude plugin configure ibkr-trade-analyzer` to update the token
 - **Rate limit (10-min cooldown):** Flex queries can run at most once per 10 minutes — tell the user to wait and retry
 - **Empty data:** The Flex Query may not include the right sections — guide the user to edit the query to include Trades + Cash Transactions
 - **XML parse error on local file:** The file may be CSV, not XML — the script auto-detects, but the user can force format with `--format csv`
