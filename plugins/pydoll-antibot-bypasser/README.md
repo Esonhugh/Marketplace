@@ -1,5 +1,8 @@
 # Pydoll Antibot Bypasser
 
+[![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/Esonhugh/Marketplace/tree/main/plugins/pydoll-antibot-bypasser)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 A Claude Code / Ducc skill plugin for stealth browser automation using [Pydoll](https://github.com/autoscrape-labs/pydoll), specialized in bypassing Cloudflare WAF, Turnstile CAPTCHA, and other bot detection systems.
 
 When your AI coding agent encounters a WAF-protected website, this skill automatically kicks in and generates the right bypass code — no manual lookup needed.
@@ -32,12 +35,19 @@ Traditional browser automation tools (Selenium, Puppeteer) are easily detected b
 First, add this repository as a marketplace source:
 
 ```bash
-claude plugin marketplace add Esonhugh/Marketplace
+/plugin marketplace add Esonhugh/Marketplace
 ```
 
 Then install the plugin:
 
 ```bash
+/plugin install pydoll-antibot-bypasser
+```
+
+Or with the `claude` CLI:
+
+```bash
+claude plugin marketplace add Esonhugh/Marketplace
 claude plugin install pydoll-antibot-bypasser
 ```
 
@@ -257,7 +267,7 @@ MIT
 
 ## Author
 
-[Esonhugh](https://github.com/Esonhugh)
+[Esonhugh](https://github.com/Esonhugh) — [Plugin Homepage](https://github.com/Esonhugh/Marketplace/tree/main/plugins/pydoll-antibot-bypasser)
 
 ---
 

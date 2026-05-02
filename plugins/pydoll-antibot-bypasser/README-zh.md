@@ -1,5 +1,8 @@
 # Pydoll Antibot Bypasser
 
+[![版本](https://img.shields.io/badge/版本-1.0.0-blue)](https://github.com/Esonhugh/Marketplace/tree/main/plugins/pydoll-antibot-bypasser)
+[![许可证](https://img.shields.io/badge/许可证-MIT-green)](LICENSE)
+
 一个用于隐蔽浏览器自动化的 Claude Code / Ducc 技能插件，基于 [Pydoll](https://github.com/autoscrape-labs/pydoll) 构建，专门用于绕过 Cloudflare WAF、Turnstile CAPTCHA 及其他反机器人检测系统。
 
 当你的 AI 编程助手遇到 WAF 保护的网站时，本技能会自动激活并生成正确的绕过代码，无需手动查阅文档。
@@ -32,12 +35,19 @@
 首先，将本仓库添加为 marketplace 源：
 
 ```bash
-claude plugin marketplace add Esonhugh/Marketplace
+/plugin marketplace add Esonhugh/Marketplace
 ```
 
 然后安装插件：
 
 ```bash
+/plugin install pydoll-antibot-bypasser
+```
+
+或使用 `claude` CLI：
+
+```bash
+claude plugin marketplace add Esonhugh/Marketplace
 claude plugin install pydoll-antibot-bypasser
 ```
 
@@ -257,7 +267,7 @@ MIT
 
 ## 作者
 
-[Esonhugh](https://github.com/Esonhugh)
+[Esonhugh](https://github.com/Esonhugh) — [插件主页](https://github.com/Esonhugh/Marketplace/tree/main/plugins/pydoll-antibot-bypasser)
 
 ---
 

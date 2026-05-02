@@ -1,5 +1,8 @@
 # IBKR Trade Analyzer
 
+[![Version](https://img.shields.io/badge/version-1.1.0-blue)](https://github.com/Esonhugh/Marketplace/tree/main/plugins/ibkr-trade-analyzer)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 **A Claude Code plugin for analyzing Interactive Brokers trading history — read-only, zero risk.**
 
 ## What It Does
@@ -12,10 +15,17 @@ This plugin connects to your IBKR account (via the read-only Flex Web Service AP
 | **P&L Performance** | Realized P&L, equity curve, Sharpe ratio, max drawdown, monthly returns |
 | **Portfolio Structure** | Asset allocation, sector concentration, long/short ratio, position sizing |
 | **Fees & Cash Flow** | Commissions, interest, dividends, financing costs, fee-to-PnL ratio |
-| **Cash & Currency** | Multi-currency balances, FX conversion history, liquidity ratio |
+| **Cash & Currency** | Multi-currency balances, FX conversion rates (1 USD = X FCY), liquidity ratio |
 | **Trading Style Profile** | Auto-generated qualitative summary (day/swing/position trader, bias, risk) |
 | **Risk Assessment** | Scored 0-100 across 6 dimensions with specific warnings |
 | **Price Charts** | Historical price data with buy/sell trade markers overlaid |
+
+### What's New in v1.1.0
+
+- **`--analyzers` flag** — run only the sections you care about (e.g. `--analyzers pnl,fx`), default is all six
+- **XML auto-cache** — Flex XML saved to plugin data dir as `{accountId}-flex-ibkr-YYYY-MM-DD.xml`; same-day reruns skip the API call automatically
+- **FX rate display** — now shown as `1 USD = X FCY` (more natural for USD-base accounts)
+- **Modular analyzers** — split into `analyzers/` subpackage (`trade.py`, `pnl.py`, `portfolio.py`, `cost.py`, `price.py`, `fx.py`)
 
 ## Installation
 
@@ -24,12 +34,19 @@ This plugin connects to your IBKR account (via the read-only Flex Web Service AP
 First, add this repository as a marketplace source:
 
 ```bash
-claude plugin marketplace add Esonhugh/Marketplace
+/plugin marketplace add Esonhugh/Marketplace
 ```
 
 Then install the plugin:
 
 ```bash
+/plugin install ibkr-trade-analyzer
+```
+
+Or with the `claude` CLI:
+
+```bash
+claude plugin marketplace add Esonhugh/Marketplace
 claude plugin install ibkr-trade-analyzer
 ```
 
@@ -66,6 +83,23 @@ Claude will guide you through:
 3. **Run analysis** — automated, produces Markdown + interactive HTML reports
 4. **Review results** — discuss findings interactively
 
+### Selective Analysis
+
+Run only specific sections with `--analyzers`:
+
+```bash
+# P&L deep-dive only
+uv run ibkr_analyzer.py --mode flex --analyzers pnl,trade
+
+# FX costs only (no network for prices)
+uv run ibkr_analyzer.py --mode file --source activity.xml --analyzers fx --no-prices
+
+# Portfolio snapshot
+uv run ibkr_analyzer.py --mode flex --analyzers portfolio --no-prices
+```
+
+Available sections: `trade`, `pnl`, `portfolio`, `cost`, `price`, `fx` (default: all).
+
 ## Data Source Options
 
 ### Option A: Flex Web Service (Recommended)
@@ -79,17 +113,17 @@ Pulls data directly from IBKR's read-only reporting API.
 4. Set output format to **XML**, save and note the **Query ID**
 5. Under **Manage Flex Web Service**, get your **Flex Token**
 
-**Plugin Configuration:** Run the following once after installing the plugin:
+**Plugin Configuration:** Credentials are prompted automatically when you install the plugin:
 
 ```bash
-claude plugin configure ibkr-trade-analyzer
+/plugin install ibkr-trade-analyzer
 ```
 
 Claude Code will prompt you for your Flex Token (stored securely in system keychain)
 and Query ID. Credentials are injected automatically on every future run — no files to
 manage, no `.gitignore` entries needed.
 
-**For CI/CD or scripting only** — the `claude plugin configure` route is preferred for interactive use because the token is stored in the system keychain. If you need the env var fallback for automation:
+**For CI/CD or scripting only** — for automation without the interactive prompt, use environment variables:
 
 ```bash
 export IBKR_FLEX_TOKEN="your-token-here"
@@ -98,14 +132,7 @@ export IBKR_QUERY_ID="123456"
 
 ## Configuration
 
-Credentials are configured at plugin enable time via Claude Code's built-in settings
-system — no manual file editing required.
-
-Run to configure or update credentials:
-
-```bash
-claude plugin configure ibkr-trade-analyzer
-```
+Credentials are configured at install time via Claude Code's built-in settings system — no manual file editing required. To update credentials, reinstall or set environment variables directly.
 
 | Field | Sensitive | Description |
 |-------|-----------|-------------|
@@ -131,6 +158,8 @@ Reports are saved to `reports/`:
 - `ibkr-analysis-YYYY-MM-DD.md` — full Markdown report with tables
 - `ibkr-analysis-YYYY-MM-DD.html` — interactive HTML report with Plotly charts
 
+The Flex XML response is also auto-cached to the plugin data dir (`$CLAUDE_PLUGIN_ROOT/data/`) as `{accountId}-flex-ibkr-YYYY-MM-DD.xml`. Subsequent runs on the same day skip the API call and load from cache automatically.
+
 ## Safety Guarantees
 
 This plugin is designed with **read-only safety** as a core principle:
@@ -151,4 +180,4 @@ MIT
 
 ## Author
 
-[Esonhugh](https://github.com/Esonhugh)
+[Esonhugh](https://github.com/Esonhugh) — [Plugin Homepage](https://github.com/Esonhugh/Marketplace/tree/main/plugins/ibkr-trade-analyzer)

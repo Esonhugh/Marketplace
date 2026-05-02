@@ -1,5 +1,8 @@
 # IBKR Trade Analyzer
 
+[![版本](https://img.shields.io/badge/版本-1.1.0-blue)](https://github.com/Esonhugh/Marketplace/tree/main/plugins/ibkr-trade-analyzer)
+[![许可证](https://img.shields.io/badge/许可证-MIT-green)](LICENSE)
+
 **一个用于分析 Interactive Brokers 交易历史的 Claude Code 插件 — 只读分析，零风险。**
 
 ## 功能介绍
@@ -12,10 +15,17 @@
 | **盈亏表现** | 已实现盈亏、权益曲线、夏普比率、最大回撤、月度收益 |
 | **组合结构** | 资产配置、行业集中度、多空比例、仓位大小 |
 | **费用与现金流** | 佣金、利息、股息、融资成本、费用/盈亏比 |
-| **现金与外汇** | 多币种余额、外汇兑换历史、流动性比率 |
+| **现金与外汇** | 多币种余额、外汇汇率（1 USD = X 外币）、流动性比率 |
 | **交易风格画像** | 自动生成的定性总结（日内/波段/趋势、方向偏好、风险偏好）|
 | **风险评估** | 6 个维度的 0-100 评分，附具体风险预警 |
 | **价格图表** | 叠加买卖标记的历史价格走势图 |
+
+### v1.1.0 新特性
+
+- **`--analyzers` 参数** — 仅运行关心的板块（如 `--analyzers pnl,fx`），默认启用全部 6 个
+- **XML 自动缓存** — Flex XML 自动保存至插件 data 目录，格式 `{accountId}-flex-ibkr-YYYY-MM-DD.xml`；当天重复运行直接读取缓存，不再调用 API
+- **外汇汇率展示** — 改为 `1 USD = X 外币` 格式（对 USD 基准账户更直观）
+- **分析器模块化** — 拆分为 `analyzers/` 子包（`trade.py`、`pnl.py`、`portfolio.py`、`cost.py`、`price.py`、`fx.py`）
 
 ## 安装
 
@@ -24,12 +34,19 @@
 首先，将本仓库添加为 marketplace 源：
 
 ```bash
-claude plugin marketplace add Esonhugh/Marketplace
+/plugin marketplace add Esonhugh/Marketplace
 ```
 
 然后安装插件：
 
 ```bash
+/plugin install ibkr-trade-analyzer
+```
+
+或使用 `claude` CLI：
+
+```bash
+claude plugin marketplace add Esonhugh/Marketplace
 claude plugin install ibkr-trade-analyzer
 ```
 
@@ -66,6 +83,23 @@ Claude 会引导你完成：
 3. **运行分析** — 自动执行，生成 Markdown + 交互式 HTML 报告
 4. **查看结果** — 与 Claude 交互讨论分析发现
 
+### 选择性分析
+
+使用 `--analyzers` 仅运行指定板块：
+
+```bash
+# 仅盈亏深度分析
+uv run ibkr_analyzer.py --mode flex --analyzers pnl,trade
+
+# 仅外汇成本分析（不拉取价格数据）
+uv run ibkr_analyzer.py --mode file --source activity.xml --analyzers fx --no-prices
+
+# 仅组合快照
+uv run ibkr_analyzer.py --mode flex --analyzers portfolio --no-prices
+```
+
+可用板块：`trade`、`pnl`、`portfolio`、`cost`、`price`、`fx`（默认：全部）。
+
 ## 数据来源
 
 ### 方式 A：Flex Web Service（推荐）
@@ -79,15 +113,15 @@ Claude 会引导你完成：
 4. 输出格式设为 **XML**，保存后记录 **Query ID**
 5. 在 **Manage Flex Web Service** 中获取 **Flex Token**
 
-**插件配置：** 安装插件后运行一次：
+**插件配置：** 安装时会自动提示输入凭证：
 
 ```bash
-claude plugin configure ibkr-trade-analyzer
+/plugin install ibkr-trade-analyzer
 ```
 
-Claude Code 会弹出配置对话框，提示你输入 Flex Token（加密存入系统 keychain）和 Query ID。之后每次运行自动注入，无需任何文件管理。
+Claude Code 会提示你输入 Flex Token（加密存入系统 keychain）和 Query ID。之后每次运行自动注入，无需任何文件管理。
 
-**仅供 CI/CD 或脚本使用** — 交互场景推荐使用 `claude plugin configure`，因为 Token 会存入系统 keychain 更安全。如需在自动化脚本中使用环境变量：
+**仅供 CI/CD 或脚本使用** — 如需在自动化脚本中使用环境变量：
 
 ```bash
 export IBKR_FLEX_TOKEN="your-token-here"
@@ -108,12 +142,10 @@ uv run ibkr_analyzer.py --mode file --source ~/Downloads/activity.xml --output r
 
 ## 配置
 
-凭证通过 Claude Code 的内置插件设置系统管理，无需手动编辑任何文件。
-
-运行以下命令配置或更新凭证：
+凭证在安装时由 Claude Code 的内置插件设置系统提示输入，无需手动编辑任何文件。安装命令：
 
 ```bash
-claude plugin configure ibkr-trade-analyzer
+/plugin install ibkr-trade-analyzer
 ```
 
 | 字段 | 是否加密 | 说明 |
@@ -127,6 +159,8 @@ claude plugin configure ibkr-trade-analyzer
 报告保存在 `reports/` 目录下：
 - `ibkr-analysis-YYYY-MM-DD.md` — 完整 Markdown 报告（含表格）
 - `ibkr-analysis-YYYY-MM-DD.html` — 交互式 HTML 报告（含 Plotly 图表）
+
+Flex XML 响应同时自动缓存至插件 data 目录（`$CLAUDE_PLUGIN_ROOT/data/`），文件名格式为 `{accountId}-flex-ibkr-YYYY-MM-DD.xml`。当天再次运行时自动读取缓存，无需重新调用 API。
 
 ## 安全保证
 
@@ -149,4 +183,4 @@ MIT
 
 ## 作者
 
-[Esonhugh](https://github.com/Esonhugh)
+[Esonhugh](https://github.com/Esonhugh) — [插件主页](https://github.com/Esonhugh/Marketplace/tree/main/plugins/ibkr-trade-analyzer)

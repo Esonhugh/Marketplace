@@ -43,10 +43,17 @@ automatically as environment variables when the plugin is enabled:
 
 The analyzer script reads these automatically — no manual credential handling needed.
 
-If the user reports that credentials are missing or invalid, guide them to reconfigure:
+If the user reports that credentials are missing or invalid, guide them to reinstall the plugin (credentials are prompted at install time):
 
 ```
-claude plugin configure ibkr-trade-analyzer
+/plugin install ibkr-trade-analyzer
+```
+
+Or set credentials via environment variables for scripting use:
+
+```bash
+export IBKR_FLEX_TOKEN="your-token"
+export IBKR_QUERY_ID="123456"
 ```
 
 To set up a Flex Query for the first time:
@@ -191,8 +198,8 @@ Key commands at a glance:
 ## Troubleshooting
 
 - **`uv` not found:** Install with `curl -LsSf https://astral.sh/uv/install.sh | sh`
-- **Missing credentials:** Run `claude plugin configure ibkr-trade-analyzer` to set token and query ID
-- **"Token expired" error:** Flex tokens rotate — run `claude plugin configure ibkr-trade-analyzer` to update the token
+- **Missing credentials:** Reinstall the plugin (`/plugin install ibkr-trade-analyzer`) — credentials are prompted at install time, or set `IBKR_FLEX_TOKEN` / `IBKR_QUERY_ID` env vars
+- **"Token expired" error:** Flex tokens rotate — reinstall the plugin to re-enter a new token, or update `IBKR_FLEX_TOKEN`
 - **Rate limit (10-min cooldown):** Flex queries can run at most once per 10 minutes — tell the user to wait and retry
 - **Empty data:** The Flex Query may not include the right sections — guide the user to edit the query to include Trades + Cash Transactions
 - **XML parse error on local file:** The file may be CSV, not XML — the script auto-detects, but the user can force format with `--format csv`

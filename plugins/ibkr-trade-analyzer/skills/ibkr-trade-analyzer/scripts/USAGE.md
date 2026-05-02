@@ -206,9 +206,9 @@ For `--mode flex`, credentials are resolved in this order:
 2. Plugin userConfig env vars: `CLAUDE_PLUGIN_OPTION_FLEX_TOKEN`, `CLAUDE_PLUGIN_OPTION_QUERY_ID`, `CLAUDE_PLUGIN_OPTION_PROXY`
 3. Legacy env vars: `IBKR_FLEX_TOKEN`, `IBKR_QUERY_ID`, `ALL_PROXY` / `HTTPS_PROXY`
 
-Configure credentials (stored in system keychain):
+Configure credentials (prompted automatically at install time):
 ```bash
-claude plugin configure ibkr-trade-analyzer
+/plugin install ibkr-trade-analyzer
 ```
 
 ## Common Recipes
@@ -238,7 +238,7 @@ uv run ibkr_analyzer.py --mode flex \
 
 | Error | Cause | Fix |
 |-------|-------|-----|
-| `Flex SendRequest failed` | Invalid token or query ID | Re-run `claude plugin configure ibkr-trade-analyzer` |
+| `Flex SendRequest failed` | Invalid token or query ID | Reinstall plugin (`/plugin install ibkr-trade-analyzer`) or set `IBKR_FLEX_TOKEN` / `IBKR_QUERY_ID` |
 | `code 1018 / 1019, waiting…` | Report still generating (normal) | Wait; script retries automatically up to 10× |
 | `code 1003` | Token expired | Re-run plugin configure to update token |
 | `Rate limit` | Flex queries limited to once per 10 min | Wait 10 minutes, or reuse today's cached XML |

@@ -1,5 +1,8 @@
 # macOS Control Bypasser
 
+[![Version](https://img.shields.io/badge/version-2.0.0-blue)](https://github.com/Esonhugh/Marketplace/tree/main/plugins/macos-control-bypasser)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 A Claude Code / Ducc skill plugin for macOS offensive security research, covering the full attack surface from system internals and hardware coprocessors to complete penetration testing attack chains.
 
 When your AI coding agent encounters macOS security research tasks — shellcode crafting, dylib injection, sandbox escapes, TCC bypasses, persistence, Gatekeeper bypass, app injection, MDM exploitation, or CVE analysis — this skill automatically activates and provides expert-level guidance with code examples.
@@ -35,12 +38,19 @@ When your AI coding agent encounters macOS security research tasks — shellcode
 First, add this repository as a marketplace source:
 
 ```bash
-claude plugin marketplace add Esonhugh/Marketplace
+/plugin marketplace add Esonhugh/Marketplace
 ```
 
 Then install the plugin:
 
 ```bash
+/plugin install macos-control-bypasser
+```
+
+Or with the `claude` CLI:
+
+```bash
+claude plugin marketplace add Esonhugh/Marketplace
 claude plugin install macos-control-bypasser
 ```
 
@@ -177,4 +187,4 @@ MIT
 
 ## Author
 
-[Esonhugh](https://github.com/Esonhugh)
+[Esonhugh](https://github.com/Esonhugh) — [Plugin Homepage](https://github.com/Esonhugh/Marketplace/tree/main/plugins/macos-control-bypasser)
