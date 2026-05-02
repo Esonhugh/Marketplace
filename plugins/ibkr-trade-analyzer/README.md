@@ -1,6 +1,6 @@
 # IBKR Trade Analyzer
 
-[![Version](https://img.shields.io/badge/version-1.1.0-blue)](https://github.com/Esonhugh/Marketplace/tree/main/plugins/ibkr-trade-analyzer)
+[![Version](https://img.shields.io/badge/version-1.1.0-blue)](https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/ibkr-trade-analyzer)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 **A Claude Code plugin for analyzing Interactive Brokers trading history — read-only, zero risk.**
@@ -180,4 +180,4 @@ MIT
 
 ## Author
 
-[Esonhugh](https://github.com/Esonhugh) — [Plugin Homepage](https://github.com/Esonhugh/Marketplace/tree/main/plugins/ibkr-trade-analyzer)
+[Esonhugh](https://github.com/Esonhugh) — [Plugin Homepage](https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/ibkr-trade-analyzer)

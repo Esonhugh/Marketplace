@@ -1,6 +1,6 @@
 # macOS Control Bypasser
 
-[![Version](https://img.shields.io/badge/version-2.0.0-blue)](https://github.com/Esonhugh/Marketplace/tree/main/plugins/macos-control-bypasser)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue)](https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/macos-control-bypasser)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 A Claude Code / Ducc skill plugin for macOS offensive security research, covering the full attack surface from system internals and hardware coprocessors to complete penetration testing attack chains.
@@ -187,4 +187,4 @@ MIT
 
 ## Author
 
-[Esonhugh](https://github.com/Esonhugh) — [Plugin Homepage](https://github.com/Esonhugh/Marketplace/tree/main/plugins/macos-control-bypasser)
+[Esonhugh](https://github.com/Esonhugh) — [Plugin Homepage](https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/macos-control-bypasser)

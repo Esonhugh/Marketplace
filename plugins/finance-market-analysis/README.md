@@ -1,6 +1,6 @@
 # Finance Market Analysis
 
-[![Version](https://img.shields.io/badge/version-1.1.0-blue)](https://github.com/Esonhugh/Marketplace/tree/main/plugins/finance-market-analysis)
+[![Version](https://img.shields.io/badge/version-1.1.0-blue)](https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/finance-market-analysis)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 **A Claude Code plugin providing a comprehensive market analysis toolkit for stock investors.**
@@ -53,7 +53,7 @@ Install directly from the original author's repository:
 
 - **Original Author**: [himself65](https://github.com/himself65)
 - **Source Repository**: [github.com/himself65/finance-skills](https://github.com/himself65/finance-skills)
-- **This Mirror**: [github.com/Esonhugh/Marketplace](https://github.com/Esonhugh/Marketplace/tree/main/plugins/finance-market-analysis)
+- **This Mirror**: [github.com/Esonhugh/Marketplace](https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/finance-market-analysis)
 
 This copy is maintained here for convenience as part of the Esonhugh/Marketplace plugin collection. For the latest upstream version, refer to the source repository.
 

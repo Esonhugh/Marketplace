@@ -1,6 +1,6 @@
 # Finance Market Analysis
 
-[![版本](https://img.shields.io/badge/版本-1.1.0-blue)](https://github.com/Esonhugh/Marketplace/tree/main/plugins/finance-market-analysis)
+[![版本](https://img.shields.io/badge/版本-1.1.0-blue)](https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/finance-market-analysis)
 [![许可证](https://img.shields.io/badge/许可证-MIT-green)](LICENSE)
 
 **一个面向股票投资者的 Claude Code 全面市场分析工具集插件。**
@@ -53,7 +53,7 @@ claude plugin install finance-market-analysis
 
 - **原作者**：[himself65](https://github.com/himself65)
 - **源仓库**：[github.com/himself65/finance-skills](https://github.com/himself65/finance-skills)
-- **本镜像**：[github.com/Esonhugh/Marketplace](https://github.com/Esonhugh/Marketplace/tree/main/plugins/finance-market-analysis)
+- **本镜像**：[github.com/Esonhugh/Marketplace](https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/finance-market-analysis)
 
 本副本作为 Esonhugh/Marketplace 插件集合的一部分保存于此，方便统一安装。如需最新版本，请参考上游仓库。
 

@@ -1,6 +1,6 @@
 # Pydoll Antibot Bypasser
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/Esonhugh/Marketplace/tree/main/plugins/pydoll-antibot-bypasser)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/pydoll-antibot-bypasser)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 A Claude Code / Ducc skill plugin for stealth browser automation using [Pydoll](https://github.com/autoscrape-labs/pydoll), specialized in bypassing Cloudflare WAF, Turnstile CAPTCHA, and other bot detection systems.
@@ -267,7 +267,7 @@ MIT
 
 ## Author
 
-[Esonhugh](https://github.com/Esonhugh) — [Plugin Homepage](https://github.com/Esonhugh/Marketplace/tree/main/plugins/pydoll-antibot-bypasser)
+[Esonhugh](https://github.com/Esonhugh) — [Plugin Homepage](https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/pydoll-antibot-bypasser)
 
 ---
 

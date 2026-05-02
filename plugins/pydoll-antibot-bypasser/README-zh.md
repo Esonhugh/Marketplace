@@ -1,6 +1,6 @@
 # Pydoll Antibot Bypasser
 
-[![版本](https://img.shields.io/badge/版本-1.0.0-blue)](https://github.com/Esonhugh/Marketplace/tree/main/plugins/pydoll-antibot-bypasser)
+[![版本](https://img.shields.io/badge/版本-1.0.0-blue)](https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/pydoll-antibot-bypasser)
 [![许可证](https://img.shields.io/badge/许可证-MIT-green)](LICENSE)
 
 一个用于隐蔽浏览器自动化的 Claude Code / Ducc 技能插件，基于 [Pydoll](https://github.com/autoscrape-labs/pydoll) 构建，专门用于绕过 Cloudflare WAF、Turnstile CAPTCHA 及其他反机器人检测系统。
@@ -267,7 +267,7 @@ MIT
 
 ## 作者
 
-[Esonhugh](https://github.com/Esonhugh) — [插件主页](https://github.com/Esonhugh/Marketplace/tree/main/plugins/pydoll-antibot-bypasser)
+[Esonhugh](https://github.com/Esonhugh) — [插件主页](https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/pydoll-antibot-bypasser)
 
 ---
 

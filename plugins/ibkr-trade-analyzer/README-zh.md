@@ -1,6 +1,6 @@
 # IBKR Trade Analyzer
 
-[![版本](https://img.shields.io/badge/版本-1.1.0-blue)](https://github.com/Esonhugh/Marketplace/tree/main/plugins/ibkr-trade-analyzer)
+[![版本](https://img.shields.io/badge/版本-1.1.0-blue)](https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/ibkr-trade-analyzer)
 [![许可证](https://img.shields.io/badge/许可证-MIT-green)](LICENSE)
 
 **一个用于分析 Interactive Brokers 交易历史的 Claude Code 插件 — 只读分析，零风险。**
@@ -183,4 +183,4 @@ MIT
 
 ## 作者
 
-[Esonhugh](https://github.com/Esonhugh) — [插件主页](https://github.com/Esonhugh/Marketplace/tree/main/plugins/ibkr-trade-analyzer)
+[Esonhugh](https://github.com/Esonhugh) — [插件主页](https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/ibkr-trade-analyzer)

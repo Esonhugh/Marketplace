@@ -1,6 +1,6 @@
 # macOS Control Bypasser
 
-[![版本](https://img.shields.io/badge/版本-2.0.0-blue)](https://github.com/Esonhugh/Marketplace/tree/main/plugins/macos-control-bypasser)
+[![版本](https://img.shields.io/badge/版本-2.0.0-blue)](https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/macos-control-bypasser)
 [![许可证](https://img.shields.io/badge/许可证-MIT-green)](LICENSE)
 
 一个用于 macOS 攻击性安全研究的 Claude Code / Ducc 技能插件，覆盖从系统内部机制、硬件协处理器到完整渗透测试攻击链的全部攻击面。
@@ -187,4 +187,4 @@ MIT
 
 ## 作者
 
-[Esonhugh](https://github.com/Esonhugh) — [插件主页](https://github.com/Esonhugh/Marketplace/tree/main/plugins/macos-control-bypasser)
+[Esonhugh](https://github.com/Esonhugh) — [插件主页](https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/macos-control-bypasser)
