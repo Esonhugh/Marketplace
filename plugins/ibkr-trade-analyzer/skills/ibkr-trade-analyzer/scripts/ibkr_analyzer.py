@@ -79,9 +79,9 @@ def main() -> None:
     _plugin_root = os.environ.get("CLAUDE_PLUGIN_ROOT")
     data_dir = Path(_plugin_root) / "data" if _plugin_root else Path(__file__).parent.parent.parent / "data"
 
-    # Credential resolution: CLI args → plugin userConfig env vars → legacy env vars
-    token = args.token or os.environ.get("CLAUDE_PLUGIN_OPTION_FLEX_TOKEN") or os.environ.get("IBKR_FLEX_TOKEN")
-    query_id = args.query_id or os.environ.get("CLAUDE_PLUGIN_OPTION_QUERY_ID") or os.environ.get("IBKR_QUERY_ID")
+    # Credential resolution: CLI args → plugin userConfig env vars (injected by Claude Code)
+    token = args.token or os.environ.get("CLAUDE_PLUGIN_OPTION_IBKR_FLEX_TOKEN")
+    query_id = args.query_id or os.environ.get("CLAUDE_PLUGIN_OPTION_IBKR_QUERY_ID")
     proxy = (
         args.proxy
         or os.environ.get("CLAUDE_PLUGIN_OPTION_PROXY")

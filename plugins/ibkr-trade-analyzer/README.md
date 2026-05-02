@@ -33,13 +33,13 @@ This plugin connects to your IBKR account (via the read-only Flex Web Service AP
 
 First, add this repository as a marketplace source:
 
-```bash
+```claude
 /plugin marketplace add Esonhugh/Marketplace
 ```
 
 Then install the plugin:
 
-```bash
+```claude
 /plugin install ibkr-trade-analyzer
 ```
 
@@ -115,7 +115,7 @@ Pulls data directly from IBKR's read-only reporting API.
 
 **Plugin Configuration:** Credentials are prompted automatically when you install the plugin:
 
-```bash
+```claude
 /plugin install ibkr-trade-analyzer
 ```
 
@@ -126,8 +126,8 @@ manage, no `.gitignore` entries needed.
 **For CI/CD or scripting only** — for automation without the interactive prompt, use environment variables:
 
 ```bash
-export IBKR_FLEX_TOKEN="your-token-here"
-export IBKR_QUERY_ID="123456"
+export CLAUDE_PLUGIN_OPTION_IBKR_FLEX_TOKEN="your-token-here"
+export CLAUDE_PLUGIN_OPTION_IBKR_QUERY_ID="123456"
 ```
 
 ## Configuration

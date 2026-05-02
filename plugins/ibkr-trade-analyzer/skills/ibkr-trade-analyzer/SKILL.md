@@ -37,8 +37,8 @@ Use AskUserQuestion to determine the data source:
 Credentials are managed by Claude Code's plugin configuration system and injected
 automatically as environment variables when the plugin is enabled:
 
-- `CLAUDE_PLUGIN_OPTION_FLEX_TOKEN` — Flex Web Service token
-- `CLAUDE_PLUGIN_OPTION_QUERY_ID` — Flex Query numeric ID
+- `CLAUDE_PLUGIN_OPTION_IBKR_FLEX_TOKEN` — Flex Web Service token
+- `CLAUDE_PLUGIN_OPTION_IBKR_QUERY_ID` — Flex Query numeric ID
 - `CLAUDE_PLUGIN_OPTION_PROXY` — proxy URL (may be empty)
 
 The analyzer script reads these automatically — no manual credential handling needed.
@@ -52,8 +52,8 @@ If the user reports that credentials are missing or invalid, guide them to reins
 Or set credentials via environment variables for scripting use:
 
 ```bash
-export IBKR_FLEX_TOKEN="your-token"
-export IBKR_QUERY_ID="123456"
+export CLAUDE_PLUGIN_OPTION_IBKR_FLEX_TOKEN="your-token"
+export CLAUDE_PLUGIN_OPTION_IBKR_QUERY_ID="123456"
 ```
 
 To set up a Flex Query for the first time:
@@ -198,8 +198,8 @@ Key commands at a glance:
 ## Troubleshooting
 
 - **`uv` not found:** Install with `curl -LsSf https://astral.sh/uv/install.sh | sh`
-- **Missing credentials:** Reinstall the plugin (`/plugin install ibkr-trade-analyzer`) — credentials are prompted at install time, or set `IBKR_FLEX_TOKEN` / `IBKR_QUERY_ID` env vars
-- **"Token expired" error:** Flex tokens rotate — reinstall the plugin to re-enter a new token, or update `IBKR_FLEX_TOKEN`
+- **Missing credentials:** Reinstall the plugin (`/plugin install ibkr-trade-analyzer`) — credentials are prompted at install time, or set `CLAUDE_PLUGIN_OPTION_IBKR_FLEX_TOKEN` / `CLAUDE_PLUGIN_OPTION_IBKR_QUERY_ID` env vars
+- **"Token expired" error:** Flex tokens rotate — reinstall the plugin to re-enter a new token, or update `CLAUDE_PLUGIN_OPTION_IBKR_FLEX_TOKEN`
 - **Rate limit (10-min cooldown):** Flex queries can run at most once per 10 minutes — tell the user to wait and retry
 - **Empty data:** The Flex Query may not include the right sections — guide the user to edit the query to include Trades + Cash Transactions
 - **XML parse error on local file:** The file may be CSV, not XML — the script auto-detects, but the user can force format with `--format csv`

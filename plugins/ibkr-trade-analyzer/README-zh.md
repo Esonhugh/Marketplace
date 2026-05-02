@@ -33,13 +33,13 @@
 
 首先，将本仓库添加为 marketplace 源：
 
-```bash
+```claude
 /plugin marketplace add Esonhugh/Marketplace
 ```
 
 然后安装插件：
 
-```bash
+```claude
 /plugin install ibkr-trade-analyzer
 ```
 
@@ -124,8 +124,8 @@ Claude Code 会提示你输入 Flex Token（加密存入系统 keychain）和 Qu
 **仅供 CI/CD 或脚本使用** — 如需在自动化脚本中使用环境变量：
 
 ```bash
-export IBKR_FLEX_TOKEN="your-token-here"
-export IBKR_QUERY_ID="123456"
+export CLAUDE_PLUGIN_OPTION_IBKR_FLEX_TOKEN="your-token-here"
+export CLAUDE_PLUGIN_OPTION_IBKR_QUERY_ID="123456"
 ```
 
 ### 方式 B：本地文件
@@ -144,7 +144,7 @@ uv run ibkr_analyzer.py --mode file --source ~/Downloads/activity.xml --output r
 
 凭证在安装时由 Claude Code 的内置插件设置系统提示输入，无需手动编辑任何文件。安装命令：
 
-```bash
+```claude
 /plugin install ibkr-trade-analyzer
 ```
 

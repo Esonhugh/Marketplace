@@ -25,8 +25,8 @@ uv run ibkr_analyzer.py --mode file --source activity.xml --analyzers fx,pnl
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--mode flex\|file` | *(required)* | Data source |
-| `--token TOKEN` | env `CLAUDE_PLUGIN_OPTION_FLEX_TOKEN` | Flex Web Service token |
-| `--query-id ID` | env `CLAUDE_PLUGIN_OPTION_QUERY_ID` | Flex Query numeric ID |
+| `--token TOKEN` | env `CLAUDE_PLUGIN_OPTION_IBKR_FLEX_TOKEN` | Flex Web Service token |
+| `--query-id ID` | env `CLAUDE_PLUGIN_OPTION_IBKR_QUERY_ID` | Flex Query numeric ID |
 | `--source PATH` | — | Local CSV or XML file (file mode only) |
 | `--format csv\|xml` | auto-detect | Force input format |
 | `--output DIR` | `reports/` | Output directory |
@@ -203,8 +203,7 @@ html_path = rg.write_html()       # → reports/ibkr-analysis-YYYY-MM-DD.html
 For `--mode flex`, credentials are resolved in this order:
 
 1. CLI flags: `--token`, `--query-id`, `--proxy`
-2. Plugin userConfig env vars: `CLAUDE_PLUGIN_OPTION_FLEX_TOKEN`, `CLAUDE_PLUGIN_OPTION_QUERY_ID`, `CLAUDE_PLUGIN_OPTION_PROXY`
-3. Legacy env vars: `IBKR_FLEX_TOKEN`, `IBKR_QUERY_ID`, `ALL_PROXY` / `HTTPS_PROXY`
+2. Plugin userConfig env vars: `CLAUDE_PLUGIN_OPTION_IBKR_FLEX_TOKEN`, `CLAUDE_PLUGIN_OPTION_IBKR_QUERY_ID`, `CLAUDE_PLUGIN_OPTION_PROXY`
 
 Configure credentials (prompted automatically at install time):
 ```bash
@@ -238,7 +237,7 @@ uv run ibkr_analyzer.py --mode flex \
 
 | Error | Cause | Fix |
 |-------|-------|-----|
-| `Flex SendRequest failed` | Invalid token or query ID | Reinstall plugin (`/plugin install ibkr-trade-analyzer`) or set `IBKR_FLEX_TOKEN` / `IBKR_QUERY_ID` |
+| `Flex SendRequest failed` | Invalid token or query ID | Reinstall plugin (`/plugin install ibkr-trade-analyzer`) or set `CLAUDE_PLUGIN_OPTION_IBKR_FLEX_TOKEN` / `CLAUDE_PLUGIN_OPTION_IBKR_QUERY_ID` |
 | `code 1018 / 1019, waiting…` | Report still generating (normal) | Wait; script retries automatically up to 10× |
 | `code 1003` | Token expired | Re-run plugin configure to update token |
 | `Rate limit` | Flex queries limited to once per 10 min | Wait 10 minutes, or reuse today's cached XML |

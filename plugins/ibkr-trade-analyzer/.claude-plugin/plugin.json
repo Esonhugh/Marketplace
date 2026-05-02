@@ -21,14 +21,14 @@
     "finance"
   ],
   "userConfig": {
-    "flex_token": {
+    "ibkr_flex_token": {
       "type": "string",
       "title": "Flex Token",
       "description": "IBKR Flex Web Service token (read-only reporting API key). To obtain: log into Account Management (https://www.interactivebrokers.com/sso/Login) → Performance & Reports → Flex Queries → Manage Flex Web Service → Create or copy your token. This token only grants access to reporting endpoints — it cannot place orders or modify your account.",
-      "sensitive": true,
+      "sensitive": false,
       "required": true
     },
-    "query_id": {
+    "ibkr_query_id": {
       "type": "string",
       "title": "Flex Query ID",
       "description": "Numeric ID of your Activity Flex Query. To create one: Account Management → Performance & Reports → Flex Queries → Create New Activity Flex Query. Required sections: Trades, Cash Transactions, Open Positions, Account Information. Set output format to XML. After saving, the Query ID appears in the query list.",
