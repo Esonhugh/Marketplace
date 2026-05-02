@@ -163,6 +163,31 @@ This is important context for why the skill is designed the way it is:
 3. **Network level:** Only outbound HTTPS to `gdcdyn.interactivebrokers.com` (Flex endpoints); local file mode has zero network access
 4. **File level:** Script only writes to the `reports/` output directory
 
+## Script Reference
+
+The analyzer is split into focused modules under `scripts/analyzers/`. For the full CLI flag reference,
+module API, and common recipes, read:
+
+```
+${CLAUDE_PLUGIN_ROOT}/skills/ibkr-trade-analyzer/scripts/USAGE.md
+```
+
+Key commands at a glance:
+
+| Scenario | Command |
+|----------|---------|
+| All sections (default — no flag needed) | *(omit `--analyzers`)* |
+| Only FX analysis | `--analyzers fx --no-prices` |
+| P&L + trading patterns only | `--analyzers pnl,trade` |
+| Portfolio snapshot | `--analyzers portfolio --no-prices` |
+| Skip price charts (faster, no network) | `--analyzers trade,pnl,portfolio,cost,fx` |
+| Debug — dump raw XML | add `--dump-xml debug.xml` |
+| Skip price fetch (no network) | add `--no-prices` |
+| Filter by date range | `--period 2025-01-01:2025-12-31` |
+| Filter by asset type | `--asset-types STK,OPT` |
+| Use proxy | `--proxy socks5://127.0.0.1:7980` |
+| Custom output dir | `--output /path/to/dir/` |
+
 ## Troubleshooting
 
 - **`uv` not found:** Install with `curl -LsSf https://astral.sh/uv/install.sh | sh`
