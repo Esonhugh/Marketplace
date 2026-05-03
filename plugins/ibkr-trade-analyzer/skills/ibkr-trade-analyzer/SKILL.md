@@ -34,26 +34,35 @@ Use AskUserQuestion to determine the data source:
 
 **If Flex Web Service mode:**
 
-Credentials are managed by Claude Code's plugin configuration system and injected
-automatically as environment variables when the plugin is enabled:
+Credentials are stored in `~/.claude/settings.json` under `pluginConfigs`. Because
+Python subprocesses launched via `uv run` do **not** inherit `CLAUDE_PLUGIN_OPTION_*`
+environment variables from Claude Code's own process, you must read the credentials
+explicitly before running the script.
 
-- `CLAUDE_PLUGIN_OPTION_IBKR_FLEX_TOKEN` — Flex Web Service token
-- `CLAUDE_PLUGIN_OPTION_IBKR_QUERY_ID` — Flex Query numeric ID
-- `CLAUDE_PLUGIN_OPTION_PROXY` — proxy URL (may be empty)
+Use the `Read` tool to read `~/.claude/settings.json`, then locate the plugin config:
 
-The analyzer script reads these automatically — no manual credential handling needed.
+```json
+{
+  "pluginConfigs": {
+    "ibkr-trade-analyzer@<marketplace-id>": {
+      "options": {
+        "ibkr_flex_token": "...",
+        "ibkr_query_id": "...",
+        "proxy": ""
+      }
+    }
+  }
+}
+```
 
-If the user reports that credentials are missing or invalid, guide them to reinstall the plugin (credentials are prompted at install time):
+Find the key that starts with `ibkr-trade-analyzer@` (prefer non-`@inline` entries if
+multiple exist). Extract `ibkr_flex_token`, `ibkr_query_id`, and `proxy` from `options`.
+
+If no `ibkr-trade-analyzer@*` entry exists in `pluginConfigs`, guide the user to
+reinstall the plugin so credentials are saved:
 
 ```
 /plugin install ibkr-trade-analyzer
-```
-
-Or set credentials via environment variables for scripting use:
-
-```bash
-export CLAUDE_PLUGIN_OPTION_IBKR_FLEX_TOKEN="your-token"
-export CLAUDE_PLUGIN_OPTION_IBKR_QUERY_ID="123456"
 ```
 
 To set up a Flex Query for the first time:
@@ -90,17 +99,24 @@ If the output contains `UV_NOT_FOUND`, tell the user:
 > ```
 > Then restart your terminal and try again.
 
-If `uv` is available, run the analyzer. The script reads credentials from environment
-variables automatically — no need to pass `--token` or `--query-id`:
+If `uv` is available, run the analyzer.
+
+**Flex Web Service mode** — use the credentials extracted from `~/.claude/settings.json`
+in Step 2 and pass them explicitly as environment variable prefixes, since `uv run`
+subprocesses do not inherit `CLAUDE_PLUGIN_OPTION_*` from Claude Code's process:
 
 ```bash
-# Flex Web Service mode — credentials come from CLAUDE_PLUGIN_OPTION_* env vars
+# Replace <TOKEN>, <QUERY_ID>, <PROXY> with values read from ~/.claude/settings.json
+CLAUDE_PLUGIN_OPTION_IBKR_FLEX_TOKEN="<TOKEN>" \
+CLAUDE_PLUGIN_OPTION_IBKR_QUERY_ID="<QUERY_ID>" \
+CLAUDE_PLUGIN_OPTION_PROXY="<PROXY>" \
 uv run ${CLAUDE_PLUGIN_ROOT}/skills/ibkr-trade-analyzer/scripts/ibkr_analyzer.py \
   --mode flex --output reports/
 ```
 
+**Local file mode** — no credentials needed:
+
 ```bash
-# Local file mode
 uv run ${CLAUDE_PLUGIN_ROOT}/skills/ibkr-trade-analyzer/scripts/ibkr_analyzer.py \
   --mode file --source "$FILE_PATH" --output reports/
 ```
@@ -198,8 +214,8 @@ Key commands at a glance:
 ## Troubleshooting
 
 - **`uv` not found:** Install with `curl -LsSf https://astral.sh/uv/install.sh | sh`
-- **Missing credentials:** Reinstall the plugin (`/plugin install ibkr-trade-analyzer`) — credentials are prompted at install time, or set `CLAUDE_PLUGIN_OPTION_IBKR_FLEX_TOKEN` / `CLAUDE_PLUGIN_OPTION_IBKR_QUERY_ID` env vars
-- **"Token expired" error:** Flex tokens rotate — reinstall the plugin to re-enter a new token, or update `CLAUDE_PLUGIN_OPTION_IBKR_FLEX_TOKEN`
+- **Missing credentials:** Read `~/.claude/settings.json` and check for a `pluginConfigs["ibkr-trade-analyzer@*"]` entry. If absent, reinstall the plugin (`/plugin install ibkr-trade-analyzer`) — credentials are saved on install. Remember to pass them explicitly to `uv run` (they are not auto-injected into subprocesses).
+- **"Token expired" error:** Flex tokens rotate — reinstall the plugin to re-enter a new token (`/plugin install ibkr-trade-analyzer`), then re-read the updated token from `~/.claude/settings.json`
 - **Rate limit (10-min cooldown):** Flex queries can run at most once per 10 minutes — tell the user to wait and retry
 - **Empty data:** The Flex Query may not include the right sections — guide the user to edit the query to include Trades + Cash Transactions
 - **XML parse error on local file:** The file may be CSV, not XML — the script auto-detects, but the user can force format with `--format csv`
