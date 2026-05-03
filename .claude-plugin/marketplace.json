@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Esonhugh's private Claude Code plugin marketplace — stealth automation, trading analysis, and more",
-    "version": "1.2.0"
+    "version": "1.3.0"
   },
   "plugins": [
     {
@@ -57,7 +57,7 @@
       "name": "finance-market-analysis",
       "source": "./plugins/finance-market-analysis",
       "description": "Market analysis toolkit: earnings analysis (preview/recap/estimate revisions), portfolio risk (stock correlation, ETF premium/discount), and SEPA trend-following entry methodology. Forked from himself65/finance-skills.",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "author": {
         "name": "himself65"
       },
@@ -102,6 +102,43 @@
         "mdm",
         "iokit",
         "offensive-security"
+      ]
+    },
+    {
+      "name": "fofa-intel",
+      "source": "./plugins/fofa-intel",
+      "description": "FOFA cyberspace search engine CLI — asset mapping, threat intel queries, and bulk data export. Bundles pre-compiled GoFOFA binaries (macOS/Linux/Windows) auto-added to PATH.",
+      "version": "1.1.0",
+      "author": {
+        "name": "Esonhugh"
+      },
+      "category": "security",
+      "keywords": [
+        "fofa",
+        "osint",
+        "asset-mapping",
+        "threat-intel",
+        "recon",
+        "cyberspace-search"
+      ]
+    },
+    {
+      "name": "threatbook-intel",
+      "source": "./plugins/threatbook-intel",
+      "description": "ThreatBook (微步在线) threat intelligence — IP/domain/hash queries, vulnerability intel, X language asset mapping, and pydoll browser automation with WeChat login.",
+      "version": "1.2.0",
+      "author": {
+        "name": "Esonhugh"
+      },
+      "category": "security",
+      "keywords": [
+        "threatbook",
+        "threat-intel",
+        "ioc",
+        "asset-mapping",
+        "vulnerability",
+        "osint",
+        "browser-automation"
       ]
     }
   ]
