@@ -1,0 +1,18 @@
+{
+  "name": "fofa-intel",
+  "description": "FOFA 网络空间搜索引擎 CLI 工具，支持资产测绘、威胁情报查询、批量导出。内嵌预编译 GoFOFA 二进制，自动检测平台安装。",
+  "version": "1.1.0",
+  "author": {
+    "name": "Esonhugh"
+  },
+  "license": "MIT",
+  "keywords": [
+    "fofa",
+    "osint",
+    "asset-mapping",
+    "threat-intel",
+    "recon",
+    "网络空间搜索",
+    "资产测绘"
+  ]
+}

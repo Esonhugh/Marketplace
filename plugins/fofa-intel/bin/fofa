@@ -1,0 +1,23 @@
+#!/bin/bash
+# Wrapper script: auto-detect platform and call the right fofa binary.
+# The plugin's SessionStart hook adds this bin/ directory to PATH,
+# so `fofa` resolves correctly in any Claude Code session.
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
+ARCH="$(uname -m)"
+
+case "$ARCH" in
+    x86_64)          ARCH="amd64" ;;
+    arm64|aarch64)   ARCH="arm64" ;;
+esac
+
+BINARY="${SCRIPT_DIR}/fofa-${OS}-${ARCH}"
+
+if [ ! -f "$BINARY" ]; then
+    echo "Error: fofa binary not found for ${OS}-${ARCH} (tried: ${BINARY})" >&2
+    echo "Supported platforms: darwin-amd64, darwin-arm64, linux-amd64" >&2
+    exit 1
+fi
+
+exec "$BINARY" "$@"
