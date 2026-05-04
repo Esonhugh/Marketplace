@@ -10,7 +10,6 @@ FOFA cyberspace search engine plugin for Claude Code. Provides asset discovery, 
 - **Statistical analysis** — distribution breakdown with `stats`
 - **Domain enumeration** — find subdomains with `domains`
 - **Cross-platform** — pre-compiled binaries for macOS (ARM/x86), Linux, Windows; auto-selected at runtime
-- **skysight-pro integration** — automatically triggered by `osint-recon` agent for FOFA enrichment
 
 ## Prerequisites
 

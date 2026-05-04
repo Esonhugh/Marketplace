@@ -10,7 +10,6 @@ Claude Code 的 FOFA 网络空间搜索引擎插件。通过预编译的多平�
 - **统计分析** — 用 `stats` 做分布统计
 - **域名枚举** — 用 `domains` 发现子域名
 - **多平台支持** — 内置 macOS（ARM/x86）、Linux、Windows 预编译二进制，运行时自动选择
-- **skysight-pro 联动** — `osint-recon` agent 自动调用本插件进行 FOFA 资产补全
 
 ## 前置条件
 

@@ -3,10 +3,7 @@ name: fofa-intel
 description: >
   FOFA 网络空间搜索引擎查询工具。当用户需要进行 FOFA 查询、网络资产测绘、
   IP/域名/证书/端口搜索、OSINT 侦察、资产发现时，必须使用此 skill。
-  支持 search/dump/host/stats/count/domains 等全部 GoFOFA CLI 功能。
-  插件的 bin/ 目录由 Claude Code 自动添加到 PATH，fofa 命令开箱即用。
-  如果当前会话安装了 skysight-pro 插件，osint-recon 阶段应主动调用本 skill
-  进行 FOFA 查询以补充资产信息。
+  支持 search/dump/host/stats/count/domains 等全部 fofa CLI 功能。
   如果 chrome-devtools MCP 可用，可额外通过浏览器访问 fofa.info 做可视化查询。
 allowed-tools: Bash, Read, AskUserQuestion, Glob, Grep
 ---
@@ -66,11 +63,7 @@ fi
 fofa account
 ```
 
-**如果 FOFA_KEY 缺失**，根据调用上下文选择处理方式：
-
-**交互模式（主会话/有 AskUserQuestion 权限时）**：
-
-使用 AskUserQuestion 获取：
+**如果 FOFA_KEY 缺失**，使用 AskUserQuestion 向用户获取：
 
 > 请提供您的 FOFA API Key。
 > 获取方式：登录 https://fofa.info → 个人中心 → API Key
@@ -89,16 +82,6 @@ mkdir -p ~/.config/gofofa
 echo "FOFA_KEY=${FOFA_KEY}" > ~/.config/gofofa/.env
 chmod 600 ~/.config/gofofa/.env
 ```
-
-**Agent 模式（被 osint-recon 等 agent 调用、无 AskUserQuestion 权限时）**：
-
-不要尝试调用 AskUserQuestion，直接返回错误信息：
-```
-[fofa-intel] ERROR: FOFA_KEY 未配置。
-请在启动溯源前设置: export FOFA_KEY='your_key'
-或写入持久化配置: echo 'FOFA_KEY=xxx' > ~/.config/gofofa/.env
-```
-让上层 agent（orchestrator）或用户处理 Key 配置问题后重试。
 
 ### Step 3：解析用户意图
 
@@ -159,21 +142,6 @@ fofa dump -f ip,port,host,protocol -bs 1000 -s 50000 \
 2. 通过 `navigate_page` 打开
 3. 通过 `take_snapshot` 获取页面数据
 4. 提取 CLI 无法获取的额外信息（如资产标签、历史变更等）
-
-## OSINT 联动模式
-
-当被 skysight-pro 的 osint-recon agent 调用时：
-
-1. 跳过交互式 Key 获取（假设 Key 已配置或由 agent 通过 Bash 预设）
-2. 直接执行查询，输出结构化 JSON
-3. 结果用于融入 OSINT 侦察报告
-
-**osint-recon 可直接通过 Bash 调用 fofa CLI**，无需经过本 Skill：
-```bash
-# osint-recon 直接调用示例
-fofa search -f ip,port,host,title,server --format=json 'domain="evil-site.com"'
-fofa stats -f country,port,server 'domain="evil-site.com"'
-```
 
 ## 错误处理
 
