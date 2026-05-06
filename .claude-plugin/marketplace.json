@@ -140,6 +140,28 @@
         "osint",
         "browser-automation"
       ]
+    },
+    {
+      "name": "detective",
+      "source": "./plugins/detective-plugin",
+      "description": "Investigation-driven problem solving framework — maintains a CaseBoard (directed labeled graph of Fragments and Threads) to solve unknown-target problems through evidence chains, hypothesis testing, constraint propagation, and autonomous convergence detection.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Esonhugh"
+      },
+      "category": "reasoning",
+      "keywords": [
+        "investigation",
+        "reasoning",
+        "problem-solving",
+        "detective",
+        "hypothesis",
+        "evidence-chain",
+        "convergence",
+        "caseboard",
+        "debugging",
+        "root-cause-analysis"
+      ]
     }
   ]
 }
