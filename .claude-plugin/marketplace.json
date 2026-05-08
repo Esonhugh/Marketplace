@@ -10,7 +10,10 @@
   "plugins": [
     {
       "name": "pydoll-antibot-bypasser",
-      "source": "./plugins/pydoll-antibot-bypasser",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/Esonhugh/pydoll-cf-waf-bypasser-skills.git"
+      },
       "description": "Stealth browser automation skill using Pydoll, specialized in bypassing Cloudflare WAF, Turnstile CAPTCHA, and other bot detection systems.",
       "version": "1.0.0",
       "author": {
