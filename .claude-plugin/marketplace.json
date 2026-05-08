@@ -58,7 +58,11 @@
     },
     {
       "name": "finance-market-analysis",
-      "source": "./plugins/finance-market-analysis",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/himself65/finance-skills.git",
+        "path": "plugins/market-analysis"
+      },
       "description": "Market analysis toolkit: earnings analysis (preview/recap/estimate revisions), portfolio risk (stock correlation, ETF premium/discount), and SEPA trend-following entry methodology. Forked from himself65/finance-skills.",
       "version": "1.1.0",
       "author": {
