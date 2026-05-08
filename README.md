@@ -14,7 +14,7 @@
 
 ## About
 
-This is Esonhugh's private [Claude Code Plugin Marketplace](https://code.claude.com/docs/en/plugin-marketplaces) — a curated collection of Claude Code plugins for security research, finance analysis, and browser automation.
+This is Esonhugh's private [Claude Code Plugin Marketplace](https://code.claude.com/docs/en/plugin-marketplaces) — a curated collection of Claude Code plugins for security research, finance analysis, browser automation, reasoning frameworks, and productivity tools.
 
 ### Add This Marketplace
 
@@ -25,30 +25,36 @@ This is Esonhugh's private [Claude Code Plugin Marketplace](https://code.claude.
 ### Install a Plugin
 
 ```bash
-/plugin install <plugin-name>@Esonhugh/Marketplace
+/plugin install <plugin-name>@Esonhugh-Marketplace
 ```
 
 ---
 
 ## Plugin Catalog
 
-| Plugin | Category | Description |
-|:---|:---:|:---|
-| [fofa-intel](#fofa-intel) | Security | FOFA cyberspace search engine — asset mapping & threat intel |
-| [threatbook-intel](#threatbook-intel) | Security | ThreatBook (微步) — IP/domain/hash threat intel with browser automation |
-| [macos-control-bypasser](#macos-control-bypasser) | Security | macOS offensive security — TCC bypass, sandbox escape, dylib injection |
-| [pydoll-antibot-bypasser](#pydoll-antibot-bypasser) | Automation | Stealth browser automation bypassing Cloudflare WAF & CAPTCHA |
-| [ibkr-trade-analyzer](#ibkr-trade-analyzer) | Finance | IBKR trading history analysis — P&L, portfolio, fees |
-| [finance-market-analysis](#finance-market-analysis) | Finance | Earnings analysis, stock correlation, ETF premium, SEPA strategy |
+| Plugin | Category | Author | Source | Description |
+|:---|:---:|:---:|:---:|:---|
+| [fofa-intel](#fofa-intel) | Security | Esonhugh | local | FOFA cyberspace search engine — asset mapping & threat intel |
+| [threatbook-intel](#threatbook-intel) | Security | Esonhugh | local | ThreatBook (微步) — IP/domain/hash threat intel with browser automation |
+| [macos-control-bypasser](#macos-control-bypasser) | Security | Esonhugh | local | macOS offensive security — TCC bypass, sandbox escape, dylib injection |
+| [pydoll-antibot-bypasser](#pydoll-antibot-bypasser) | Automation | Esonhugh | [repo](https://github.com/Esonhugh/pydoll-cf-waf-bypasser-skills) | Stealth browser automation bypassing Cloudflare WAF & CAPTCHA |
+| [ibkr-trade-analyzer](#ibkr-trade-analyzer) | Finance | Esonhugh | [repo](https://github.com/Esonhugh/ibkr-trade-analyzer) | IBKR trading history analysis — P&L, portfolio, fees |
+| [detective](#detective) | Reasoning | Esonhugh | local | Investigation-driven problem solving with evidence chains |
+| [video-extractor](#video-extractor) | Productivity | Esonhugh | [repo](https://github.com/Esonhugh/video_extractor) | Video tutorial to Markdown — mlx-whisper + Vision OCR |
+| [finance-market-analysis](#finance-market-analysis) | Finance | himself65 | [upstream](https://github.com/himself65/finance-skills) | Earnings, correlation, ETF premium, SEPA strategy |
+| [document-skills](#document-skills) | Productivity | Anthropic | [upstream](https://github.com/anthropics/skills) | Document processing — xlsx, docx, pptx, pdf |
+| [skill-creator](#skill-creator) | Development | Anthropic | [upstream](https://github.com/anthropics/skills) | Skill authoring and improvement tool |
 
 ---
+
+## Esonhugh's Plugins
 
 ### fofa-intel
 
 FOFA cyberspace search engine plugin. Bundles pre-compiled GoFOFA binaries for macOS/Linux/Windows — the `fofa` command is available immediately after installation with no manual PATH setup.
 
 ```bash
-/plugin install fofa-intel@Esonhugh/Marketplace
+/plugin install fofa-intel@Esonhugh-Marketplace
 ```
 
 **Features:**
@@ -66,8 +72,6 @@ FOFA cyberspace search engine plugin. Bundles pre-compiled GoFOFA binaries for m
 
 **Notes:** Queries consume F-Points. `cert`/`banner` fields cap at 2,000 per page; `body` caps at 500.
 
-→ [README](plugins/fofa-intel/README.md) · [中文说明](plugins/fofa-intel/README-zh.md)
-
 ---
 
 ### threatbook-intel
@@ -75,7 +79,7 @@ FOFA cyberspace search engine plugin. Bundles pre-compiled GoFOFA binaries for m
 ThreatBook (微步在线) threat intelligence plugin. Query IPs, domains, and file hashes; perform asset mapping with X language; automate the browser via pydoll including full WeChat QR login.
 
 ```bash
-/plugin install threatbook-intel@Esonhugh/Marketplace
+/plugin install threatbook-intel@Esonhugh-Marketplace
 ```
 
 **Features:**
@@ -91,8 +95,6 @@ ThreatBook (微步在线) threat intelligence plugin. Query IPs, domains, and fi
 
 **Requirements:** Chrome, [uv](https://docs.astral.sh/uv/), ThreatBook account, WeChat account
 
-→ [README](plugins/threatbook-intel/README.md) · [中文说明](plugins/threatbook-intel/README-zh.md)
-
 ---
 
 ### macos-control-bypasser
@@ -100,7 +102,7 @@ ThreatBook (微步在线) threat intelligence plugin. Query IPs, domains, and fi
 Comprehensive macOS offensive security skill for authorized penetration testing and security research. Covers the full attack surface from userland to kernel.
 
 ```bash
-/plugin install macos-control-bypasser@Esonhugh/Marketplace
+/plugin install macos-control-bypasser@Esonhugh-Marketplace
 ```
 
 **Coverage:**
@@ -123,23 +125,25 @@ Comprehensive macOS offensive security skill for authorized penetration testing 
 Teaches Claude how to write stealth browser automation using [Pydoll](https://github.com/autoscrape-labs/pydoll) — async-native, zero-WebDriver Chromium automation specialized in WAF bypass.
 
 ```bash
-/plugin install pydoll-antibot-bypasser@Esonhugh/Marketplace
+/plugin install pydoll-antibot-bypasser@Esonhugh-Marketplace
 ```
 
 **WAF Support:**
 
 | WAF | Status |
 |:---|:---:|
-| Cloudflare Turnstile | ✅ Full (headless) |
-| Cloudflare JS Challenge | ✅ Full |
-| Cloudflare Managed Challenge | ✅ (headless=False + xvfb) |
-| DataDome | ⚠️ Partial |
-| PerimeterX | ⚠️ Partial |
-| Akamai Bot Manager | ⚠️ Partial |
+| Cloudflare Turnstile | Full (headless) |
+| Cloudflare JS Challenge | Full |
+| Cloudflare Managed Challenge | Full (headless=False + xvfb) |
+| DataDome | Partial |
+| PerimeterX | Partial |
+| Akamai Bot Manager | Partial |
 
 **Included Templates:** `basic_browser`, `bypass_cloudflare`, `web_scraping`, `form_filling`, `hybrid_automation`, `screenshot`, `concurrent_scraping`, `stealth_browser`
 
 **Requirements:** Python >= 3.10, Chrome/Chromium, [uv](https://docs.astral.sh/uv/)
+
+**Standalone repo:** [Esonhugh/pydoll-cf-waf-bypasser-skills](https://github.com/Esonhugh/pydoll-cf-waf-bypasser-skills) (also a marketplace)
 
 ---
 
@@ -148,7 +152,7 @@ Teaches Claude how to write stealth browser automation using [Pydoll](https://gi
 Analyze Interactive Brokers trading history with **read-only** access. Supports both the Flex Web Service API (online) and local CSV/XML file import (offline).
 
 ```bash
-/plugin install ibkr-trade-analyzer@Esonhugh/Marketplace
+/plugin install ibkr-trade-analyzer@Esonhugh-Marketplace
 ```
 
 **Analysis Dimensions:**
@@ -160,34 +164,135 @@ Analyze Interactive Brokers trading history with **read-only** access. Supports 
 | Portfolio Structure | Asset allocation, sector concentration, long/short ratio, currency exposure |
 | Fees & Cash Flow | Commissions, dividends, interest, financing costs, fee-to-PnL ratio |
 
-**Output Formats:** Terminal summary · Markdown report · HTML with interactive Plotly charts
+**Output Formats:** Terminal summary, Markdown report, HTML with interactive Plotly charts
+
+**Configuration:** Requires `ibkr_flex_token` and `ibkr_query_id` in plugin settings. Optional `proxy` for network access.
 
 **Requirements:** Python >= 3.10, [uv](https://docs.astral.sh/uv/)
 
 **Safety:** Read-only by design. Zero write/order endpoints. Local file mode has zero network access.
 
+**Standalone repo:** [Esonhugh/ibkr-trade-analyzer](https://github.com/Esonhugh/ibkr-trade-analyzer) (also a marketplace)
+
 ---
+
+### detective
+
+Investigation-driven problem solving framework. Maintains a **CaseBoard** — a directed labeled graph of **Fragments** (information units) and **Threads** (logical connections) — to solve unknown-target problems through evidence chains, hypothesis testing, constraint propagation, and autonomous convergence detection.
+
+```bash
+/plugin install detective@Esonhugh-Marketplace
+```
+
+**Skills:**
+
+| Skill | Purpose |
+|:---|:---|
+| `brainstorm` | Pre-investigation: collaborative problem exploration, produce case brief |
+| `open-case` | Initialize a CaseBoard, define crime scene and goal |
+| `investigate` | Main loop: Scan → Evolve → Focus → Act → File (until convergence) |
+| `review-board` | Display board state, fragments, threads, hypotheses |
+| `discuss-case` | Structured dialogue at deadlocks, ambiguity, or critical junctures |
+| `close-case` | Produce resolution with complete evidence chain traceback |
+
+**Core Concepts:**
+
+- **Fragment**: Information unit with maturity (Raw → Clue → Evidence → Anchor) and role (Observation, Hypothesis, Constraint, Conclusion)
+- **Thread**: Directed edge between fragments (supports, contradicts, derives, eliminates, requires)
+- **Strategy Engine**: `Score(action) = (Discrimination x Feasibility) / Cost` with automatic pruning of dead targets, redundancy, cold leads, and circular reasoning
+- **Autonomous Convergence**: Graph topology determines when the investigation is complete — no LLM self-assessment
+
+**Applicable Domains:** Security research, intelligence analysis, root cause analysis, code archaeology
+
+**State Storage:** `.detective/cases/<case-id>.json` (project-local, self-contained)
+
+---
+
+### video-extractor
+
+Video tutorial to structured Markdown converter. Optimized for Apple Silicon Mac — uses mlx-whisper for GPU-accelerated transcription and macOS native Vision framework for OCR.
+
+```bash
+/plugin install video-extractor@Esonhugh-Marketplace
+```
+
+**Pipeline:**
+
+1. Intelligent keyframe extraction (detects scene changes, avoids redundant frames)
+2. mlx-whisper GPU transcription (Apple Silicon MLX backend)
+3. macOS Vision OCR (extracts on-screen text, code, UI elements)
+4. Structured Markdown assembly (timestamps, speaker segments, screen content)
+
+**Use Cases:**
+- Convert coding tutorials into step-by-step text guides
+- Extract slides and spoken content from conference talks
+- Create searchable documentation from video walkthroughs
+
+**Requirements:** macOS (Apple Silicon), ffmpeg, uv, Python >= 3.11
+
+**Platforms:** macOS only (depends on MLX + Vision framework)
+
+**Standalone repo:** [Esonhugh/video_extractor](https://github.com/Esonhugh/video_extractor) (also a marketplace)
+
+---
+
+## Third-Party References
+
+Plugins below are sourced from external repositories. They are included in this marketplace for convenience but maintained by their respective authors.
 
 ### finance-market-analysis
 
-Market analysis toolkit for stock investors. Forked from [himself65/finance-skills](https://github.com/himself65/finance-skills).
+> **Reference:** [`himself65/finance-skills`](https://github.com/himself65/finance-skills) at `plugins/market-analysis/`
+
+Market analysis toolkit for stock investors. Provides earnings analysis (preview/recap/estimate revisions), portfolio risk assessment (stock correlation, ETF premium/discount), and SEPA trend-following entry methodology.
 
 ```bash
-/plugin install finance-market-analysis@Esonhugh/Marketplace
+/plugin install finance-market-analysis@Esonhugh-Marketplace
 ```
 
-**Included Skills:**
-
-| Skill | Description |
-|:---|:---|
-| `earnings-preview` | Pre-earnings briefing: estimates, beat/miss history, analyst sentiment |
-| `earnings-recap` | Post-earnings analysis: actual vs estimated, price reaction, margin trends |
-| `estimate-analysis` | EPS/revenue revision trends (7d/30d/60d/90d), revision breadth ratio |
-| `stock-correlation` | Co-movement discovery, rolling correlation, regime-conditional analysis |
-| `etf-premium` | ETF premium/discount vs NAV, peer comparison, 80+ ETF screener |
-| `sepa-strategy` | Minervini SEPA: Weinstein stage, 8-condition trend template, VCP, position sizing |
+**Included Skills:** `earnings-preview`, `earnings-recap`, `estimate-analysis`, `stock-correlation`, `etf-premium`, `sepa-strategy`, `options-payoff`, `yfinance-data`, `company-valuation`, `saas-valuation-compression`, `stock-liquidity`
 
 **Requirements:** Python >= 3.10, yfinance
+
+---
+
+### document-skills
+
+> **Reference:** [`anthropics/skills`](https://github.com/anthropics/skills) at `skills/xlsx`, `skills/docx`, `skills/pptx`, `skills/pdf`
+
+Document processing suite from Anthropic. Generate and manipulate Excel spreadsheets, Word documents, PowerPoint presentations, and PDF files directly from Claude Code.
+
+```bash
+/plugin install document-skills@Esonhugh-Marketplace
+```
+
+**Included Skills:** `xlsx` (Excel), `docx` (Word), `pptx` (PowerPoint), `pdf` (PDF)
+
+---
+
+### skill-creator
+
+> **Reference:** [`anthropics/skills`](https://github.com/anthropics/skills) at `skills/skill-creator`
+
+Meta-skill from Anthropic for creating, modifying, and measuring the effectiveness of Claude Code skills. Useful for plugin developers building their own skill libraries.
+
+```bash
+/plugin install skill-creator@Esonhugh-Marketplace
+```
+
+---
+
+## Source Types
+
+This marketplace uses multiple source strategies:
+
+| Type | Example | When |
+|:---|:---|:---|
+| Local | `"./plugins/fofa-intel"` | Plugin lives in this repo |
+| URL | `{"source": "url", "url": "https://...git"}` | Plugin has its own standalone repo |
+| Git Subdir | `{"source": "git-subdir", "url": "...", "path": "..."}` | Plugin is a subdirectory in another repo |
+
+Plugins with standalone repos are both a **plugin** and a **marketplace** — they can be used independently or aggregated here.
 
 ---
 
@@ -196,31 +301,16 @@ Market analysis toolkit for stock investors. Forked from [himself65/finance-skil
 ```
 Marketplace/
 ├── .claude-plugin/
-│   └── marketplace.json          # Marketplace catalog
+│   └── marketplace.json              # Marketplace catalog (10 plugins)
 ├── plugins/
-│   ├── fofa-intel/               # FOFA cyberspace search engine
-│   │   ├── .claude-plugin/
-│   │   ├── bin/                  # Pre-compiled binaries (auto-added to PATH)
-│   │   └── skills/fofa-intel/
-│   ├── threatbook-intel/         # ThreatBook threat intelligence
-│   │   ├── .claude-plugin/
-│   │   └── skills/threatbook-intel/
-│   │       └── scripts/          # pydoll browser automation script
-│   ├── macos-control-bypasser/   # macOS offensive security
-│   │   ├── .claude-plugin/
-│   │   └── skills/
-│   ├── pydoll-antibot-bypasser/  # Cloudflare WAF bypass
-│   │   ├── .claude-plugin/
-│   │   └── skills/
-│   ├── ibkr-trade-analyzer/      # IBKR trading analysis
-│   │   ├── .claude-plugin/
-│   │   └── skills/ibkr-trade-analyzer/
-│   │       └── scripts/
-│   └── finance-market-analysis/  # Stock market analysis
-│       ├── .claude-plugin/
-│       └── skills/
+│   ├── fofa-intel/                   # FOFA cyberspace search (local)
+│   ├── threatbook-intel/             # ThreatBook threat intel (local)
+│   ├── macos-control-bypasser/       # macOS offensive security (local)
+│   └── detective-plugin/             # Investigation framework (local)
 └── README.md
 ```
+
+Plugins not listed above are referenced via URL/git-subdir and fetched at install time.
 
 ---
 
