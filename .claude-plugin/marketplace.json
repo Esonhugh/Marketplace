@@ -194,6 +194,63 @@
         "apple-silicon",
         "v2t"
       ]
+    },
+    {
+      "name": "document-skills",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/anthropics/skills.git"
+      },
+      "description": "Document processing suite — Excel (xlsx), Word (docx), PowerPoint (pptx), and PDF generation and manipulation.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Anthropic"
+      },
+      "category": "productivity",
+      "homepage": "https://github.com/anthropics/skills",
+      "strict": false,
+      "skills": [
+        "./skills/xlsx",
+        "./skills/docx",
+        "./skills/pptx",
+        "./skills/pdf"
+      ],
+      "keywords": [
+        "document",
+        "excel",
+        "word",
+        "powerpoint",
+        "pdf",
+        "xlsx",
+        "docx",
+        "pptx",
+        "office"
+      ]
+    },
+    {
+      "name": "skill-creator",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/anthropics/skills.git"
+      },
+      "description": "Create new skills, modify and improve existing skills, and measure skill effectiveness.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Anthropic"
+      },
+      "category": "development",
+      "homepage": "https://github.com/anthropics/skills",
+      "strict": false,
+      "skills": [
+        "./skills/skill-creator"
+      ],
+      "keywords": [
+        "skill",
+        "creator",
+        "plugin-dev",
+        "meta",
+        "authoring"
+      ]
     }
   ]
 }
