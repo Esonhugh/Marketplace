@@ -10,6 +10,10 @@
   <b>Private Claude Code Plugin Marketplace by <a href="https://github.com/Esonhugh">Esonhugh</a></b>
 </p>
 
+<p align="center">
+  <b>English</b> | <a href="README-zh.md">中文</a>
+</p>
+
 ---
 
 ## About
@@ -41,6 +45,7 @@ This is Esonhugh's private [Claude Code Plugin Marketplace](https://code.claude.
 | [ibkr-trade-analyzer](#ibkr-trade-analyzer) | Finance | Esonhugh | [repo](https://github.com/Esonhugh/ibkr-trade-analyzer) | IBKR trading history analysis — P&L, portfolio, fees |
 | [detective](#detective) | Reasoning | Esonhugh | local | Investigation-driven problem solving with evidence chains |
 | [video-extractor](#video-extractor) | Productivity | Esonhugh | [repo](https://github.com/Esonhugh/video_extractor) | Video tutorial to Markdown — mlx-whisper + Vision OCR |
+| [tradingview](#tradingview) | Finance | Esonhugh | [repo](https://github.com/Esonhugh/tradingview) | TradingView data access — quotes, options, screener, news, alerts |
 | [finance-market-analysis](#finance-market-analysis) | Finance | himself65 | [upstream](https://github.com/himself65/finance-skills) | Earnings, correlation, ETF premium, SEPA strategy |
 | [document-skills](#document-skills) | Productivity | Anthropic | [upstream](https://github.com/anthropics/skills) | Document processing — xlsx, docx, pptx, pdf |
 | [skill-creator](#skill-creator) | Development | Anthropic | [upstream](https://github.com/anthropics/skills) | Skill authoring and improvement tool |
@@ -236,6 +241,45 @@ Video tutorial to structured Markdown converter. Optimized for Apple Silicon Mac
 
 ---
 
+### tradingview
+
+Read-only TradingView data access with persistent headless Chrome. Provides spot quotes, full options chains, screener, news, watchlists, alerts, chart state inspection, and screenshots — all without requiring a TradingView API key.
+
+```bash
+/plugin install tradingview@Esonhugh-Marketplace
+```
+
+**Skills:**
+
+| Skill | Purpose |
+|:---|:---|
+| `launch` | Start headless Chrome with TradingView session |
+| `stop` | Gracefully shut down the browser |
+| `status` | Health-check the running browser instance |
+| `preflight` | Verify plugin prerequisites |
+| `quote` | Get real-time spot quote for a symbol |
+| `search` | Search TradingView symbols |
+| `options-chain` | Fetch full options chain for a symbol |
+| `options-expiries` | List available option expiration dates |
+| `screener` | Run stock/crypto screener with filters |
+| `news` | Fetch news headlines |
+| `news-research` | Deep research via news aggregation |
+| `watchlists` | List TradingView watchlists |
+| `alerts` | Fetch price alerts |
+| `chart-state` | Read current chart symbol, interval, indicators |
+| `screenshot` | Take a PNG screenshot of a chart |
+| `login-email` | Non-interactive email/password login |
+| `login-interactive` | Open visible browser for manual login |
+| `options-analysis` | Analyze options strategy and payoff |
+
+**Architecture:** A plugin-managed headless Chrome instance connects to TradingView via CDP (Chrome DevTools Protocol). The monitor hook auto-launches, health-checks, and restarts the browser on crash.
+
+**Requirements:** Chrome/Chromium, Node.js, persistent Chrome profile for session
+
+**Standalone repo:** [Esonhugh/tradingview](https://github.com/Esonhugh/tradingview) (also a marketplace)
+
+---
+
 ## Third-Party References
 
 Plugins below are sourced from external repositories. They are included in this marketplace for convenience but maintained by their respective authors.
@@ -301,7 +345,7 @@ Plugins with standalone repos are both a **plugin** and a **marketplace** — th
 ```
 Marketplace/
 ├── .claude-plugin/
-│   └── marketplace.json              # Marketplace catalog (10 plugins)
+│   └── marketplace.json              # Marketplace catalog (11 plugins)
 ├── plugins/
 │   ├── fofa-intel/                   # FOFA cyberspace search (local)
 │   ├── threatbook-intel/             # ThreatBook threat intel (local)
