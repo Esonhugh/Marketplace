@@ -254,6 +254,33 @@
         "meta",
         "authoring"
       ]
+    },
+    {
+      "name": "tradingview",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/Esonhugh/tradingview.git"
+      },
+      "description": "Read-only TradingView data access with persistent headless Chrome, plugin monitor auto-management, spot quotes, options chains, screener, news, watchlists, alerts, chart state, and screenshots.",
+      "version": "0.2.0",
+      "author": {
+        "name": "Esonhugh"
+      },
+      "category": "finance",
+      "homepage": "https://github.com/Esonhugh/tradingview",
+      "keywords": [
+        "tradingview",
+        "finance",
+        "stocks",
+        "options",
+        "screener",
+        "market-data",
+        "chrome-automation",
+        "quotes",
+        "watchlist",
+        "alerts",
+        "chart"
+      ]
     }
   ]
 }
