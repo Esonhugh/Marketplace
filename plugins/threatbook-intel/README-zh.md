@@ -103,7 +103,7 @@ x=溯源                              # 社区内容搜索
 5. 持续监测直到登录成功
 6. 自动继续原始查询
 
-登录状态保存在 `~/.threatbook-chrome-profile`，通常只需登录一次。
+登录状态保存在 `~/.claude/plugins/data/.chrome-profiles/threatbook`，通常只需登录一次。
 
 ## 注意事项
 

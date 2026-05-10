@@ -8,7 +8,7 @@
 微步在线威胁情报查询工具 (pydoll 版本)
 
 完整流程：
-1. 使用持久化 profile (~/.threatbook-chrome-profile) 保留登录态
+1. 使用持久化 profile (~/.claude/plugins/data/.chrome-profiles/threatbook) 保留登录态
 2. 访问主页检查登录状态
 3. 未登录 → 微信扫码登录（自动化），持续监测直到登录成功
 4. 已登录 → 在搜索框输入内容 → 点击搜索按钮 → 进入结果页
@@ -43,7 +43,7 @@ LOGIN_URL = "https://passport.threatbook.cn/login?service=x"
 OAUTH_URL = "https://passport.threatbook.cn/oauth"
 
 # 持久化浏览器 profile 目录，保留登录态（cookies/session）
-PROFILE_DIR = os.path.expanduser("~/.threatbook-chrome-profile")
+PROFILE_DIR = os.path.expanduser("~/.claude/plugins/data/.chrome-profiles/threatbook")
 
 
 # ─── 工具函数 ──────────────────────────────────────────

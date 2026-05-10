@@ -103,7 +103,7 @@ When not logged in, the skill automates the full login sequence:
 5. Poll until login is confirmed
 6. Proceed with the original query
 
-Login state is persisted in `~/.threatbook-chrome-profile` — you typically only need to log in once.
+Login state is persisted in `~/.claude/plugins/data/.chrome-profiles/threatbook` — you typically only need to log in once.
 
 ## Notes
 
