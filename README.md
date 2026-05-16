@@ -42,7 +42,7 @@ This is Esonhugh's private [Claude Code Plugin Marketplace](https://code.claude.
 | [threatbook-intel](#threatbook-intel) | Security | Esonhugh | local | ThreatBook (微步) — IP/domain/hash threat intel with browser automation |
 | [macos-control-bypasser](#macos-control-bypasser) | Security | Esonhugh | local | macOS offensive security — TCC bypass, sandbox escape, dylib injection |
 | [pydoll-antibot-bypasser](#pydoll-antibot-bypasser) | Automation | Esonhugh | [repo](https://github.com/Esonhugh/pydoll-cf-waf-bypasser-skills) | Stealth browser automation bypassing Cloudflare WAF & CAPTCHA |
-| [ibkr-trade-analyzer](#ibkr-trade-analyzer) | Finance | Esonhugh | [repo](https://github.com/Esonhugh/ibkr-trade-analyzer) | IBKR trading history analysis — P&L, portfolio, fees |
+| [ibkr-trade-analyzer](#ibkr-trade-analyzer) | Finance | Esonhugh | [repo](https://github.com/Esonhugh/ibkr-trade-analyzer) | IBKR trading history analysis — P&L, portfolio, fees, Flex API + local import |
 | [detective](#detective) | Reasoning | Esonhugh | local | Investigation-driven problem solving with evidence chains |
 | [video-extractor](#video-extractor) | Productivity | Esonhugh | [repo](https://github.com/Esonhugh/video_extractor) | Video tutorial to Markdown — mlx-whisper + Vision OCR |
 | [tradingview](#tradingview) | Finance | Esonhugh | [repo](https://github.com/Esonhugh/tradingview) | TradingView data access — quotes, options, screener, news, alerts |
@@ -154,7 +154,7 @@ Teaches Claude how to write stealth browser automation using [Pydoll](https://gi
 
 ### ibkr-trade-analyzer
 
-Analyze Interactive Brokers trading history with **read-only** access. Supports both the Flex Web Service API (online) and local CSV/XML file import (offline).
+Analyze Interactive Brokers trading history with **read-only** access. Generates comprehensive reports on trading patterns, P&L performance, portfolio structure, and fee analysis. Supports Flex Web Service API (online) and local CSV/XML file import (offline).
 
 ```bash
 /plugin install ibkr-trade-analyzer@Esonhugh-Marketplace

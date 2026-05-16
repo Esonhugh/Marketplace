@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Esonhugh's private Claude Code plugin marketplace — stealth automation, trading analysis, and more",
-    "version": "1.3.2"
+    "version": "1.4.0"
   },
   "plugins": [
     {
@@ -40,12 +40,13 @@
         "source": "url",
         "url": "https://github.com/Esonhugh/ibkr-trade-analyzer.git"
       },
-      "description": "Analyze Interactive Brokers (IBKR) trading history with read-only access. Generates reports on trading patterns, P&L performance, portfolio structure, and fee analysis via Flex Web Service API or local CSV/XML files.",
-      "version": "1.2.0",
+      "description": "Analyze Interactive Brokers (IBKR) trading history with read-only access. Generates comprehensive reports on trading patterns, P&L performance, portfolio structure, and fee analysis. Supports Flex Web Service API and local CSV/XML file import.",
+      "version": "2.0.0",
       "author": {
         "name": "Esonhugh"
       },
       "category": "finance",
+      "homepage": "https://github.com/Esonhugh/ibkr-trade-analyzer",
       "keywords": [
         "ibkr",
         "interactive-brokers",
@@ -66,7 +67,7 @@
         "url": "https://github.com/himself65/finance-skills.git",
         "path": "plugins/market-analysis"
       },
-      "description": "Market analysis toolkit: earnings analysis (preview/recap/estimate revisions), portfolio risk (stock correlation, ETF premium/discount), and SEPA trend-following entry methodology. Forked from himself65/finance-skills.",
+      "description": "Market analysis toolkit: earnings analysis (preview/recap/estimate revisions), portfolio risk (stock correlation, ETF premium/discount), and SEPA trend-following entry methodology.",
       "version": "1.1.0",
       "author": {
         "name": "himself65"
@@ -86,14 +87,42 @@
       ]
     },
     {
+      "name": "tradingview",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/Esonhugh/tradingview.git"
+      },
+      "description": "Read-only TradingView data access with persistent headless Chrome, plugin monitor auto-management, spot quotes, options chains, screener, news, watchlists, alerts, chart state, and screenshots.",
+      "version": "0.2.0",
+      "author": {
+        "name": "Esonhugh"
+      },
+      "category": "finance",
+      "homepage": "https://github.com/Esonhugh/tradingview",
+      "keywords": [
+        "tradingview",
+        "finance",
+        "stocks",
+        "options",
+        "screener",
+        "market-data",
+        "chrome-automation",
+        "quotes",
+        "watchlist",
+        "alerts",
+        "chart"
+      ]
+    },
+    {
       "name": "macos-control-bypasser",
       "source": "./plugins/macos-control-bypasser",
-      "description": "Comprehensive macOS offensive security skill covering system internals, binary analysis, shellcode (x64/ARM64), dylib injection, app-runtime injection (Electron/Chromium/NIB), Gatekeeper/AMFI/MACF bypass, sandbox escapes, TCC bypasses, persistence, IOKit/DriverKit, MDM exploitation, keychain attacks, and full penetration testing workflows.",
+      "description": "Comprehensive macOS offensive security skill covering system internals, binary analysis, shellcode (x64/ARM64), dylib injection, app-runtime injection (Electron/Chromium/NIB), Mach IPC, XPC attacks, Gatekeeper/AMFI/MACF bypass, sandbox escapes, TCC bypasses, persistence mechanisms, IOKit/DriverKit, MDM exploitation, keychain attacks, and full penetration testing workflows.",
       "version": "2.0.0",
       "author": {
         "name": "Esonhugh"
       },
       "category": "security",
+      "homepage": "https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/macos-control-bypasser",
       "keywords": [
         "macos",
         "security",
@@ -123,6 +152,7 @@
         "name": "Esonhugh"
       },
       "category": "security",
+      "homepage": "https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/fofa-intel",
       "keywords": [
         "fofa",
         "osint",
@@ -135,12 +165,13 @@
     {
       "name": "threatbook-intel",
       "source": "./plugins/threatbook-intel",
-      "description": "ThreatBook (微步在线) threat intelligence — IP/domain/hash queries, vulnerability intel, X language asset mapping, and pydoll browser automation with WeChat login.",
+      "description": "ThreatBook (微步在线) threat intelligence — IP/domain/hash queries, vulnerability intel, asset mapping, and pydoll browser automation with WeChat login.",
       "version": "1.2.0",
       "author": {
         "name": "Esonhugh"
       },
       "category": "security",
+      "homepage": "https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/threatbook-intel",
       "keywords": [
         "threatbook",
         "threat-intel",
@@ -160,6 +191,7 @@
         "name": "Esonhugh"
       },
       "category": "reasoning",
+      "homepage": "https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/detective-plugin",
       "keywords": [
         "investigation",
         "reasoning",
@@ -169,8 +201,7 @@
         "evidence-chain",
         "convergence",
         "caseboard",
-        "debugging",
-        "root-cause-analysis"
+        "agent"
       ]
     },
     {
@@ -186,6 +217,7 @@
       },
       "category": "productivity",
       "platforms": ["macos"],
+      "homepage": "https://github.com/Esonhugh/video_extractor",
       "keywords": [
         "video",
         "markdown",
@@ -253,33 +285,6 @@
         "plugin-dev",
         "meta",
         "authoring"
-      ]
-    },
-    {
-      "name": "tradingview",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/Esonhugh/tradingview.git"
-      },
-      "description": "Read-only TradingView data access with persistent headless Chrome, plugin monitor auto-management, spot quotes, options chains, screener, news, watchlists, alerts, chart state, and screenshots.",
-      "version": "0.2.0",
-      "author": {
-        "name": "Esonhugh"
-      },
-      "category": "finance",
-      "homepage": "https://github.com/Esonhugh/tradingview",
-      "keywords": [
-        "tradingview",
-        "finance",
-        "stocks",
-        "options",
-        "screener",
-        "market-data",
-        "chrome-automation",
-        "quotes",
-        "watchlist",
-        "alerts",
-        "chart"
       ]
     }
   ]
