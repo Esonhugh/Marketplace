@@ -42,7 +42,7 @@
 | [threatbook-intel](#threatbook-intel) | 安全 | Esonhugh | 本地 | 微步在线 — IP/域名/哈希威胁情报 + 浏览器自动化 |
 | [macos-control-bypasser](#macos-control-bypasser) | 安全 | Esonhugh | 本地 | macOS 攻击安全 — TCC 绕过、沙箱逃逸、dylib 注入 |
 | [pydoll-antibot-bypasser](#pydoll-antibot-bypasser) | 自动化 | Esonhugh | [仓库](https://github.com/Esonhugh/pydoll-cf-waf-bypasser-skills) | 隐匿浏览器自动化 — 绕过 Cloudflare WAF 与 CAPTCHA |
-| [ibkr-trade-analyzer](#ibkr-trade-analyzer) | 金融 | Esonhugh | [仓库](https://github.com/Esonhugh/ibkr-trade-analyzer) | IBKR 交易历史分析 — 盈亏、持仓、费用 |
+| [ibkr-trade-analyzer](#ibkr-trade-analyzer) | 金融 | Esonhugh | [仓库](https://github.com/Esonhugh/ibkr-trade-analyzer) | IBKR 交易历史分析 — 盈亏、持仓、费用，支持 Flex API + 本地导入 |
 | [detective](#detective) | 推理 | Esonhugh | 本地 | 基于证据链的调查推理框架 |
 | [video-extractor](#video-extractor) | 生产力 | Esonhugh | [仓库](https://github.com/Esonhugh/video_extractor) | 视频教程转 Markdown — mlx-whisper + Vision OCR |
 | [tradingview](#tradingview) | 金融 | Esonhugh | [仓库](https://github.com/Esonhugh/tradingview) | TradingView 数据访问 — 行情、期权、筛选器、新闻、警报 |
@@ -154,7 +154,7 @@ FOFA 网络空间搜索引擎插件。内置预编译的 GoFOFA 二进制文件�
 
 ### ibkr-trade-analyzer
 
-以**只读**方式分析 Interactive Brokers 交易历史。支持 Flex Web Service API（在线）和本地 CSV/XML 文件导入（离线）。
+以**只读**方式分析 Interactive Brokers 交易历史。生成交易行为、盈亏表现、持仓结构和费用的综合报告。支持 Flex Web Service API（在线）和本地 CSV/XML 文件导入（离线）。
 
 ```bash
 /plugin install ibkr-trade-analyzer@Esonhugh-Marketplace
