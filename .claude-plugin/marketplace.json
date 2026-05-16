@@ -92,8 +92,8 @@
         "source": "url",
         "url": "https://github.com/Esonhugh/tradingview.git"
       },
-      "description": "Read-only TradingView data access with persistent headless Chrome, plugin monitor auto-management, spot quotes, options chains, screener, news, watchlists, alerts, chart state, and screenshots.",
-      "version": "0.2.0",
+      "description": "TradingView data access with persistent headless Chrome — K-line/candlestick history (1m to monthly), built-in technical indicators (MACD, RSI, KDJ, Bollinger Bands, EMA/SMA), spot quotes, options chains, screener, news, watchlists, alerts, chart state, and screenshots.",
+      "version": "0.3.0",
       "author": {
         "name": "Esonhugh"
       },
@@ -106,6 +106,12 @@
         "options",
         "screener",
         "market-data",
+        "kline",
+        "candlestick",
+        "technical-analysis",
+        "macd",
+        "rsi",
+        "indicators",
         "chrome-automation",
         "quotes",
         "watchlist",
