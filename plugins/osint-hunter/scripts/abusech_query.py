@@ -7,18 +7,23 @@
 import argparse
 import json
 import sys
+import os
 import httpx
 
 THREATFOX_URL = "https://threatfox-api.abuse.ch/api/v1/"
 URLHAUS_URL = "https://urlhaus-api.abuse.ch/v1/"
 MALWAREBAZAAR_URL = "https://mb-api.abuse.ch/api/v1/"
 
+AUTH_KEY = os.environ.get("ABUSECH_AUTH_KEY") or os.environ.get("CLAUDE_PLUGIN_OPTION_ABUSECH_KEY", "")
+
 
 def query_threatfox(value: str) -> dict:
     """Query ThreatFox for IOC match."""
+    headers = {"Auth-Key": AUTH_KEY} if AUTH_KEY else {}
     resp = httpx.post(
         THREATFOX_URL,
         json={"query": "search_ioc", "search_term": value},
+        headers=headers,
         timeout=30,
     )
     resp.raise_for_status()
@@ -50,9 +55,11 @@ def query_threatfox(value: str) -> dict:
 
 def query_urlhaus(value: str) -> dict:
     """Query URLhaus for malicious URL."""
+    headers = {"Auth-Key": AUTH_KEY} if AUTH_KEY else {}
     resp = httpx.post(
         f"{URLHAUS_URL}url/",
         data={"url": value},
+        headers=headers,
         timeout=30,
     )
     resp.raise_for_status()
@@ -86,9 +93,11 @@ def query_urlhaus(value: str) -> dict:
 
 def query_malwarebazaar(hash_value: str) -> dict:
     """Query MalwareBazaar for malware sample by hash."""
+    headers = {"Auth-Key": AUTH_KEY} if AUTH_KEY else {}
     resp = httpx.post(
         f"{MALWAREBAZAAR_URL}",
         data={"query": "get_info", "hash": hash_value},
+        headers=headers,
         timeout=30,
     )
     resp.raise_for_status()

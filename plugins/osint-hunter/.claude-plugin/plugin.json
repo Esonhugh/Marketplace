@@ -61,6 +61,12 @@
       "description": "Shodan API Key，可选扩展数据源（获取：https://account.shodan.io）",
       "sensitive": true
     },
+    "abusech_key": {
+      "type": "string",
+      "title": "abuse.ch Auth Key",
+      "description": "abuse.ch 统一认证密钥，用于 ThreatFox/URLhaus/MalwareBazaar（获取：https://auth.abuse.ch 注册后在 profile 页生成）",
+      "sensitive": true
+    },
     "default_report_format": {
       "type": "string",
       "title": "默认报告格式",

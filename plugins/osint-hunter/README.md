@@ -36,16 +36,16 @@ On first enable, you'll be prompted to configure API keys.
 
 ## Roadmap
 
-- [ ] AbuseIPDB MCP server
-- [ ] OTX MCP server
-- [ ] abuse.ch integration (ThreatFox, URLhaus, MalwareBazaar)
-- [ ] Certificate transparency (crt.sh)
-- [ ] Investigation workflow with auto-expansion
-- [ ] Geo-location inference (GeoGuessor)
-- [ ] Infrastructure fingerprinting
-- [ ] Person-link analysis
-- [ ] Visual OSINT
-- [ ] Autonomous investigation agent
+- [x] AbuseIPDB MCP server
+- [x] OTX MCP server
+- [x] abuse.ch integration (ThreatFox, URLhaus, MalwareBazaar)
+- [x] Certificate transparency (crt.sh)
+- [x] Investigation workflow with auto-expansion
+- [x] Geo-location inference (GeoGuessor)
+- [x] Infrastructure fingerprinting
+- [x] Person-link analysis
+- [x] Visual OSINT
+- [x] Autonomous investigation agent
 
 ## License
 

@@ -7,17 +7,11 @@
         "VIRUSTOTAL_API_KEY": "${user_config.virustotal_key}"
       }
     },
-    "abuseipdb": {
+    "threat-intel": {
       "command": "uv",
-      "args": ["run", "--directory", "./mcp-servers/abuseipdb", "server.py"],
+      "args": ["run", "--directory", "./mcp-servers/threat-intel", "server.py"],
       "env": {
-        "ABUSEIPDB_API_KEY": "${user_config.abuseipdb_key}"
-      }
-    },
-    "otx": {
-      "command": "uv",
-      "args": ["run", "--directory", "./mcp-servers/otx", "server.py"],
-      "env": {
+        "ABUSEIPDB_API_KEY": "${user_config.abuseipdb_key}",
         "OTX_API_KEY": "${user_config.otx_key}"
       }
     }

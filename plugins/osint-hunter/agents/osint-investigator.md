@@ -1,9 +1,15 @@
 ---
 name: osint-investigator
+color: red
 description: >
   自主网络威胁情报调查 Agent。给定调查目标后，自动规划调查路径，
   调用多源情报查询、地理推断、基础设施指纹、人物关联等能力，
   迭代扩展关联直到收敛，输出完整调查报告。
+
+  <example>investigate the infrastructure behind 1.2.3.4</example>
+  <example>trace the attacker who registered evil.com</example>
+  <example>分析这个 IP 的威胁情报：203.0.113.42</example>
+  <example>调查这个恶意域名的关联基础设施</example>
 model: sonnet
 maxTurns: 50
 ---
