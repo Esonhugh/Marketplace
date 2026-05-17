@@ -12,7 +12,8 @@
       "args": ["run", "--directory", "./mcp-servers/threat-intel", "server.py"],
       "env": {
         "ABUSEIPDB_API_KEY": "${user_config.abuseipdb_key}",
-        "OTX_API_KEY": "${user_config.otx_key}"
+        "OTX_API_KEY": "${user_config.otx_key}",
+        "FOFA_KEY": "${user_config.fofa_key}"
       }
     }
   }
