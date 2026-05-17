@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Auto-detect platform and select correct binary
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
+ARCH="$(uname -m)"
+
+case "${OS}" in
+  darwin) PLATFORM="darwin" ;;
+  linux)  PLATFORM="linux" ;;
+  mingw*|msys*|cygwin*) PLATFORM="windows" ;;
+  *) echo "ERROR: Unsupported OS: ${OS}" >&2; exit 1 ;;
+esac
+
+case "${ARCH}" in
+  arm64|aarch64) ARCH_SUFFIX="arm64" ;;
+  x86_64|amd64)  ARCH_SUFFIX="amd64" ;;
+  *) echo "ERROR: Unsupported architecture: ${ARCH}" >&2; exit 1 ;;
+esac
+
+BINARY="${SCRIPT_DIR}/fofa-${PLATFORM}-${ARCH_SUFFIX}"
+if [ "${PLATFORM}" = "windows" ]; then
+  BINARY="${BINARY}.exe"
+fi
+
+if [ ! -f "${BINARY}" ]; then
+  echo "ERROR: Binary not found: ${BINARY}" >&2
+  exit 1
+fi
+
+# Inject FOFA_KEY from plugin userConfig if not already set
+if [ -z "${FOFA_KEY:-}" ] && [ -n "${CLAUDE_PLUGIN_OPTION_FOFA_KEY:-}" ]; then
+  export FOFA_KEY="${CLAUDE_PLUGIN_OPTION_FOFA_KEY}"
+fi
+
+exec "${BINARY}" "$@"
