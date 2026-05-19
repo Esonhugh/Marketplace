@@ -16,6 +16,19 @@
     "virustotal",
     "investigation"
   ],
+  "commands": {
+    "threatbook": {
+      "description": "微步在线威胁情报查询（pydoll 浏览器自动化，支持微信扫码登录）",
+      "command": "uv run ./scripts/threatbook_query.py -q \"$query\"",
+      "args": {
+        "query": {
+          "type": "string",
+          "description": "查询内容（IP/域名/哈希/X语法）",
+          "required": true
+        }
+      }
+    }
+  },
   "userConfig": {
     "fofa_key": {
       "type": "string",
@@ -49,12 +62,6 @@
       "description": "NVD API Key，可选但能提升速率限制（获取：https://nvd.nist.gov/developers/request-an-api-key）",
       "sensitive": true
     },
-    "hibp_key": {
-      "type": "string",
-      "title": "Have I Been Pwned API Key",
-      "description": "HIBP API Key（获取：https://haveibeenpwned.com/API/Key，付费）",
-      "sensitive": true
-    },
     "shodan_key": {
       "type": "string",
       "title": "Shodan API Key",
@@ -65,6 +72,12 @@
       "type": "string",
       "title": "abuse.ch Auth Key",
       "description": "abuse.ch 统一认证密钥，用于 ThreatFox/URLhaus/MalwareBazaar（获取：https://auth.abuse.ch 注册后在 profile 页生成）",
+      "sensitive": true
+    },
+    "threatbook_key": {
+      "type": "string",
+      "title": "微步在线 API Key",
+      "description": "微步在线威胁情报 API Key（获取：https://x.threatbook.com → 个人中心 → API）",
       "sensitive": true
     },
     "default_report_format": {
