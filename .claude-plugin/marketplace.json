@@ -93,7 +93,7 @@
         "url": "https://github.com/Esonhugh/tradingview.git"
       },
       "description": "TradingView data access with persistent headless Chrome — K-line/candlestick history (1m to monthly), built-in technical indicators (MACD, RSI, KDJ, Bollinger Bands, EMA/SMA), spot quotes, options chains, screener, news, watchlists, alerts, chart state, and screenshots.",
-      "version": "0.3.0",
+      "version": "0.4.1",
       "author": {
         "name": "Esonhugh"
       },
