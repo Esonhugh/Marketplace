@@ -41,7 +41,7 @@
         "url": "https://github.com/Esonhugh/ibkr-trade-analyzer.git"
       },
       "description": "Analyze Interactive Brokers (IBKR) trading history with read-only access. Generates comprehensive reports on trading patterns, P&L performance, portfolio structure, and fee analysis. Supports Flex Web Service API and local CSV/XML file import.",
-      "version": "2.2.0",
+      "version": "2.2.1",
       "author": {
         "name": "Esonhugh"
       },
