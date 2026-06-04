@@ -1,0 +1,17 @@
+[project]
+name = "detective-plugin"
+version = "0.2.0"
+description = "Detective investigation graph MCP server for Claude Code"
+requires-python = ">=3.11"
+dependencies = [
+    "mcp>=1.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

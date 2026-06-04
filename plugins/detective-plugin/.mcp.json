@@ -1,0 +1,16 @@
+{
+  "detective": {
+    "command": "uv",
+    "args": [
+      "--directory",
+      "${CLAUDE_PLUGIN_ROOT}",
+      "run",
+      "python",
+      "-m",
+      "detective_mcp.server"
+    ],
+    "env": {
+      "DETECTIVE_WORKSPACE": "${PWD}"
+    }
+  }
+}

@@ -183,7 +183,7 @@ FOFA 网络空间搜索引擎插件。内置预编译的 GoFOFA 二进制文件�
 
 ### detective
 
-基于调查驱动的问题解决框架。维护一个 **CaseBoard** — 由 **Fragment**（信息单元）和 **Thread**（逻辑连接）组成的有向标记图 — 通过证据链、假设检验、约束传播和自主收敛检测来解决目标未知的问题。
+基于调查驱动的问题解决框架，提供用于项目本地案件存储、图查询、最短路径和 Markdown/Mermaid 导出的本地 MCP 图核心。旧版评分与收敛 scripts 仍作为兼容 CLI wrappers 可用。
 
 ```bash
 /plugin install detective@Esonhugh-Marketplace
@@ -195,7 +195,7 @@ FOFA 网络空间搜索引擎插件。内置预编译的 GoFOFA 二进制文件�
 |:---|:---|
 | `brainstorm` | 预调查：协作式问题探索，产出案件简报 |
 | `open-case` | 初始化 CaseBoard，定义案发现场和目标 |
-| `investigate` | 主循环：扫描 → 演化 → 聚焦 → 行动 → 归档（直到收敛） |
+| `investigate` | 围绕 v2 MCP 图核心查看图状态、补充证据并推进案件；循环表述仅作为旧版 v1 工作流标签与 v2.1 编排规划保留 |
 | `review-board` | 展示面板状态、碎片、线索、假设 |
 | `discuss-case` | 在僵局、歧义或关键节点进行结构化对话 |
 | `close-case` | 产出含完整证据链溯源的结案报告 |
@@ -204,12 +204,21 @@ FOFA 网络空间搜索引擎插件。内置预编译的 GoFOFA 二进制文件�
 
 - **Fragment**：信息单元，成熟度（Raw → Clue → Evidence → Anchor），角色（Observation、Hypothesis、Constraint、Conclusion）
 - **Thread**：碎片间的有向边（supports、contradicts、derives、eliminates、requires）
-- **策略引擎**：`Score(action) = (区分度 x 可行性) / 成本`，自动裁剪死目标、冗余、冷线索和循环推理
-- **自主收敛**：由图拓扑判定调查完成 — 不依赖 LLM 自评
+- **MCP 图核心**：在本地存储案件，维护项目本地的图状态，支持图概览/查询、最短路径，以及 Markdown/Mermaid 导出
+- **旧版评分兼容**：旧版评分/收敛辅助逻辑仍以 CLI 兼容 wrapper 形式复用共享 MCP 图工具，但它们并不是已交付的 v2 自主编排核心
 
 **适用领域：** 安全研究、情报分析、根因分析、代码考古
 
-**状态存储：** `.detective/cases/<case-id>.json`（项目本地，自包含）
+**MCP 图核心存储：** 当前 v2 案件状态存储在项目本地，并采用目录结构：
+
+```text
+.detective/cases/<case-id>/case.json
+.detective/cases/<case-id>/notes.md
+.detective/cases/<case-id>/graph.mmd
+.detective/cases/<case-id>/events.jsonl
+```
+
+扁平路径 `.detective/cases/<case-id>.json` 仅用于旧版 v1 兼容。
 
 ---
 

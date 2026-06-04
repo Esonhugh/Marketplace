@@ -183,7 +183,7 @@ Analyze Interactive Brokers trading history with **read-only** access. Generates
 
 ### detective
 
-Investigation-driven problem solving framework. Maintains a **CaseBoard** — a directed labeled graph of **Fragments** (information units) and **Threads** (logical connections) — to solve unknown-target problems through evidence chains, hypothesis testing, constraint propagation, and autonomous convergence detection.
+Investigation-driven problem solving framework with a local MCP graph core for project-local case storage, graph query, shortest paths, and Markdown/Mermaid exports. Legacy scoring and convergence scripts remain available as compatibility CLI wrappers.
 
 ```bash
 /plugin install detective@Esonhugh-Marketplace
@@ -195,7 +195,7 @@ Investigation-driven problem solving framework. Maintains a **CaseBoard** — a 
 |:---|:---|
 | `brainstorm` | Pre-investigation: collaborative problem exploration, produce case brief |
 | `open-case` | Initialize a CaseBoard, define crime scene and goal |
-| `investigate` | Main loop: Scan → Evolve → Focus → Act → File (until convergence) |
+| `investigate` | Work with the v2 MCP graph core to review graph state, add evidence, and move the case forward; the loop phrasing remains as a legacy v1 workflow label and a v2.1 orchestration plan |
 | `review-board` | Display board state, fragments, threads, hypotheses |
 | `discuss-case` | Structured dialogue at deadlocks, ambiguity, or critical junctures |
 | `close-case` | Produce resolution with complete evidence chain traceback |
@@ -204,12 +204,21 @@ Investigation-driven problem solving framework. Maintains a **CaseBoard** — a 
 
 - **Fragment**: Information unit with maturity (Raw → Clue → Evidence → Anchor) and role (Observation, Hypothesis, Constraint, Conclusion)
 - **Thread**: Directed edge between fragments (supports, contradicts, derives, eliminates, requires)
-- **Strategy Engine**: `Score(action) = (Discrimination x Feasibility) / Cost` with automatic pruning of dead targets, redundancy, cold leads, and circular reasoning
-- **Autonomous Convergence**: Graph topology determines when the investigation is complete — no LLM self-assessment
+- **MCP Graph Core**: Stores cases locally, keeps project-local graph state, supports graph overview/query, shortest path lookup, and Markdown/Mermaid exports
+- **Legacy Scoring Compatibility**: Older scoring/convergence helpers remain available as CLI compatibility wrappers over shared MCP graph utilities; they are not the shipped v2 autonomous orchestration core
 
 **Applicable Domains:** Security research, intelligence analysis, root cause analysis, code archaeology
 
-**State Storage:** `.detective/cases/<case-id>.json` (project-local, self-contained)
+**MCP Graph Core Storage:** Current v2 case state is project-local and directory-based:
+
+```text
+.detective/cases/<case-id>/case.json
+.detective/cases/<case-id>/notes.md
+.detective/cases/<case-id>/graph.mmd
+.detective/cases/<case-id>/events.jsonl
+```
+
+The flat path `.detective/cases/<case-id>.json` is legacy v1 compatibility only.
 
 ---
 

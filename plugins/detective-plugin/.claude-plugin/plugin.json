@@ -1,10 +1,10 @@
 {
   "name": "detective",
-  "version": "0.1.0",
-  "description": "A general-purpose AI problem-solving framework based on detective investigation methodology. Maintains a CaseBoard (directed labeled graph of Fragments and Threads) to solve unknown-target problems through evidence chains, parallel hypotheses, constraint propagation, and autonomous convergence.",
+  "version": "0.2.0",
+  "description": "A general-purpose AI investigation framework with a local MCP graph core for project-local case storage, graph search, shortest paths, Markdown/Mermaid exports, and legacy scoring/convergence CLI compatibility.",
   "author": {
     "name": "Esonhugh",
     "url": "https://github.com/esonhugh"
   },
-  "keywords": ["investigation", "reasoning", "problem-solving", "agent", "detective", "hypothesis"]
+  "keywords": ["investigation", "reasoning", "problem-solving", "agent", "detective", "hypothesis", "mcp", "graph"]
 }

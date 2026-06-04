@@ -4,10 +4,12 @@
 
 ## 核心概念
 
-AI 维护一块**案件白板（CaseBoard）**——由**案情片段（Fragment）**和**红线（Thread）**构成的有向标签图——通过侦探的调查循环解决问题：
+AI 维护一块**案件白板（CaseBoard）**——由**案情片段（Fragment）**和**红线（Thread）**构成的有向标签图。已交付的 v2 以本地 MCP 图核心为主接口，用于项目本地案件状态、图概览/查询、最短路径查询以及 Markdown/Mermaid 导出。
 
-```
-审板(Scan) → 演化(Evolve) → 聚焦(Focus) → 行动(Act) → 归档(File) → (循环直到收敛)
+```text
+当前已交付的 v2 MCP 核心：本地案件存储 + 图状态 + 图概览/查询 + 最短路径 + 导出
+旧版 v1 工作流标签：审板(Scan) → 演化(Evolve) → 聚焦(Focus) → 行动(Act) → 归档(File)
+规划中的 v2.1 编排：构建在 MCP 图核心之上的自主循环
 ```
 
 ## Fragment + Thread 模型
@@ -33,11 +35,10 @@ AI 维护一块**案件白板（CaseBoard）**——由**案情片段（Fragment
 
 ## 核心特性
 
-- **策略引擎**：信息增益评分（`区分力 × 可行性 / 成本`）、约束传播、方向删减、自动相态识别
-- **自主收敛**：系统自己知道"够了"——当图的拓扑满足形式化收敛条件时
+- **MCP 图核心**：项目本地案件存储、图概览/搜索、最短路径和 Markdown/Mermaid 导出
+- **旧版策略辅助逻辑**：v1 评分、约束传播、方向删减和收敛辅助逻辑仍作为 CLI 兼容 wrappers 存在，并委托共享 `detective_mcp` utilities
 - **案情研讨**：在僵局、分歧或关键时刻与用户进行结构化讨论
 - **全程可追溯**：每个结论都能沿证据链回溯到初始观察
-- **相态自动检测**：白板拓扑自动决定调查阶段（立案 → 勘查 → 追踪 → 收敛 → 收网 → 结案）
 
 ## 使用方式
 
@@ -59,6 +60,45 @@ AI 维护一块**案件白板（CaseBoard）**——由**案情片段（Fragment
 | `discuss-case` | 研讨：在关键决策点进行结构化讨论 |
 | `close-case` | 结案：输出结论 + 完整证据链回溯 |
 
+## v2 MCP 图核心
+
+Detective v2 提供一个通过 `.mcp.json` 注册、由 `uv` 启动的本地 stdio MCP 服务。v2 MCP 图核心是当前权威架构，新的工作流应优先通过 MCP 工具读写调查图状态。
+
+核心工具：
+
+- `detective_open_case`
+- `detective_load_case`
+- `detective_save_case`
+- `detective_graph_overview`
+- `detective_add_node`
+- `detective_update_node`
+- `detective_get_node`
+- `detective_list_nodes`
+- `detective_search_nodes`
+- `detective_add_edge`
+- `detective_list_edges`
+- `detective_neighbors`
+- `detective_shortest_path`
+- `detective_export_markdown`
+- `detective_export_mermaid`
+
+权威状态存储在当前项目：
+
+```text
+.detective/cases/<case-id>/case.json
+```
+
+生成的人类可读产物保存在同一目录：
+
+```text
+.detective/cases/<case-id>/notes.md
+.detective/cases/<case-id>/graph.mmd
+.detective/cases/<case-id>/events.jsonl
+```
+
+JSON 是唯一权威状态源。Markdown 和 Mermaid 都是从 JSON 生成的视图。
+旧版 scripts 仍可使用，但现在只是共享 detective_mcp utility 模块之上的薄 CLI wrapper。
+
 ## 架构
 
 ```
@@ -66,31 +106,28 @@ AI 维护一块**案件白板（CaseBoard）**——由**案情片段（Fragment
 │           Claude Code 会话                   │
 │                                             │
 │  ┌─────────┐   ┌──────────┐   ┌────────┐  │
-│  │案件白板  │   │ 策略引擎  │   │ 行动   │  │
-│  │  (JSON) │←→│(Python)  │──→│ 执行器 │  │
+│  │ Skills  │←→│ v2 MCP   │←→│案件白板 │  │
+│  │         │   │ 图核心    │   │ (JSON) │  │
 │  └─────────┘   └──────────┘   └────────┘  │
-│       ↑              ↑                      │
-│       └──── Skills ──┘                      │
+│       │              ↑                      │
+│       └──── 旧版 CLI wrappers ─────────────┘
 └─────────────────────────────────────────────┘
 ```
 
-- **案件白板**：一个 JSON 文件（`.detective/cases/<id>.json`）——就是侦探的那块墙
-- **策略引擎**：Python 脚本负责评分、约束传播、收敛检测
-- **行动执行器**：Claude Code 本身——bash、文件操作、搜索、MCP 工具
+- **v2 MCP 图核心**：当前权威架构，用于读写项目本地的案件图状态。
+- **案件白板**：权威 JSON 状态位于 `.detective/cases/<case-id>/case.json`；生成的 `notes.md`、`graph.mmd` 和 `events.jsonl` 与它保存在同一目录。
+- **旧版 CLI wrappers**：旧版 v1 风格 scripts 继续作为兼容入口，并委托共享 `detective_mcp` utility 模块处理评分、约束和收敛辅助逻辑。
+- **行动执行器**：Claude Code 本身——bash、文件操作、搜索、MCP 工具。
 
-## 策略引擎
+## 旧版评分兼容
 
-Focus 阶段回答："所有可能的下一步中，哪一步最值得做？"
+旧版 Focus 阶段辅助逻辑用于回答："所有可能的下一步中，哪一步最值得做？"
 
 ```
 Score(action) = (区分力 × 可行性) / 归一化成本
 ```
 
-删减规则自动排除：
-- 针对已排除假设的行动（死靶子）
-- 结果会重复已有证据的行动（冗余）
-- 同方向尝试 3 次以上无进展（冷线索）
-- 循环论证链
+在已交付的 v2 中，这个评分仅作为构建在共享 MCP 图工具之上的旧版兼容辅助逻辑保留。当前交付的 MCP 图核心提供本地案件存储、图状态、图概览/查询、最短路径查询和导出；自主剪枝启发式并不是当前核心能力描述的一部分。
 
 ## 安装
 
@@ -104,9 +141,21 @@ ln -s /path/to/detective-plugin ~/.claude/plugins/detective
 
 ## 状态存储
 
-案件文件存储在项目本地：`.detective/cases/<case-id>.json`
+当前 v2 案件状态存储在项目本地：
 
-每个案件文件包含完整白板状态，自包含，可移植。
+```text
+.detective/cases/<case-id>/case.json
+```
+
+生成的审阅产物与权威 JSON 文件保存在同一目录：
+
+```text
+.detective/cases/<case-id>/notes.md
+.detective/cases/<case-id>/graph.mmd
+.detective/cases/<case-id>/events.jsonl
+```
+
+旧版 v1 案件文件使用扁平路径 `.detective/cases/<case-id>.json`；该路径仅为兼容旧数据和旧脚本保留。
 
 ## 适用领域
 
@@ -121,20 +170,23 @@ ln -s /path/to/detective-plugin ~/.claude/plugins/detective
 
 | | 破军 | Detective 框架 |
 |---|---|---|
-| 架构 | 三进程分布式 | 单进程，文件状态 |
-| 状态 | SQLite + HTTP | JSON 文件 |
+| 架构 | 三进程分布式 | 本地 MCP 图核心 + 兼容 CLI wrappers |
+| 状态 | SQLite + HTTP | 项目本地 JSON 案件图 |
 | 实体 | origin/goal/fact/intent | Fragment + Thread（统一） |
 | 循环 | OODA | Scan-Evolve-Focus-Act-File |
-| 策略 | 人工 priority + reviewer | 形式化评分 + 约束传播 |
-| 收敛 | LLM 判断 "complete: true" | 图拓扑 + 形式化条件 |
-| 并发 | 多 Worker 并行 | 顺序执行 |
+| 策略 | 人工 priority + reviewer | 形式化评分 + 约束传播辅助逻辑 |
+| 收敛 | LLM 判断 "complete: true" | MCP 图状态 + 旧版评分/收敛辅助逻辑；自主编排计划在 v2.1 提供 |
+| 并发 | 多 Worker 并行 | 顺序案件工作流 |
 | 领域 | CTF/安全锁定 | 领域无关 + 配置适配 |
 
 Detective 框架是破军 OODA 方法论的**理论泛化和轻量降维**。
 
 ## 设计规格
 
-完整理论模型：`docs/superpowers/specs/2026-05-06-detective-framework-design.md`
+当前与规划中的设计规格：
+
+- 当前 v2.0 MCP 图核心：`docs/superpowers/specs/2026-06-03-detective-mcp-graph-core-design.md`
+- 未来/规划中的 v2.1 自主调查编排：`docs/superpowers/specs/2026-06-03-detective-v2-1-autonomous-investigation-design.md`
 
 ## 文件结构
 
@@ -142,20 +194,32 @@ Detective 框架是破军 OODA 方法论的**理论泛化和轻量降维**。
 detective-plugin/
 ├── .claude-plugin/
 │   └── plugin.json              # 插件清单
+├── .mcp.json                    # 本地 MCP 服务注册
 ├── .gitignore
+├── pyproject.toml               # Python package 与 uv 配置
 ├── README.md                    # 英文文档
 ├── README-zh.md                 # 中文文档
 ├── agents/
 │   └── strategy-evaluator.md    # 策略评分 Agent
-├── scripts/
-│   ├── board.py                 # 白板增删改查
-│   ├── scoring.py               # 评分与约束传播
-│   └── convergence.py           # 收敛检测
-└── skills/
-    ├── brainstorm/SKILL.md      # 脑暴（立案前问题探索）
-    ├── open-case/SKILL.md       # 立案
-    ├── investigate/SKILL.md     # 主循环
-    ├── review-board/SKILL.md    # 审板
-    ├── discuss-case/SKILL.md    # 案情研讨
-    └── close-case/SKILL.md      # 结案
+├── detective_mcp/               # 共享 v2 MCP 图核心与 utility 模块
+│   ├── exports.py               # Markdown 与 Mermaid 导出
+│   ├── graph.py                 # 图操作与遍历
+│   ├── legacy_board.py          # 旧版白板兼容辅助逻辑
+│   ├── legacy_convergence.py    # 旧版收敛兼容辅助逻辑
+│   ├── legacy_scoring.py        # 旧版评分兼容辅助逻辑
+│   ├── models.py                # 案件图数据模型
+│   ├── server.py                # stdio MCP 服务工具
+│   └── store.py                 # 项目本地案件存储
+├── scripts/                     # detective_mcp utilities 之上的旧版 CLI wrappers
+│   ├── board.py
+│   ├── scoring.py
+│   └── convergence.py
+├── skills/
+│   ├── brainstorm/SKILL.md      # 脑暴（立案前问题探索）
+│   ├── open-case/SKILL.md       # 立案
+│   ├── investigate/SKILL.md     # 主循环
+│   ├── review-board/SKILL.md    # 审板
+│   ├── discuss-case/SKILL.md    # 案情研讨
+│   └── close-case/SKILL.md      # 结案
+└── tests/                       # MCP 核心、导出、存储与旧版 wrapper 测试
 ```
