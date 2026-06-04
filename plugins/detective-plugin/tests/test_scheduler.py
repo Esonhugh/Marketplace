@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from detective_mcp import scheduler, store
 
 
@@ -263,3 +265,145 @@ def test_add_next_action_stores_float_priority_and_logs_event(tmp_path):
     assert stored["priority"] == 1.0
     assert action["priority"] == 1.0
     assert records[-1]["type"] == "next_action_added"
+
+
+
+def test_score_candidate_actions_applies_cold_direction_penalty_and_sorts_non_cold_first(tmp_path):
+    store.open_case(tmp_path, "Scored Actions", "Description", case_id="scored-actions")
+    target = store.add_node(tmp_path, "scored-actions", "hypothesis", "Maybe cache issue")
+    scheduler.record_direction_attempt(
+        tmp_path,
+        "scored-actions",
+        description="Retry cache branch",
+        target_node_ids=[target["id"]],
+        new_evidence_count=0,
+    )
+    scheduler.record_direction_attempt(
+        tmp_path,
+        "scored-actions",
+        description="Retry cache branch",
+        target_node_ids=[target["id"]],
+        new_evidence_count=0,
+    )
+    scheduler.record_direction_attempt(
+        tmp_path,
+        "scored-actions",
+        description="Retry cache branch",
+        target_node_ids=[target["id"]],
+        new_evidence_count=0,
+    )
+
+    scored = scheduler.score_candidate_actions(
+        tmp_path,
+        "scored-actions",
+        [
+            {
+                "description": "Retry cache branch",
+                "target_node_ids": [target["id"]],
+                "information_gain": 0.9,
+                "feasibility": 0.9,
+                "urgency": 0.9,
+                "cost": 1,
+            },
+            {
+                "description": "Check fresh logs",
+                "target_node_ids": [target["id"]],
+                "information_gain": 0.6,
+                "feasibility": 0.6,
+                "urgency": 0.6,
+                "cost": 1,
+            },
+        ],
+    )
+
+    assert [item["description"] for item in scored] == ["Check fresh logs", "Retry cache branch"]
+    assert scored[0]["cold_direction"] is False
+    assert scored[0]["score"] == 0.216
+    assert scored[1]["cold_direction"] is True
+    assert scored[1]["score"] == 0.0729
+
+
+
+def test_score_candidate_actions_handles_missing_optional_scoring_fields_deterministically(tmp_path):
+    store.open_case(tmp_path, "Default Scoring", "Description", case_id="default-scoring")
+
+    scored = scheduler.score_candidate_actions(
+        tmp_path,
+        "default-scoring",
+        [
+            {
+                "description": "Defaulted action",
+                "target_node_ids": [],
+            },
+            {
+                "description": "Tiny cost action",
+                "target_node_ids": [],
+                "information_gain": 0.2,
+                "cost": 0,
+            },
+        ],
+    )
+
+    assert scored[0]["description"] == "Tiny cost action"
+    assert scored[0]["score"] == 0.5
+    assert scored[0]["cold_direction"] is False
+    assert scored[1]["description"] == "Defaulted action"
+    assert scored[1]["score"] == 0.025
+    assert scored[1]["cold_direction"] is False
+
+
+
+def test_apply_user_guidance_creates_high_priority_constraint_graph_node_with_expected_metadata(tmp_path):
+    store.open_case(tmp_path, "Guidance Case", "Description", case_id="guidance-case")
+
+    result = scheduler.apply_user_guidance(
+        tmp_path,
+        "guidance-case",
+        guidance_type="constraint",
+        content="Do not contact the suspect directly.",
+    )
+
+    case = store.load_case(tmp_path, "guidance-case")
+    stored = case["nodes"][-1]
+
+    assert result == {
+        "case_id": "guidance-case",
+        "node": stored,
+        "policy": "user_guidance_has_priority",
+    }
+    assert stored["type"] == "constraint"
+    assert stored["content"] == "Do not contact the suspect directly."
+    assert stored["confidence"] == 1.0
+    assert stored["source"] == "user"
+    assert stored["created_by"] == "user"
+    assert "user-guidance" in stored["tags"]
+    assert stored["metadata"]["user_override"] is True
+    assert stored["metadata"]["guidance_type"] == "constraint"
+
+
+
+@pytest.mark.parametrize(
+    ("guidance_type", "expected_type", "expected_confidence"),
+    [
+        ("fact", "evidence", 1.0),
+        ("theory", "hypothesis", 0.8),
+        ("question", "question", 0.8),
+        ("unknown", "observation", 0.8),
+    ],
+)
+def test_apply_user_guidance_maps_guidance_types_to_expected_nodes(tmp_path, guidance_type, expected_type, expected_confidence):
+    case_id = f"guidance-{guidance_type}"
+    store.open_case(tmp_path, f"Guidance {guidance_type}", "Description", case_id=case_id)
+
+    result = scheduler.apply_user_guidance(
+        tmp_path,
+        case_id,
+        guidance_type=guidance_type,
+        content=f"User guidance for {guidance_type}",
+    )
+
+    node = result["node"]
+
+    assert node["type"] == expected_type
+    assert node["confidence"] == expected_confidence
+    assert node["metadata"]["guidance_type"] == guidance_type

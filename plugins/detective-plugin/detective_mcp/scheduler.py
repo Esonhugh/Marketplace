@@ -92,3 +92,89 @@ def add_next_action(
         event={"type": "next_action_added", "case_id": case_id, "next_action_id": action["id"]},
     )
     return action
+
+
+
+def _matching_cold_direction(
+    case_scheduler: dict[str, Any],
+    description: str,
+    target_node_ids: list[str],
+) -> dict[str, Any] | None:
+    normalized_target_ids = sorted(target_node_ids)
+    return next(
+        (
+            direction
+            for direction in case_scheduler.get("attempted_directions", [])
+            if direction.get("status") == "cold" and _same_direction(direction, description, normalized_target_ids)
+        ),
+        None,
+    )
+
+
+
+def score_candidate_actions(
+    workspace: str | Path | None,
+    case_id: str,
+    candidates: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    case = store.load_case(workspace, case_id)
+    case_scheduler = ensure_scheduler(case)
+    scored = []
+
+    for candidate in candidates:
+        information_gain = float(candidate.get("information_gain", 0.5))
+        feasibility = float(candidate.get("feasibility", 0.5))
+        urgency = float(candidate.get("urgency", 0.5))
+        normalized_cost = max(float(candidate.get("cost", 5)), 0.1)
+        cold_direction = _matching_cold_direction(
+            case_scheduler,
+            candidate.get("description", ""),
+            list(candidate.get("target_node_ids", [])),
+        ) is not None
+        score = (information_gain * feasibility * urgency) / normalized_cost
+        if cold_direction:
+            score *= 0.1
+        scored.append({
+            **candidate,
+            "score": round(score, 4),
+            "cold_direction": cold_direction,
+        })
+
+    scored.sort(key=lambda existing: existing["score"], reverse=True)
+    return scored
+
+
+
+def apply_user_guidance(
+    workspace: str | Path | None,
+    case_id: str,
+    guidance_type: str,
+    content: str,
+) -> dict[str, Any]:
+    node_type_by_guidance = {
+        "fact": "evidence",
+        "theory": "hypothesis",
+        "constraint": "constraint",
+        "question": "question",
+    }
+    node_type = node_type_by_guidance.get(guidance_type, "observation")
+    confidence = 1.0 if node_type in {"evidence", "constraint"} else 0.8
+    node = store.add_node(
+        workspace,
+        case_id,
+        node_type,
+        content,
+        confidence=confidence,
+        source="user",
+        tags=["user-guidance"],
+        created_by="user",
+        metadata={
+            "user_override": True,
+            "guidance_type": guidance_type,
+        },
+    )
+    return {
+        "case_id": case_id,
+        "node": node,
+        "policy": "user_guidance_has_priority",
+    }

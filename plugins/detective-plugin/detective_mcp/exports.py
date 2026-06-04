@@ -34,6 +34,9 @@ def export_markdown(workspace: str | Path | None, case_id: str) -> dict[str, Any
     ]
     evidence_nodes = [node for node in case["nodes"] if node["type"] == "evidence"]
     nodes_by_id = {node["id"]: node for node in case["nodes"]}
+    scheduler_state = case.get("scheduler", {})
+    attempted_directions = scheduler_state.get("attempted_directions", [])
+    next_actions = scheduler_state.get("next_actions", [])
 
     lines = [
         f"# Case: {case['title']}",
@@ -72,21 +75,71 @@ def export_markdown(workspace: str | Path | None, case_id: str) -> dict[str, Any
     else:
         lines.append("- None")
 
+    lines.extend(["", "## Scheduler", "", "### Attempted Directions"])
+    if attempted_directions:
+        for direction in attempted_directions:
+            lines.append(
+                "- "
+                f"id: {direction['id']}; "
+                f"description: {_markdown_list_text(direction.get('description', ''))}; "
+                f"attempts: {int(direction.get('attempts', 0))}; "
+                f"status: {_markdown_list_text(direction.get('status', 'open'))}; "
+                f"new evidence: {int(direction.get('new_evidence_count', 0))}"
+            )
+    else:
+        lines.append("- None")
+
+    lines.extend(["", "### Next Actions"])
+    if next_actions:
+        for action in next_actions:
+            lines.append(
+                "- "
+                f"id: {action['id']}; "
+                f"description: {_markdown_list_text(action.get('description', ''))}; "
+                f"assigned role: {_markdown_list_text(action.get('assigned_role', ''))}; "
+                f"priority: {float(action.get('priority', 0.0)):.2f}; "
+                f"status: {_markdown_list_text(action.get('status', 'pending'))}; "
+                f"reason: {_markdown_list_text(action.get('reason', ''))}"
+            )
+    else:
+        lines.append("- None")
+
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return {"case_id": case["id"], "path": str(path)}
 
 
-def export_mermaid(workspace: str | Path | None, case_id: str) -> dict[str, Any]:
+def export_mermaid(
+    workspace: str | Path | None,
+    case_id: str,
+    diagram: str = "full",
+    focus_node_id: str | None = None,
+) -> dict[str, Any]:
     case = store.load_case(workspace, case_id)
     directory = store.case_dir(workspace, case_id)
     path = directory / "graph.mmd"
 
+    nodes = case["nodes"]
+    edges = case["edges"]
+
+    if diagram == "hypothesis-chain" and focus_node_id is not None:
+        focused_edges = [
+            edge
+            for edge in case["edges"]
+            if edge.get("from_id") == focus_node_id or edge.get("to_id") == focus_node_id
+        ]
+        focused_node_ids = {focus_node_id}
+        for edge in focused_edges:
+            focused_node_ids.add(edge["from_id"])
+            focused_node_ids.add(edge["to_id"])
+        nodes = [node for node in case["nodes"] if node["id"] in focused_node_ids]
+        edges = focused_edges
+
     lines = ["graph LR"]
-    for node in case["nodes"]:
+    for node in nodes:
         label = _escape_mermaid(_truncate(node["content"]))
         lines.append(f'    {node["id"]}["{label}"]')
 
-    for edge in case["edges"]:
+    for edge in edges:
         label = _escape_mermaid(edge["type"])
         lines.append(f'    {edge["from_id"]} -- {label} --> {edge["to_id"]}')
 

@@ -1,7 +1,7 @@
 {
   "name": "detective",
-  "version": "0.2.0",
-  "description": "A general-purpose AI investigation framework with a local MCP graph core for project-local case storage, graph search, shortest paths, Markdown/Mermaid exports, and legacy scoring/convergence CLI compatibility.",
+  "version": "0.3.0",
+  "description": "A general-purpose AI investigation framework with a local MCP graph core and autonomous investigation support. Maintains project-local CaseBoard state under .detective/, supports evidence chains, graph search, shortest paths, Markdown/Mermaid exports, scheduler memory, specialist agents, convergence signals, and user-priority guidance.",
   "author": {
     "name": "Esonhugh",
     "url": "https://github.com/esonhugh"

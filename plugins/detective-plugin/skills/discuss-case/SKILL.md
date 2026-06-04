@@ -7,6 +7,17 @@ description: This skill should be used when the user asks to "discuss the case",
 
 Conduct a case discussion with the user at critical investigation junctures. Present the situation clearly, surface key uncertainties, and integrate user input as high-weight evidence.
 
+## MCP-first user guidance
+
+When the user provides guidance, write it through `detective_apply_user_guidance`:
+
+- Facts → `guidance_type="fact"`
+- Theories → `guidance_type="theory"`
+- Boundaries or disallowed directions → `guidance_type="constraint"`
+- New uncertainties → `guidance_type="question"`
+
+After applying guidance, call `detective_graph_overview` before continuing. User guidance has priority over automated scheduling.
+
 ## When This Triggers
 
 Automatic triggers (from investigate loop):
@@ -57,15 +68,15 @@ Pose a specific, actionable question. Prefer structured options when possible:
 
 ## Processing User Response
 
-User input enters the board as high-priority fragments:
+For v2/v2.1 cases, user input enters the graph only through `detective_apply_user_guidance`:
 
-| User Says | Fragment Created |
-|-----------|----------------|
-| States a fact | `role: observation, maturity: evidence, source: user_authority` |
-| Suggests a theory | `role: hypothesis, maturity: clue, confidence: 0.7, source: user_input` |
-| Eliminates a direction | `role: constraint, maturity: anchor, source: user_authority` + eliminates thread |
-| Points to a clue | `role: observation, maturity: clue, confidence: 0.8, source: user_input` |
-| Adjusts priority | Update action scoring weights, no new fragment |
+| User Says | MCP Guidance Mapping |
+|-----------|----------------------|
+| States a fact | `guidance_type="fact"` |
+| Suggests a theory | `guidance_type="theory"` |
+| Eliminates a direction | `guidance_type="constraint"` |
+| Points to a clue or uncertainty | `guidance_type="question"` |
+| Adjusts priority | Apply through MCP-backed scheduling or guidance; do not mutate files directly |
 
 User-authority fragments have elevated status:
 - `source: user_authority` fragments start at higher maturity
@@ -74,9 +85,9 @@ User-authority fragments have elevated status:
 
 ## After Discussion
 
-1. Update the board with new fragments/threads from user input
-2. Re-run constraint propagation
-3. Re-assess phase
+1. Apply any user input with `detective_apply_user_guidance` if it was not already applied.
+2. Call `detective_graph_overview` to review the updated MCP-backed graph state.
+3. Use Detective MCP tools for any follow-up state changes, exports, or scheduling updates.
 4. Report what changed:
 
 > "Based on your input, I've [updated X, eliminated Y, added Z]. The investigation now points toward [direction]. Continuing with `/detective:investigate`."
@@ -87,8 +98,10 @@ User-authority fragments have elevated status:
 
 Speak as a detective colleague — professional, direct, no unnecessary formality. Acknowledge uncertainty honestly. Never pretend confidence that doesn't exist in the data.
 
-## Additional Resources
+## Legacy v1 fallback resources
+
+These scripts are deprecated fallback references only for legacy v1 flat JSON case files when the Detective MCP server is unavailable. For v2/v2.1 cases, user guidance and any state changes must go through Detective MCP tools.
 
 ### Scripts
-- **`scripts/board.py`** — Add user-provided fragments to the board
-- **`scripts/scoring.py`** — Re-run constraint propagation after discussion
+- **`scripts/board.py`** — Legacy v1 board inspection and deprecated user-fragment helpers
+- **`scripts/scoring.py`** — Legacy v1 scoring and deprecated propagation helpers

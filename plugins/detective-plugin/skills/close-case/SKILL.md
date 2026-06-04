@@ -7,36 +7,48 @@ description: This skill should be used when the user asks to "close the case", "
 
 Produce the final investigation resolution: a confirmed conclusion supported by a complete, traceable evidence chain from initial clues to final answer.
 
-## Prerequisites
+## MCP-first closing
 
-Check convergence before closing:
+For Detective v2/v2.1 cases:
 
-```bash
-python $PLUGIN_ROOT/scripts/convergence.py .detective/cases/<case-id>.json
-```
+1. Call `detective_convergence_status`.
+2. If converged, call `detective_export_markdown` and `detective_export_mermaid`.
+3. If not converged, present unmet conditions and ask whether to continue, discuss, or force a partial close.
+4. Use Detective MCP tools for any conclusion, close marker, state change, or export artifact.
+5. Do not edit `case.json` directly.
 
-- If converged → proceed with closing
-- If NOT converged → inform the user which conditions are unmet. Ask: "Close anyway with partial conclusion, or continue investigating?"
+Do not create resolution files under `.detective/` by hand for v2/v2.1 cases. MCP export tools produce the Markdown and Mermaid outputs.
 
 ## Closing Process
 
-### 1. Identify the Conclusion
+### 1. Check Convergence
 
-Find the confirmed hypothesis (highest confidence, meeting threshold):
-- Read the board's active hypotheses
-- Select the one with confidence >= threshold (or highest if forced close)
-- This becomes the **Resolution**
+Call `detective_convergence_status` before closing.
 
-### 2. Trace the Evidence Chain
+- If converged → proceed with MCP-backed closing.
+- If not converged → present the unmet conditions and ask: "Continue investigating, discuss the case, or force a partial close?"
+- If the MCP server is unavailable for a v2/v2.1 case → stop and ask the user to check `/mcp`.
 
-Build the complete logical chain from crime scene to conclusion:
+### 2. Identify the Conclusion
 
-1. Start from the confirmed hypothesis
-2. Follow `supports` threads backwards to find supporting evidence
-3. For each evidence piece, follow `derives` threads to find its origins
-4. Continue until reaching fragments with `source: user_authority` or initial observations
+Use MCP-provided graph state, not manual file inspection:
 
-Present as a numbered chain:
+1. Call `detective_graph_overview`.
+2. Call `detective_list_nodes` for active hypotheses, conclusions, constraints, open questions, and evidence.
+3. Call `detective_list_edges` to trace support, contradiction, derivation, and elimination relationships.
+4. Select the converged conclusion or the highest-confidence partial conclusion if the user explicitly chose partial close.
+
+### 3. Trace the Evidence Chain
+
+Build the explanation from MCP-returned nodes and edges:
+
+1. Start from the confirmed or partial conclusion.
+2. Follow supporting and deriving edges back to the evidence and initial observations.
+3. Include eliminated alternatives and the evidence or constraints that ruled them out.
+4. Call MCP tools for any conclusion state that must be recorded.
+
+Present the chain in conversation:
+
 ```
 1. [Crime Scene] <initial observation>
 2. [Clue → Evidence] <first finding> (verified by: <action>)
@@ -45,58 +57,15 @@ Present as a numbered chain:
 5. [Conclusion] <final answer> (confidence: <X>)
 ```
 
-### 3. Document Eliminated Alternatives
+### 4. Export Reports
 
-List all hypotheses that were considered and why they were ruled out:
+For v2/v2.1 cases, use MCP exports only:
 
-```
-### Ruled Out
-- <Hypothesis A>: Eliminated because <reason> (evidence: <fragment id>)
-- <Hypothesis B>: Confidence decayed to <X> due to <contradicting evidence>
-```
+1. Call `detective_export_markdown`.
+2. Call `detective_export_mermaid`.
+3. Report the paths or artifact identifiers returned by those tools.
 
-### 4. Write Resolution Report
-
-Create a markdown summary file:
-
-```bash
-# Write to .detective/cases/<case-id>-resolution.md
-```
-
-Format:
-```markdown
-# Case Resolution: <title>
-
-## Conclusion
-<one paragraph stating the final answer>
-
-## Evidence Chain
-<numbered list from step 2>
-
-## Eliminated Alternatives
-<list from step 3>
-
-## Investigation Statistics
-- Total rounds: <N>
-- Actions taken: <N>
-- Fragments created: <N>
-- Hypotheses considered: <N> (confirmed: 1, eliminated: <N>)
-- Time span: <first action> to <last action>
-
-## Confidence Assessment
-- Primary conclusion confidence: <X>
-- Evidence chain completeness: <complete/has gaps>
-- Remaining uncertainties: <any caveats>
-```
-
-### 5. Update Board State
-
-Mark the case as closed:
-- Set board `phase` to "resolution"
-- Add a conclusion fragment: `{"role": "conclusion", "maturity": "anchor", "confidence": <X>}`
-- Add `derives` threads from supporting evidence to the conclusion
-
-### 6. Present to User
+### 5. Present to User
 
 Display the resolution in conversation:
 
@@ -109,27 +78,34 @@ Display the resolution in conversation:
 
 <brief narrative of how we got here>
 
-Full report saved to: .detective/cases/<case-id>-resolution.md
+Markdown export: <path returned by detective_export_markdown>
+Mermaid export: <path returned by detective_export_mermaid>
 ```
 
 ## Forced Close (Partial Resolution)
 
 When closing without full convergence:
 
-- Mark confidence appropriately (lower)
-- Explicitly state which conditions are unmet
-- List remaining open questions
-- Note this is a "partial resolution" in the report
-- Add caveat: "Investigation paused, not conclusively resolved"
+- State that this is a partial resolution.
+- Explicitly list unmet convergence conditions.
+- List remaining open questions and caveats.
+- Use MCP tools for any partial-close state or export.
+- Ask the user whether to continue, discuss, or accept the partial close.
 
-## Post-Close
+## Legacy v1 fallback
 
-After closing, the case file remains for reference. Suggest:
-- "The case file is preserved at `.detective/cases/<case-id>.json` for future reference."
-- "To reopen, run `/detective:investigate <case-id>` — the board state is intact."
+The historical script workflow is a deprecated fallback for legacy v1 flat JSON case files only when MCP is unavailable. It is not valid for v2/v2.1 cases.
+
+For legacy v1 inspection only:
+
+```bash
+python $PLUGIN_ROOT/scripts/convergence.py .detective/cases/<case-id>.json
+```
+
+If a legacy v1 close requires manual reporting or state changes, ask the user for explicit confirmation first and label the result as a legacy fallback. For v2/v2.1, use Detective MCP tools instead.
 
 ## Additional Resources
 
 ### Scripts
-- **`scripts/convergence.py`** — Check if convergence criteria are met
-- **`scripts/board.py`** — Read board state, add conclusion fragment
+- **`scripts/convergence.py`** — Legacy v1 convergence inspection
+- **`scripts/board.py`** — Legacy v1 board inspection and deprecated mutation helpers

@@ -1,3 +1,4 @@
+import inspect
 from pathlib import Path
 
 import pytest
@@ -25,6 +26,12 @@ EXPECTED_TOOL_NAMES = {
     "detective_shortest_path",
     "detective_export_markdown",
     "detective_export_mermaid",
+    "detective_record_direction_attempt",
+    "detective_add_next_action",
+    "detective_score_candidate_actions",
+    "detective_apply_user_guidance",
+    "detective_convergence_status",
+    "detective_deadlock_status",
 }
 
 
@@ -224,6 +231,157 @@ def test_server_delete_node_and_edge_wrappers_work(tmp_path):
     assert {node["id"] for node in remaining_nodes} == {observation["id"], hypothesis["id"]}
 
 
+def test_server_scheduler_wrappers_delegate_to_helpers(tmp_path):
+    server.detective_open_case("Scheduler Server", "Description", case_id="scheduler-server", workspace=str(tmp_path))
+    target = server.detective_add_node(
+        "scheduler-server",
+        "hypothesis",
+        "Cache branch may be stale",
+        workspace=str(tmp_path),
+    )
+
+    direction = server.detective_record_direction_attempt(
+        case_id="scheduler-server",
+        description="Retry stale cache branch",
+        target_node_ids=[target["id"]],
+        new_evidence_count=0,
+        workspace=str(tmp_path),
+    )
+    action = server.detective_add_next_action(
+        case_id="scheduler-server",
+        description="Inspect fresh deployment logs",
+        assigned_role="evidence-hunter",
+        priority=0.9,
+        reason="Fresh evidence has high leverage",
+        workspace=str(tmp_path),
+    )
+    scored = server.detective_score_candidate_actions(
+        case_id="scheduler-server",
+        candidates=[
+            {
+                "description": "Inspect fresh deployment logs",
+                "target_node_ids": [target["id"]],
+                "information_gain": 0.8,
+                "feasibility": 0.9,
+                "urgency": 0.7,
+                "cost": 2,
+            }
+        ],
+        workspace=str(tmp_path),
+    )
+    guidance = server.detective_apply_user_guidance(
+        case_id="scheduler-server",
+        guidance_type="constraint",
+        content="Do not contact the suspect directly.",
+        workspace=str(tmp_path),
+    )
+
+    assert direction["description"] == "Retry stale cache branch"
+    assert direction["target_node_ids"] == [target["id"]]
+    assert direction["attempts"] == 1
+    assert action["description"] == "Inspect fresh deployment logs"
+    assert action["assigned_role"] == "evidence-hunter"
+    assert action["priority"] == 0.9
+    assert scored == [
+        {
+            "description": "Inspect fresh deployment logs",
+            "target_node_ids": [target["id"]],
+            "information_gain": 0.8,
+            "feasibility": 0.9,
+            "urgency": 0.7,
+            "cost": 2,
+            "score": 0.252,
+            "cold_direction": False,
+        }
+    ]
+    assert guidance["case_id"] == "scheduler-server"
+    assert guidance["policy"] == "user_guidance_has_priority"
+    assert guidance["node"]["type"] == "constraint"
+    assert guidance["node"]["metadata"]["guidance_type"] == "constraint"
+
+
+def test_server_signal_wrappers_delegate_to_helpers(tmp_path):
+    server.detective_open_case("Signals Server", "Description", case_id="signals-server", workspace=str(tmp_path))
+    evidence = server.detective_add_node(
+        "signals-server",
+        "evidence",
+        "Trace confirms rollout timing",
+        confidence=1.0,
+        source="file",
+        workspace=str(tmp_path),
+    )
+    confirmed = server.detective_add_node(
+        "signals-server",
+        "hypothesis",
+        "Rollout caused the regression",
+        confidence=0.92,
+        source="agent",
+        workspace=str(tmp_path),
+    )
+    server.detective_add_edge(
+        "signals-server",
+        evidence["id"],
+        confirmed["id"],
+        "supports",
+        workspace=str(tmp_path),
+    )
+
+    convergence = server.detective_convergence_status("signals-server", workspace=str(tmp_path))
+    deadlock = server.detective_deadlock_status(
+        case_id="signals-server",
+        scored_actions=[{"description": "Ask another generic question", "score": 0.1}],
+        recent_new_nodes=0,
+        recent_new_edges=0,
+        workspace=str(tmp_path),
+    )
+
+    assert convergence["converged"] is True
+    assert convergence["confirmed_hypotheses"] == [
+        {
+            "id": confirmed["id"],
+            "content": "Rollout caused the regression",
+            "status": "open",
+            "confidence": 0.92,
+        }
+    ]
+    assert convergence["recommendation"] == "close-case"
+    assert deadlock["deadlocked"] is True
+    assert deadlock["recommendation"] == "discuss-case"
+
+
+def test_scheduler_and_signal_wrapper_signatures_preserve_public_parameters():
+    expected_signatures = {
+        "detective_record_direction_attempt": [
+            "case_id",
+            "description",
+            "target_node_ids",
+            "new_evidence_count",
+            "workspace",
+        ],
+        "detective_add_next_action": [
+            "case_id",
+            "description",
+            "assigned_role",
+            "priority",
+            "reason",
+            "workspace",
+        ],
+        "detective_score_candidate_actions": ["case_id", "candidates", "workspace"],
+        "detective_apply_user_guidance": ["case_id", "guidance_type", "content", "workspace"],
+        "detective_convergence_status": ["case_id", "workspace"],
+        "detective_deadlock_status": [
+            "case_id",
+            "scored_actions",
+            "recent_new_nodes",
+            "recent_new_edges",
+            "workspace",
+        ],
+    }
+
+    for wrapper_name, expected_parameters in expected_signatures.items():
+        assert list(inspect.signature(getattr(server, wrapper_name)).parameters) == expected_parameters
+
+
 def test_server_exposes_stable_mcp_identity():
     assert server.mcp is not None
     assert getattr(server.mcp, "name", "detective") == "detective"
@@ -233,7 +391,7 @@ def test_server_exposes_stable_mcp_identity():
 async def test_mcp_registers_expected_tools():
     tools = await server.mcp.list_tools()
 
-    assert len(tools) == 19
+    assert len(tools) == 25
     assert {tool.name for tool in tools} == EXPECTED_TOOL_NAMES
 
 
@@ -260,6 +418,20 @@ async def test_mcp_tool_schemas_expose_public_type_parameters():
     assert "type" not in _input_schema(tools["detective_update_edge"]).get("required", [])
     assert "type" not in _input_schema(tools["detective_list_nodes"]).get("required", [])
     assert "type" not in _input_schema(tools["detective_list_edges"]).get("required", [])
+
+
+@pytest.mark.anyio
+async def test_mcp_tool_schemas_expose_scheduler_and_signal_public_parameters():
+    tools = {tool.name: tool for tool in await server.mcp.list_tools()}
+
+    assert "target_node_ids" in _input_schema(tools["detective_record_direction_attempt"])["properties"]
+    assert "target_node_ids" in _input_schema(tools["detective_record_direction_attempt"])["required"]
+    assert "candidates" in _input_schema(tools["detective_score_candidate_actions"])["properties"]
+    assert "candidates" in _input_schema(tools["detective_score_candidate_actions"])["required"]
+    assert "scored_actions" in _input_schema(tools["detective_deadlock_status"])["properties"]
+    assert "scored_actions" in _input_schema(tools["detective_deadlock_status"])["required"]
+    assert "recent_new_nodes" not in _input_schema(tools["detective_deadlock_status"]).get("required", [])
+    assert "recent_new_edges" not in _input_schema(tools["detective_deadlock_status"]).get("required", [])
 
 
 @pytest.mark.anyio

@@ -3,7 +3,7 @@ from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
-from . import exports, graph, store
+from . import exports, graph, scheduler, signals, store
 
 mcp = FastMCP("detective")
 
@@ -215,8 +215,71 @@ def detective_export_markdown(case_id: str, workspace: str | Path | None = None)
 
 
 @mcp.tool()
-def detective_export_mermaid(case_id: str, workspace: str | Path | None = None) -> dict[str, Any]:
-    return exports.export_mermaid(workspace, case_id)
+def detective_export_mermaid(
+    case_id: str,
+    diagram: str = "full",
+    focus_node_id: str | None = None,
+    workspace: str | Path | None = None,
+) -> dict[str, Any]:
+    return exports.export_mermaid(workspace, case_id, diagram, focus_node_id)
+
+
+@mcp.tool()
+def detective_record_direction_attempt(
+    case_id: str,
+    description: str,
+    target_node_ids: list[str],
+    new_evidence_count: int,
+    workspace: str | Path | None = None,
+) -> dict[str, Any]:
+    return scheduler.record_direction_attempt(workspace, case_id, description, target_node_ids, new_evidence_count)
+
+
+@mcp.tool()
+def detective_add_next_action(
+    case_id: str,
+    description: str,
+    assigned_role: str,
+    priority: float,
+    reason: str,
+    workspace: str | Path | None = None,
+) -> dict[str, Any]:
+    return scheduler.add_next_action(workspace, case_id, description, assigned_role, priority, reason)
+
+
+@mcp.tool()
+def detective_score_candidate_actions(
+    case_id: str,
+    candidates: list[dict[str, Any]],
+    workspace: str | Path | None = None,
+) -> list[dict[str, Any]]:
+    return scheduler.score_candidate_actions(workspace, case_id, candidates)
+
+
+@mcp.tool()
+def detective_apply_user_guidance(
+    case_id: str,
+    guidance_type: str,
+    content: str,
+    workspace: str | Path | None = None,
+) -> dict[str, Any]:
+    return scheduler.apply_user_guidance(workspace, case_id, guidance_type, content)
+
+
+@mcp.tool()
+def detective_convergence_status(case_id: str, workspace: str | Path | None = None) -> dict[str, Any]:
+    return signals.convergence_status(workspace, case_id)
+
+
+@mcp.tool()
+def detective_deadlock_status(
+    case_id: str,
+    scored_actions: list[dict[str, Any]],
+    recent_new_nodes: int = 0,
+    recent_new_edges: int = 0,
+    workspace: str | Path | None = None,
+) -> dict[str, Any]:
+    return signals.deadlock_status(workspace, case_id, scored_actions, recent_new_nodes, recent_new_edges)
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ The AI maintains a **CaseBoard** — a directed labeled graph of **Fragments** (
 ```text
 Current shipped v2 MCP core: local case storage + graph state + graph overview/query + shortest paths + exports
 Legacy v1 workflow label: Scan → Evolve → Focus → Act → File
-Planned v2.1 orchestration: autonomous looping built on the MCP graph core
+Current v2.1 orchestration support: scheduler memory + signals + specialist agents built on the MCP graph core
 ```
 
 ## The Fragment + Thread Model
@@ -63,6 +63,22 @@ The board has only two primitives:
 ## v2 MCP Graph Core
 
 Detective v2 includes a local stdio MCP server registered by `.mcp.json` and launched with `uv`. The v2 MCP graph core is the canonical current architecture, and the MCP server is the preferred state interface for new workflows.
+
+## v2.1 Autonomous Investigation
+
+Detective v2.1 adds orchestration support on top of the MCP graph core.
+
+New capabilities:
+
+- Case-local scheduler memory for attempted directions and next actions
+- Candidate action scoring
+- Cold direction detection
+- User guidance capture with priority over automation
+- Conservative convergence status
+- Deadlock status
+- Specialist agents for hypotheses, evidence, contradictions, graph paths, and reporting
+
+Default autonomy is `full_auto`, but user intervention always takes priority. The MCP server remains the state owner; agents and skills must use MCP tools rather than editing `.detective/` files directly.
 
 Core tools:
 
@@ -175,7 +191,7 @@ Legacy v1 case files used the flat path `.detective/cases/<case-id>.json`; that 
 | Entities | origin/goal/fact/intent | Fragment + Thread (unified) |
 | Loop | OODA | Scan-Evolve-Focus-Act-File |
 | Strategy | Manual priority + reviewer | Formal scoring + constraint propagation helpers |
-| Convergence | LLM judgment with `complete: true` | MCP graph state + legacy scoring/convergence helpers; autonomous orchestration planned for v2.1 |
+| Convergence | LLM judgment with `complete: true` | MCP graph state + convergence/deadlock signals plus legacy compatibility helpers |
 | Concurrency | Multiple workers in parallel | Sequential case workflow |
 | Domain | CTF/security-focused | Domain-neutral + configuration adaptation |
 
@@ -183,10 +199,10 @@ The Detective framework is a theoretical generalization and lightweight reductio
 
 ## Design Specification
 
-Current and planned design specs:
+Design specs:
 
 - Current v2.0 MCP graph core: `docs/superpowers/specs/2026-06-03-detective-mcp-graph-core-design.md`
-- Future/planned v2.1 autonomous investigation orchestration: `docs/superpowers/specs/2026-06-03-detective-v2-1-autonomous-investigation-design.md`
+- v2.1 autonomous investigation orchestration: `docs/superpowers/specs/2026-06-03-detective-v2-1-autonomous-investigation-design.md`
 
 ## File Structure
 
@@ -200,7 +216,13 @@ detective-plugin/
 ├── README.md                    # English documentation
 ├── README-zh.md                 # Chinese documentation
 ├── agents/
-│   └── strategy-evaluator.md    # Strategy scoring agent
+│   ├── strategy-evaluator.md    # Legacy strategy scoring agent
+│   ├── lead-investigator.md     # v2.1 investigation coordinator
+│   ├── hypothesis-generator.md  # Hypothesis specialist
+│   ├── evidence-hunter.md       # Evidence specialist
+│   ├── contradiction-finder.md  # Falsification specialist
+│   ├── path-analyzer.md         # Graph topology specialist
+│   └── report-writer.md         # Artifact and resolution specialist
 ├── detective_mcp/               # Shared v2 MCP graph core and utility modules
 │   ├── exports.py               # Markdown and Mermaid exports
 │   ├── graph.py                 # Graph operations and traversal

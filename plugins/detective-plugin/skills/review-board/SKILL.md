@@ -7,9 +7,24 @@ description: This skill should be used when the user asks to "review the board",
 
 Present the current CaseBoard state in a human-readable format, showing all fragments, threads, hypotheses, and the investigation's overall progress.
 
-## Process
+## MCP-first review
 
-### 1. Load Board State
+For Detective v2 cases, prefer MCP tools:
+
+1. `detective_graph_overview`
+2. `detective_list_nodes`
+3. `detective_list_edges`
+4. `detective_convergence_status`
+5. `detective_export_markdown`
+6. `detective_export_mermaid`
+
+Only use legacy scripts if the MCP server is unavailable.
+
+## Legacy v1 fallback process
+
+Use this section only for legacy v1 flat JSON case files when the Detective MCP server is unavailable. For v2/v2.1 cases, use the MCP-first review flow above.
+
+### 1. Load Legacy Board State
 
 ```bash
 python $PLUGIN_ROOT/scripts/board.py status .detective/cases/<case-id>.json
@@ -73,17 +88,14 @@ python $PLUGIN_ROOT/scripts/board.py export-graph .detective/cases/<case-id>.jso
 
 This outputs DOT format which can be rendered with Graphviz.
 
-## Multiple Cases
+## Legacy v1 multiple-case fallback
 
-If multiple case files exist in `.detective/cases/`, list them and ask which to review:
+For legacy v1 flat JSON case files only, if multiple files exist and MCP is unavailable, ask the user which legacy case to inspect.
 
-```bash
-ls .detective/cases/*.json
-```
+## Legacy v1 fallback resources
 
-## Additional Resources
+Use these scripts only for legacy v1 flat JSON case files when the Detective MCP server is unavailable:
 
-### Scripts
-- **`scripts/board.py`** — Board status and DOT graph export
-- **`scripts/scoring.py`** — Phase suggestion
-- **`scripts/convergence.py`** — Convergence status check
+- **`scripts/board.py`** — Legacy board status and DOT graph export
+- **`scripts/scoring.py`** — Legacy phase suggestion
+- **`scripts/convergence.py`** — Legacy convergence status check

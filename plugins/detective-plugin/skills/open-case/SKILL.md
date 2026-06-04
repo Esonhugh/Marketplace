@@ -19,47 +19,34 @@ Before creating the case, conduct a brief exchange with the user to understand:
 
 If the user provided a clear problem description as an argument, skip directly to case creation.
 
-### 2. Create the CaseBoard
+### 2. Create the MCP-backed CaseBoard
 
-Initialize the case using the board script:
+For Detective v2/v2.1 cases, create the case through `detective_open_case`:
 
-```bash
-python $PLUGIN_ROOT/scripts/board.py init .detective/cases/<case-id>.json "<title>" "<description>"
+```text
+detective_open_case(title="<title>", description="<description>", case_id="<case-id>", config={...})
 ```
 
-Use a slug derived from the title as `<case-id>` (e.g., "perf-regression-2026-05").
+Use a slug derived from the title as `<case-id>` (e.g., "perf-regression-2026-05"). If the Detective MCP server is unavailable, stop and ask the user to check `/mcp`.
 
-### 3. Seed Initial Fragments
+### 3. Seed Initial Nodes
 
-Add the founding fragments to the board:
+Add founding graph nodes through `detective_add_node`:
 
-**Crime Scene** (always required):
-```json
-{"content": "<initial context>", "role": "observation", "maturity": "evidence", "source": "user_authority"}
-```
+- Crime scene: `type="observation"`, `source="user"`, high confidence
+- Case goal: `type="question"` or `type="task"`, `source="user"`, metadata `{"is_goal": true}`
+- Initial clues: `type="clue"` or `type="observation"`, `source="user"`
+- Initial hypotheses: `type="hypothesis"`, `source="user"`, confidence around `0.5`
 
-**Case Goal** (always required):
-```json
-{"content": "<what we're trying to determine>", "role": "observation", "maturity": "anchor", "source": "user_authority", "metadata": {"is_goal": true}}
-```
-
-**Initial Clues** (if user provided any):
-```json
-{"content": "<clue>", "role": "observation", "maturity": "clue", "source": "user_input"}
-```
-
-**Initial Hypotheses** (if user has suspicions):
-```json
-{"content": "<hypothesis>", "role": "hypothesis", "maturity": "clue", "confidence": 0.5, "source": "user_input"}
-```
+Connect related founding nodes with `detective_add_edge` using `derives`, `supports`, `requires`, or `related_to` as appropriate.
 
 ### 4. Configure Investigation Parameters
 
-Set case-specific configuration by updating the board JSON:
+Pass case-specific configuration to `detective_open_case` when creating the case:
 - `checkpoint_interval`: How many actions between user check-ins (default: 5)
 - `max_actions`: Budget limit (default: 50)
 - `confidence_threshold_confirm`: When to confirm a hypothesis (default: 0.85)
-- `confidence_threshold_eliminate`: When to auto-eliminate (default: 0.15)
+- `confidence_threshold_eliminate`: When to eliminate or down-rank an alternative (default: 0.15)
 
 Adjust based on problem complexity — simple problems: lower max_actions, higher checkpoint frequency.
 
@@ -94,11 +81,16 @@ Run `/detective:investigate` to begin the investigation loop.
 
 ## State File Location
 
-All case files stored at: `.detective/cases/<case-id>.json` (project-local)
+For v2/v2.1 cases, canonical state is created by `detective_open_case` at:
 
-Create the `.detective/cases/` directory if it doesn't exist.
+```text
+.detective/cases/<case-id>/case.json
+```
 
-## Additional Resources
+Do not create or edit case JSON files directly for v2/v2.1 cases.
 
-### Scripts
-- **`scripts/board.py`** — CaseBoard CRUD operations (init, add-fragment, add-thread, status)
+## Legacy v1 fallback resources
+
+Use these only for legacy v1 flat JSON case files when the Detective MCP server is unavailable:
+
+- **`scripts/board.py`** — Legacy v1 CaseBoard inspection and deprecated mutation helpers

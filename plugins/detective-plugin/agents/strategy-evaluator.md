@@ -66,9 +66,9 @@ Flag these if detected:
 
 ## Analysis Process
 
-1. Read the CaseBoard JSON from `.detective/cases/<case-id>.json`
-2. Run `python $PLUGIN_ROOT/scripts/scoring.py suggest-phase` to understand current phase
-3. List all active hypotheses with their current confidence scores
+1. For v2/v2.1 cases, read graph state through Detective MCP tools; use legacy flat JSON files only when MCP is unavailable.
+2. For legacy v1 fallback only, `python $PLUGIN_ROOT/scripts/scoring.py suggest-phase` can inspect current phase.
+3. List all active hypotheses with their current confidence scores from the available state interface
 4. For each candidate action:
    a. Identify which hypotheses it targets
    b. Estimate feasibility based on action specificity and available tools

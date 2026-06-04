@@ -3,154 +3,69 @@ name: investigate
 description: This skill should be used when the user asks to "investigate", "continue the investigation", "run the detective loop", "next investigation step", or wants to execute the Scan-Evolve-Focus-Act-File cycle on an active case. Runs the core investigation loop with periodic checkpoints.
 ---
 
-# Investigate — Core Detective Loop
+# Investigate — MCP-Backed Detective Loop
 
-Execute the investigation cycle on an active case: Scan → Evolve → Focus → Act → File. Run multiple rounds until a checkpoint is reached or convergence is detected.
+Execute the investigation cycle on an active MCP-backed case. Prefer Detective MCP tools over direct JSON edits or legacy scripts.
 
 ## Prerequisites
 
-An active case must exist in `.detective/cases/`. If multiple cases exist and no case-id argument is provided, ask the user which case to work on.
+An active case must exist under `.detective/cases/`. If the MCP server is unavailable, explain that v2.1 investigation requires the detective MCP server and ask the user to check `/mcp`.
 
-## The Investigation Cycle
+## Loop
 
-Each round follows five steps:
+1. Call `detective_graph_overview`.
+2. List active hypotheses, open questions, and recent evidence with `detective_list_nodes`.
+3. Generate candidate actions and call `detective_score_candidate_actions`.
+4. In `full_auto`, dispatch specialist agents for independent actions; in `checkpoint`, run up to the checkpoint interval; in `manual`, ask the user before acting.
+5. Require all findings to be written through MCP tools.
+6. Call `detective_convergence_status` and `detective_deadlock_status`.
+7. Export Markdown and Mermaid with `detective_export_markdown` and `detective_export_mermaid` after meaningful graph changes.
+8. Stop on convergence, deadlock, budget exhaustion, or user intervention.
 
-### Step 1: Scan (Review the Board)
+## Legacy script fallback
 
-Read the current CaseBoard state and analyze the graph topology:
+This section is deprecated. Use it only for legacy v1 flat JSON case files when the Detective MCP server is unavailable. It is not the workflow for Detective v2/v2.1 cases.
+
+For v2/v2.1 cases:
+- Stop if required MCP tools are unavailable and ask the user to check `/mcp`.
+- Record findings, graph changes, convergence checks, and exports through Detective MCP tools.
+- Do not use legacy scripts to mutate case state.
+
+### Legacy v1 read-only inspection
+
+For legacy v1 flat case files, the old scripts can inspect status when MCP is unavailable:
 
 ```bash
 python $PLUGIN_ROOT/scripts/board.py status .detective/cases/<case-id>.json
 python $PLUGIN_ROOT/scripts/scoring.py suggest-phase .detective/cases/<case-id>.json
-```
-
-Assess:
-- Which Fragments are isolated (no threads connecting them)?
-- Which Threads are broken (connecting to eliminated fragments)?
-- Which Hypotheses are unsupported (no supporting evidence)?
-- What is the current phase?
-
-### Step 2: Evolve (Propagate Constraints & Mature Fragments)
-
-Run constraint propagation to automatically update the board:
-
-```bash
-python $PLUGIN_ROOT/scripts/scoring.py propagate .detective/cases/<case-id>.json
-```
-
-Additionally, assess whether any Fragment should be promoted:
-- Raw observations with corroboration → promote to Clue
-- Clues verified by investigation actions → promote to Evidence
-- Evidence forming indisputable anchors → promote to Anchor
-
-Use `board.py evolve <case-file> <fragment-id> <new-maturity>` for promotions.
-
-### Step 3: Focus (Strategy & Prioritization)
-
-This is the critical decision step. Determine the highest-value next action:
-
-1. Generate 2-5 candidate investigation actions based on:
-   - Gaps in the evidence graph
-   - Unsupported hypotheses needing verification
-   - Promising clues needing follow-up
-   - Contradictions needing resolution
-
-2. Score candidates:
-```bash
-python $PLUGIN_ROOT/scripts/scoring.py score-actions .detective/cases/<case-id>.json '<json array of candidates>'
-```
-
-Each candidate needs: `description`, `target_hypotheses` (which hypotheses it discriminates), `feasibility` (0-1), `cost` (1-10).
-
-3. Apply pruning heuristics:
-   - Skip actions targeting eliminated hypotheses
-   - Skip actions whose expected outcome duplicates existing evidence
-   - Deprioritize directions that have been cold (3+ actions with no new evidence)
-
-4. Select the top-scoring action to execute.
-
-### Step 4: Act (Execute Investigation Action)
-
-Execute the chosen action using available Claude Code tools:
-- File reading/searching for code investigation
-- Bash commands for system exploration
-- Web search for research/intelligence gathering
-- Any MCP tools available in the session
-
-Record what was done in `actions_history`:
-```json
-{"action": "<description>", "tools_used": ["Bash"], "timestamp": "<iso>", "round": <n>}
-```
-
-### Step 5: File (Record Results)
-
-Process action results and update the board:
-
-1. **Create new Fragments** from findings:
-   - New observations → `{"role": "observation", "maturity": "raw"}`
-   - Confirmed facts → `{"role": "observation", "maturity": "evidence"}`
-   - New hypotheses formed → `{"role": "hypothesis", "maturity": "clue", "confidence": 0.5}`
-   - Constraints discovered → `{"role": "constraint", "maturity": "evidence"}`
-
-2. **Add Threads** connecting new fragments to existing ones:
-   - New evidence supporting a hypothesis → `supports` thread
-   - New evidence contradicting a hypothesis → `contradicts` thread
-   - Derived conclusions → `derives` thread
-
-3. **Update the board file**:
-```bash
-python $PLUGIN_ROOT/scripts/board.py add-fragment .detective/cases/<case-id>.json '<json>'
-python $PLUGIN_ROOT/scripts/board.py add-thread .detective/cases/<case-id>.json '<json>'
-```
-
-## Checkpoint Logic
-
-After every N rounds (configured as `checkpoint_interval` in case config, default 5):
-
-1. Check convergence:
-```bash
 python $PLUGIN_ROOT/scripts/convergence.py .detective/cases/<case-id>.json
 ```
 
-2. If converged → suggest closing the case with `/detective:close-case`
+Use the output to assess:
+- Which Fragments are isolated or unsupported.
+- Which Threads are broken or contradictory.
+- Which Hypotheses remain active or eliminated.
+- Whether the legacy case appears converged.
 
-3. If not converged → present a checkpoint summary to the user:
-   - Rounds completed this session
-   - New fragments/threads added
-   - Hypotheses eliminated
-   - Current leading hypothesis and confidence
-   - Suggested next direction
-   - Ask: "Continue investigation, discuss the case, or pause?"
+### Legacy v1 reasoning cycle
 
-## Trigger Case Discussion
+When reviewing a legacy v1 flat case without MCP, treat the old Scan → Evolve → Focus → Act → File loop as a reasoning model only:
 
-Automatically invoke `/detective:discuss-case` when:
-- Multiple hypotheses have nearly equal confidence (spread < 0.1)
-- All candidate actions score below 0.3 (stuck)
-- A previously strong hypothesis just got eliminated
-- Budget is > 80% consumed
+1. **Scan**: inspect the board status and current phase.
+2. **Evolve**: identify constraints or maturity changes that would matter.
+3. **Focus**: generate candidate actions and score them conceptually, or with the legacy scorer for v1 files only.
+4. **Act**: execute the selected investigation action with available tools.
+5. **File**: for v2/v2.1, write findings through MCP tools; for legacy v1 fallback, summarize findings without mutating the flat case file.
 
-## Loop Termination
+Legacy mutation commands such as fragment creation, thread creation, maturity changes, and propagation are deprecated. Do not use them for v2/v2.1 cases.
 
-Stop the loop when:
-- Convergence detected (recommend close-case)
-- User requests pause at checkpoint
-- Action budget exhausted
-- Discussion triggered (hand off to discuss-case skill)
+### Checkpoints and termination
 
-## Round Output Format
+For legacy v1 fallback, stop when convergence is reported, the user asks to pause, the action budget is exhausted, or discussion is needed. For v2/v2.1, use `detective_convergence_status`, `detective_deadlock_status`, and MCP exports instead of script-based checkpointing.
 
-For each round, briefly report:
-```
-[Round N | Phase: <phase>] Action: <what was done>
-  → Found: <key finding summary>
-  → Board: +<new fragments> fragments, +<new threads> threads
-  → Hypotheses: <active count> active, <eliminated this round> eliminated
-```
+### Additional resources
 
-## Additional Resources
-
-### Scripts
-- **`scripts/board.py`** — Fragment/Thread CRUD, board status, graph export
-- **`scripts/scoring.py`** — Constraint propagation, action scoring, phase detection
-- **`scripts/convergence.py`** — Convergence condition checking
+These scripts are legacy v1 fallback references only:
+- **`scripts/board.py`** — Legacy board inspection and deprecated mutation helpers
+- **`scripts/scoring.py`** — Legacy phase suggestion and scoring helpers
+- **`scripts/convergence.py`** — Legacy convergence inspection

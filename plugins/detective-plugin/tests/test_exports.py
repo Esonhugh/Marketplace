@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from detective_mcp import exports, store
+from detective_mcp import exports, scheduler, store
 
 
 def build_export_case(tmp_path):
@@ -46,6 +46,53 @@ def test_export_markdown_writes_notes_file(tmp_path):
     assert "supports" in text
 
 
+
+def test_export_markdown_includes_scheduler_details(tmp_path):
+    _, _, hypothesis = build_export_case(tmp_path)
+    scheduler.record_direction_attempt(
+        tmp_path,
+        "export-case",
+        description="Challenge primary theory",
+        target_node_ids=[hypothesis["id"]],
+        new_evidence_count=0,
+    )
+    scheduler.record_direction_attempt(
+        tmp_path,
+        "export-case",
+        description="Challenge primary theory",
+        target_node_ids=[hypothesis["id"]],
+        new_evidence_count=0,
+    )
+    scheduler.record_direction_attempt(
+        tmp_path,
+        "export-case",
+        description="Challenge primary theory",
+        target_node_ids=[hypothesis["id"]],
+        new_evidence_count=0,
+    )
+    scheduler.add_next_action(
+        tmp_path,
+        "export-case",
+        "Try to falsify the leading hypothesis",
+        "contradiction-finder",
+        0.9,
+        "Cold direction needs adversarial review",
+    )
+
+    result = exports.export_markdown(tmp_path, "export-case")
+
+    text = Path(result["path"]).read_text(encoding="utf-8")
+    assert "## Scheduler" in text
+    assert "### Attempted Directions" in text
+    assert "Challenge primary theory" in text
+    assert "status: cold" in text
+    assert "new evidence: 0" in text
+    assert "### Next Actions" in text
+    assert "assigned role: contradiction-finder" in text
+    assert "priority: 0.90" in text
+    assert "reason: Cold direction needs adversarial review" in text
+
+
 def test_export_mermaid_writes_graph_file(tmp_path):
     build_export_case(tmp_path)
 
@@ -57,6 +104,45 @@ def test_export_mermaid_writes_graph_file(tmp_path):
     assert text.startswith("graph LR")
     assert "Initial symptom" in text
     assert "-- supports -->" in text
+
+
+
+def test_export_mermaid_hypothesis_chain_focuses_on_direct_connections(tmp_path):
+    _, evidence, hypothesis = build_export_case(tmp_path)
+
+    result = exports.export_mermaid(
+        tmp_path,
+        "export-case",
+        diagram="hypothesis-chain",
+        focus_node_id=hypothesis["id"],
+    )
+
+    text = Path(result["path"]).read_text(encoding="utf-8")
+    assert hypothesis["id"] in text
+    assert evidence["id"] in text
+    assert "Log line explains symptom" in text
+    assert "Verified log line" in text
+    assert f'{evidence["id"]} -- supports --> {hypothesis["id"]}' in text
+
+
+
+def test_export_mermaid_hypothesis_chain_excludes_unrelated_isolated_nodes(tmp_path):
+    _, evidence, hypothesis = build_export_case(tmp_path)
+    unrelated = store.add_node(tmp_path, "export-case", "evidence", "Unrelated breadcrumb", source="file")
+
+    result = exports.export_mermaid(
+        tmp_path,
+        "export-case",
+        diagram="hypothesis-chain",
+        focus_node_id=hypothesis["id"],
+    )
+
+    text = Path(result["path"]).read_text(encoding="utf-8")
+    assert evidence["id"] in text
+    assert hypothesis["id"] in text
+    assert unrelated["id"] not in text
+    assert "Unrelated breadcrumb" not in text
+    assert "Initial symptom" not in text
 
 
 def test_export_preserves_unicode_literals_in_markdown_and_mermaid(tmp_path):

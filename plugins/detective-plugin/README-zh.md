@@ -9,7 +9,7 @@ AI 维护一块**案件白板（CaseBoard）**——由**案情片段（Fragment
 ```text
 当前已交付的 v2 MCP 核心：本地案件存储 + 图状态 + 图概览/查询 + 最短路径 + 导出
 旧版 v1 工作流标签：审板(Scan) → 演化(Evolve) → 聚焦(Focus) → 行动(Act) → 归档(File)
-规划中的 v2.1 编排：构建在 MCP 图核心之上的自主循环
+当前 v2.1 编排支持：构建在 MCP 图核心之上的调度记忆、信号判断与专用 agents
 ```
 
 ## Fragment + Thread 模型
@@ -63,6 +63,22 @@ AI 维护一块**案件白板（CaseBoard）**——由**案情片段（Fragment
 ## v2 MCP 图核心
 
 Detective v2 提供一个通过 `.mcp.json` 注册、由 `uv` 启动的本地 stdio MCP 服务。v2 MCP 图核心是当前权威架构，新的工作流应优先通过 MCP 工具读写调查图状态。
+
+## v2.1 自治调查
+
+Detective v2.1 在 MCP 图核心之上增加自治调查编排能力。
+
+新增能力：
+
+- 案件本地调度记忆：记录已尝试方向和下一步动作
+- 候选动作评分
+- 冷线索/冷方向检测
+- 用户指导优先写入图状态
+- 保守的收敛状态判断
+- 死锁状态判断
+- 用于假设、证据、反证、图路径和报告的专用 agents
+
+默认自治级别是 `full_auto`，但用户主动介入始终优先。MCP 服务仍然是状态所有者；agents 和 skills 必须通过 MCP 工具读写状态，不能直接编辑 `.detective/` 文件。
 
 核心工具：
 
@@ -175,7 +191,7 @@ ln -s /path/to/detective-plugin ~/.claude/plugins/detective
 | 实体 | origin/goal/fact/intent | Fragment + Thread（统一） |
 | 循环 | OODA | Scan-Evolve-Focus-Act-File |
 | 策略 | 人工 priority + reviewer | 形式化评分 + 约束传播辅助逻辑 |
-| 收敛 | LLM 判断 "complete: true" | MCP 图状态 + 旧版评分/收敛辅助逻辑；自主编排计划在 v2.1 提供 |
+| 收敛 | LLM 判断 "complete: true" | MCP 图状态 + 收敛/死锁信号，加旧版兼容辅助逻辑 |
 | 并发 | 多 Worker 并行 | 顺序案件工作流 |
 | 领域 | CTF/安全锁定 | 领域无关 + 配置适配 |
 
@@ -183,10 +199,10 @@ Detective 框架是破军 OODA 方法论的**理论泛化和轻量降维**。
 
 ## 设计规格
 
-当前与规划中的设计规格：
+设计规格：
 
 - 当前 v2.0 MCP 图核心：`docs/superpowers/specs/2026-06-03-detective-mcp-graph-core-design.md`
-- 未来/规划中的 v2.1 自主调查编排：`docs/superpowers/specs/2026-06-03-detective-v2-1-autonomous-investigation-design.md`
+- v2.1 自主调查编排：`docs/superpowers/specs/2026-06-03-detective-v2-1-autonomous-investigation-design.md`
 
 ## 文件结构
 
@@ -200,7 +216,13 @@ detective-plugin/
 ├── README.md                    # 英文文档
 ├── README-zh.md                 # 中文文档
 ├── agents/
-│   └── strategy-evaluator.md    # 策略评分 Agent
+│   ├── strategy-evaluator.md    # 旧版策略评分 Agent
+│   ├── lead-investigator.md     # v2.1 调查协调 Agent
+│   ├── hypothesis-generator.md  # 假设生成 Agent
+│   ├── evidence-hunter.md       # 证据搜索 Agent
+│   ├── contradiction-finder.md  # 反证 Agent
+│   ├── path-analyzer.md         # 图路径分析 Agent
+│   └── report-writer.md         # 报告与结论 Agent
 ├── detective_mcp/               # 共享 v2 MCP 图核心与 utility 模块
 │   ├── exports.py               # Markdown 与 Mermaid 导出
 │   ├── graph.py                 # 图操作与遍历
