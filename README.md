@@ -49,6 +49,10 @@ This is Esonhugh's private [Claude Code Plugin Marketplace](https://code.claude.
 | [finance-market-analysis](#finance-market-analysis) | Finance | himself65 | [upstream](https://github.com/himself65/finance-skills) | Earnings, correlation, ETF premium, SEPA strategy |
 | [document-skills](#document-skills) | Productivity | Anthropic | [upstream](https://github.com/anthropics/skills) | Document processing — xlsx, docx, pptx, pdf |
 | [skill-creator](#skill-creator) | Development | Anthropic | [upstream](https://github.com/anthropics/skills) | Skill authoring and improvement tool |
+| [chrome-devtools-mcp](#chrome-devtools-mcp) | Development | Chrome DevTools Team | [upstream](https://github.com/ChromeDevTools/chrome-devtools-mcp) | Chrome automation, debugging, network, console, and performance traces |
+| [frontend-design](#frontend-design) | Development | Anthropic | [upstream](https://github.com/anthropics/claude-plugins-official) | Production-grade frontend UI/UX design skill |
+| [superpowers](#superpowers) | Development | Jesse Vincent | [upstream](https://github.com/obra/superpowers) | Brainstorming, TDD, debugging, code review, and skill authoring workflows |
+| [mattpocock-skills](#mattpocock-skills) | Development | Matt Pocock | [repo](https://github.com/mattpocock/skills) | Engineering and productivity skills including grill-me |
 
 ---
 
@@ -335,6 +339,54 @@ Meta-skill from Anthropic for creating, modifying, and measuring the effectivene
 
 ---
 
+### chrome-devtools-mcp
+
+> **Reference:** [`ChromeDevTools/chrome-devtools-mcp`](https://github.com/ChromeDevTools/chrome-devtools-mcp) as a standalone plugin repo, matching the official marketplace index.
+
+Chrome DevTools MCP integration for controlling and inspecting a live Chrome browser from Claude Code: browser automation, console and network inspection, screenshots, and performance traces.
+
+```bash
+/plugin install chrome-devtools-mcp@Esonhugh-Marketplace
+```
+
+---
+
+### frontend-design
+
+> **Reference:** [`anthropics/claude-plugins-official`](https://github.com/anthropics/claude-plugins-official) at `plugins/frontend-design/`
+
+Anthropic frontend design skill for creating distinctive, production-grade UI/UX implementations and avoiding generic AI-looking interfaces.
+
+```bash
+/plugin install frontend-design@Esonhugh-Marketplace
+```
+
+---
+
+### superpowers
+
+> **Reference:** [`obra/superpowers`](https://github.com/obra/superpowers) as a standalone plugin repo, matching the official marketplace index.
+
+Workflow skills for brainstorming, red/green TDD, systematic debugging, subagent-driven development, code review, and skill authoring.
+
+```bash
+/plugin install superpowers@Esonhugh-Marketplace
+```
+
+---
+
+### mattpocock-skills
+
+> **Reference:** [`mattpocock/skills`](https://github.com/mattpocock/skills) as a root Claude Code plugin.
+
+Matt Pocock's engineering and productivity skills. Includes `grill-me`, `grill-with-docs`, `tdd`, `diagnose`, `triage`, `handoff`, and related real-engineering workflow skills.
+
+```bash
+/plugin install mattpocock-skills@Esonhugh-Marketplace
+```
+
+---
+
 ## Source Types
 
 This marketplace uses multiple source strategies:
@@ -354,7 +406,7 @@ Plugins with standalone repos are both a **plugin** and a **marketplace** — th
 ```
 Marketplace/
 ├── .claude-plugin/
-│   └── marketplace.json              # Marketplace catalog (11 plugins)
+│   └── marketplace.json              # Marketplace catalog (15 plugins)
 ├── plugins/
 │   ├── fofa-intel/                   # FOFA cyberspace search (local)
 │   ├── threatbook-intel/             # ThreatBook threat intel (local)

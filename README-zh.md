@@ -49,6 +49,10 @@
 | [finance-market-analysis](#finance-market-analysis) | 金融 | himself65 | [上游](https://github.com/himself65/finance-skills) | 财报分析、相关性、ETF 溢价、SEPA 策略 |
 | [document-skills](#document-skills) | 生产力 | Anthropic | [上游](https://github.com/anthropics/skills) | 文档处理 — xlsx、docx、pptx、pdf |
 | [skill-creator](#skill-creator) | 开发 | Anthropic | [上游](https://github.com/anthropics/skills) | Skill 编写与优化工具 |
+| [chrome-devtools-mcp](#chrome-devtools-mcp) | 开发 | Chrome DevTools Team | [上游](https://github.com/ChromeDevTools/chrome-devtools-mcp) | Chrome 自动化、调试、网络、控制台与性能追踪 |
+| [frontend-design](#frontend-design) | 开发 | Anthropic | [上游](https://github.com/anthropics/claude-plugins-official) | 生产级前端 UI/UX 设计技能 |
+| [superpowers](#superpowers) | 开发 | Jesse Vincent | [上游](https://github.com/obra/superpowers) | 头脑风暴、TDD、调试、代码审查与技能编写工作流 |
+| [mattpocock-skills](#mattpocock-skills) | 开发 | Matt Pocock | [仓库](https://github.com/mattpocock/skills) | 包含 grill-me 的工程与生产力技能 |
 
 ---
 
@@ -335,6 +339,54 @@ Anthropic 出品的元技能，用于创建、修改和衡量 Claude Code Skills
 
 ---
 
+### chrome-devtools-mcp
+
+> **引用：** [`ChromeDevTools/chrome-devtools-mcp`](https://github.com/ChromeDevTools/chrome-devtools-mcp) 的独立插件仓库，与官方 marketplace 索引一致。
+
+Chrome DevTools MCP 集成，用于在 Claude Code 中控制和检查实时 Chrome 浏览器：浏览器自动化、控制台和网络检查、截图以及性能追踪。
+
+```bash
+/plugin install chrome-devtools-mcp@Esonhugh-Marketplace
+```
+
+---
+
+### frontend-design
+
+> **引用：** [`anthropics/claude-plugins-official`](https://github.com/anthropics/claude-plugins-official) 的 `plugins/frontend-design/`
+
+Anthropic 前端设计技能，用于创建有辨识度的生产级 UI/UX 实现，避免通用 AI 风格界面。
+
+```bash
+/plugin install frontend-design@Esonhugh-Marketplace
+```
+
+---
+
+### superpowers
+
+> **引用：** [`obra/superpowers`](https://github.com/obra/superpowers) 的独立插件仓库，与官方 marketplace 索引一致。
+
+工作流技能集合，覆盖头脑风暴、红绿 TDD、系统化调试、子代理驱动开发、代码审查和技能编写。
+
+```bash
+/plugin install superpowers@Esonhugh-Marketplace
+```
+
+---
+
+### mattpocock-skills
+
+> **引用：** [`mattpocock/skills`](https://github.com/mattpocock/skills) 作为根 Claude Code 插件。
+
+Matt Pocock 的工程与生产力技能集合。包含 `grill-me`、`grill-with-docs`、`tdd`、`diagnose`、`triage`、`handoff` 等真实工程工作流技能。
+
+```bash
+/plugin install mattpocock-skills@Esonhugh-Marketplace
+```
+
+---
+
 ## 来源类型
 
 本市场使用多种来源策略：
@@ -354,7 +406,7 @@ Anthropic 出品的元技能，用于创建、修改和衡量 Claude Code Skills
 ```
 Marketplace/
 ├── .claude-plugin/
-│   └── marketplace.json              # 市场目录（11 个插件）
+│   └── marketplace.json              # 市场目录（15 个插件）
 ├── plugins/
 │   ├── fofa-intel/                   # FOFA 网络空间搜索（本地）
 │   ├── threatbook-intel/             # 微步威胁情报（本地）

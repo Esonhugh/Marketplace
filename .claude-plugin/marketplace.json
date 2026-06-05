@@ -292,6 +292,97 @@
         "meta",
         "authoring"
       ]
+    },
+    {
+      "name": "chrome-devtools-mcp",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/ChromeDevTools/chrome-devtools-mcp.git",
+        "sha": "89718901174be7c0c58a1a2b29281ab2f053cd53"
+      },
+      "description": "Control and inspect a live Chrome browser from your coding agent. Record performance traces, analyze network requests, check console messages with source-mapped stack traces, and automate browser actions with Puppeteer.",
+      "author": {
+        "name": "Chrome DevTools Team"
+      },
+      "category": "development",
+      "homepage": "https://github.com/ChromeDevTools/chrome-devtools-mcp",
+      "keywords": [
+        "chrome",
+        "devtools",
+        "mcp",
+        "browser-automation",
+        "debugging",
+        "performance",
+        "puppeteer"
+      ]
+    },
+    {
+      "name": "frontend-design",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/anthropics/claude-plugins-official.git",
+        "path": "plugins/frontend-design",
+        "ref": "main",
+        "sha": "bd7cf41fc8a468b136a9266633303ff4a011c7b4"
+      },
+      "description": "Create distinctive, production-grade frontend interfaces with high design quality. Generates creative, polished code that avoids generic AI aesthetics.",
+      "author": {
+        "name": "Anthropic",
+        "email": "support@anthropic.com"
+      },
+      "category": "development",
+      "homepage": "https://github.com/anthropics/claude-plugins-official/tree/main/plugins/frontend-design",
+      "keywords": [
+        "frontend",
+        "design",
+        "ui",
+        "ux",
+        "visual-design"
+      ]
+    },
+    {
+      "name": "superpowers",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/obra/superpowers.git",
+        "sha": "6fd4507659784c351abbd2bc264c7162cfd386dc"
+      },
+      "description": "Superpowers teaches Claude brainstorming, subagent driven development with built in code review, systematic debugging, and red/green TDD. Additionally, it teaches Claude how to author and test new skills.",
+      "author": {
+        "name": "Jesse Vincent"
+      },
+      "category": "development",
+      "homepage": "https://github.com/obra/superpowers",
+      "keywords": [
+        "skills",
+        "tdd",
+        "debugging",
+        "brainstorming",
+        "code-review",
+        "workflows"
+      ]
+    },
+    {
+      "name": "mattpocock-skills",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/mattpocock/skills.git",
+        "sha": "aaf2453fbdfe7a15c07f11d861224f34ab4b53cb"
+      },
+      "description": "Matt Pocock's engineering and productivity skills for real-world coding workflows, including grill-me, TDD, diagnosis, triage, and handoff.",
+      "author": {
+        "name": "Matt Pocock"
+      },
+      "category": "development",
+      "homepage": "https://github.com/mattpocock/skills",
+      "keywords": [
+        "skills",
+        "engineering",
+        "productivity",
+        "grill-me",
+        "tdd",
+        "diagnosis"
+      ]
     }
   ]
 }
