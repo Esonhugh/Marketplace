@@ -42,6 +42,7 @@ This is Esonhugh's private [Claude Code Plugin Marketplace](https://code.claude.
 | [threatbook-intel](#threatbook-intel) | Security | Esonhugh | [skills](skills/threatbook-intel/) | ThreatBook (微步) — IP/domain/hash threat intel with browser automation |
 | [macos-control-bypasser](#macos-control-bypasser) | Security | Esonhugh | [skills](skills/macos-control-bypasses/) | macOS offensive security — TCC bypass, sandbox escape, dylib injection |
 | [interactive-cli-systemic-debugging](#interactive-cli-systemic-debugging) | Development | Esonhugh | [skills](skills/interactive-cli-systemic-debugging/) | tmux workflow for debugging interactive CLI, REPL, TUI, and watch-mode processes |
+| [terminal-session-mcp](#terminal-session-mcp) | Development | Esonhugh | local | PTY terminal session MCP for long-running interactive CLI debugging and full transcript recording |
 | [pydoll-antibot-bypasser](#pydoll-antibot-bypasser) | Automation | Esonhugh | [repo](https://github.com/Esonhugh/pydoll-cf-waf-bypasser-skills) | Stealth browser automation bypassing Cloudflare WAF & CAPTCHA |
 | [ibkr-trade-analyzer](#ibkr-trade-analyzer) | Finance | Esonhugh | [repo](https://github.com/Esonhugh/ibkr-trade-analyzer) | IBKR trading history analysis — P&L, portfolio, fees, Flex API + local import |
 | [detective](#detective) | Reasoning | Esonhugh | local | Investigation-driven problem solving with evidence chains |
@@ -145,6 +146,24 @@ Systematic tmux-based debugging workflow for interactive CLI, REPL, TUI, prompt-
 **Included Skill:** [`interactive-cli-systemic-debugging`](skills/interactive-cli-systemic-debugging/)
 
 **Use cases:** commands that hang after prompts, TUIs that render differently by terminal size, watch-mode failures after input, and any CLI behavior that needs preserved screen state with `tmux capture-pane` / `send-keys`.
+
+---
+
+### terminal-session-mcp
+
+PTY-backed terminal session MCP server for Claude Code. It runs through `uv` as a stdio MCP server and supports long-running commands, multi-session concurrency, special key input, terminal resizing, and complete bidirectional transcript recording.
+
+```bash
+/plugin install terminal-session-mcp@Esonhugh-Marketplace
+```
+
+**Included MCP server:** `terminal-session`
+
+**Included Skill:** `terminal-session-debugging`
+
+**Use cases:** debugging REPLs, TUIs, ssh/telnet/nc sessions, watch-mode commands, dev servers, prompt flows, and any terminal command that may not exit or needs real key input.
+
+**Records:** all command input, output, key events, resize events, close events, exit status, and errors under `.terminal-debug/` without redaction or masking.
 
 ---
 

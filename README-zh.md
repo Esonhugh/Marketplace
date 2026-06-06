@@ -42,6 +42,7 @@
 | [threatbook-intel](#threatbook-intel) | 安全 | Esonhugh | [skills](skills/threatbook-intel/) | 微步在线 — IP/域名/哈希威胁情报 + 浏览器自动化 |
 | [macos-control-bypasser](#macos-control-bypasser) | 安全 | Esonhugh | [skills](skills/macos-control-bypasses/) | macOS 攻击安全 — TCC 绕过、沙箱逃逸、dylib 注入 |
 | [interactive-cli-systemic-debugging](#interactive-cli-systemic-debugging) | 开发 | Esonhugh | [skills](skills/interactive-cli-systemic-debugging/) | 用 tmux 调试交互式 CLI、REPL、TUI 和 watch-mode 进程 |
+| [terminal-session-mcp](#terminal-session-mcp) | 开发 | Esonhugh | 本地 | 基于 PTY 的终端会话 MCP，支持长命令、交互式 CLI 调试和完整记录 |
 | [pydoll-antibot-bypasser](#pydoll-antibot-bypasser) | 自动化 | Esonhugh | [仓库](https://github.com/Esonhugh/pydoll-cf-waf-bypasser-skills) | 隐匿浏览器自动化 — 绕过 Cloudflare WAF 与 CAPTCHA |
 | [ibkr-trade-analyzer](#ibkr-trade-analyzer) | 金融 | Esonhugh | [仓库](https://github.com/Esonhugh/ibkr-trade-analyzer) | IBKR 交易历史分析 — 盈亏、持仓、费用，支持 Flex API + 本地导入 |
 | [detective](#detective) | 推理 | Esonhugh | 本地 | 基于证据链的调查推理框架 |
@@ -145,6 +146,24 @@ FOFA 网络空间搜索引擎插件。内置预编译的 GoFOFA 二进制文件�
 **包含的 Skill：** [`interactive-cli-systemic-debugging`](skills/interactive-cli-systemic-debugging/)
 
 **适用场景：** 命令在 prompt 后 hang、TUI 在不同终端尺寸下显示异常、watch mode 在输入后失败，或任何需要用 `tmux capture-pane` / `send-keys` 保留屏幕状态的 CLI 调试。
+
+---
+
+### terminal-session-mcp
+
+面向 Claude Code 的 PTY 终端会话 MCP server。它通过 `uv` 以 stdio MCP 方式运行，支持长时间运行命令、多 session 并发、特殊按键输入、终端 resize 和完整双向 transcript 记录。
+
+```bash
+/plugin install terminal-session-mcp@Esonhugh-Marketplace
+```
+
+**包含的 MCP server：** `terminal-session`
+
+**包含的 Skill：** `terminal-session-debugging`
+
+**适用场景：** 调试 REPL、TUI、ssh/telnet/nc session、watch-mode 命令、dev server、prompt flow，以及任何可能不退出或需要真实按键输入的终端命令。
+
+**记录内容：** 所有 command input、output、key event、resize event、close event、exit status 和 error 都会原样保存到 `.terminal-debug/`，不打码、不脱敏。
 
 ---
 

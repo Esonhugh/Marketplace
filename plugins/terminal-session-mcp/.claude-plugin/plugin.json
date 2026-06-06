@@ -1,0 +1,22 @@
+{
+  "name": "terminal-session-mcp",
+  "version": "0.1.0",
+  "description": "A stdio MCP server for simulated PTY terminal sessions with multi-session concurrency, key input, long-running command support, and full bidirectional transcript recording.",
+  "author": {
+    "name": "Esonhugh",
+    "url": "https://github.com/esonhugh"
+  },
+  "license": "MIT",
+  "keywords": [
+    "terminal",
+    "mcp",
+    "pty",
+    "cli",
+    "debugging",
+    "repl",
+    "tui",
+    "ssh",
+    "telnet",
+    "recorder"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "terminal-session": {
+    "command": "uv",
+    "args": [
+      "--directory",
+      "${CLAUDE_PLUGIN_ROOT}",
+      "run",
+      "python",
+      "-m",
+      "terminal_session_mcp"
+    ],
+    "env": {
+      "TERMINAL_SESSION_WORKSPACE": "${PWD}"
+    }
+  }
+}
