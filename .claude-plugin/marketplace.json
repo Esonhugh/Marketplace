@@ -145,6 +145,29 @@
       ]
     },
     {
+      "name": "terminal-session-mcp",
+      "source": "./plugins/terminal-session-mcp",
+      "description": "PTY terminal session MCP for Claude Code — supports long-running interactive CLI debugging, multi-session concurrency, special key input, terminal resizing, and full bidirectional transcript recording.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Esonhugh"
+      },
+      "category": "development",
+      "homepage": "https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/terminal-session-mcp",
+      "keywords": [
+        "terminal",
+        "mcp",
+        "pty",
+        "cli-debugging",
+        "interactive-cli",
+        "repl",
+        "tui",
+        "ssh",
+        "telnet",
+        "recorder"
+      ]
+    },
+    {
       "name": "macos-control-bypasser",
       "source": "./",
       "description": "Comprehensive macOS offensive security skill covering system internals, binary analysis, shellcode (x64/ARM64), dylib injection, app-runtime injection (Electron/Chromium/NIB), Mach IPC, XPC attacks, Gatekeeper/AMFI/MACF bypass, sandbox escapes, TCC bypasses, persistence mechanisms, IOKit/DriverKit, MDM exploitation, keychain attacks, and full penetration testing workflows.",
