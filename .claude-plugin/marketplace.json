@@ -120,15 +120,44 @@
       ]
     },
     {
+      "name": "interactive-cli-systemic-debugging",
+      "source": "./",
+      "description": "Systematic debugging workflow for interactive CLI, REPL, TUI, and long-running terminal programs using tmux sessions, panes, logs, and reproducible observations.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Esonhugh"
+      },
+      "category": "development",
+      "homepage": "https://github.com/Esonhugh/Marketplace/tree/Skyworship/skills/interactive-cli-systemic-debugging",
+      "strict": false,
+      "skills": [
+        "./skills/interactive-cli-systemic-debugging"
+      ],
+      "keywords": [
+        "tmux",
+        "cli-debugging",
+        "interactive-cli",
+        "repl",
+        "tui",
+        "terminal",
+        "debugging",
+        "systematic-debugging"
+      ]
+    },
+    {
       "name": "macos-control-bypasser",
-      "source": "./plugins/macos-control-bypasser",
+      "source": "./",
       "description": "Comprehensive macOS offensive security skill covering system internals, binary analysis, shellcode (x64/ARM64), dylib injection, app-runtime injection (Electron/Chromium/NIB), Mach IPC, XPC attacks, Gatekeeper/AMFI/MACF bypass, sandbox escapes, TCC bypasses, persistence mechanisms, IOKit/DriverKit, MDM exploitation, keychain attacks, and full penetration testing workflows.",
       "version": "2.0.0",
       "author": {
         "name": "Esonhugh"
       },
       "category": "security",
-      "homepage": "https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/macos-control-bypasser",
+      "homepage": "https://github.com/Esonhugh/Marketplace/tree/Skyworship/skills/macos-control-bypasses",
+      "strict": false,
+      "skills": [
+        "./skills/macos-control-bypasses"
+      ],
       "keywords": [
         "macos",
         "security",
@@ -170,14 +199,18 @@
     },
     {
       "name": "threatbook-intel",
-      "source": "./plugins/threatbook-intel",
+      "source": "./",
       "description": "ThreatBook (微步在线) threat intelligence — IP/domain/hash queries, vulnerability intel, asset mapping, and pydoll browser automation with WeChat login.",
       "version": "1.2.0",
       "author": {
         "name": "Esonhugh"
       },
       "category": "security",
-      "homepage": "https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/threatbook-intel",
+      "homepage": "https://github.com/Esonhugh/Marketplace/tree/Skyworship/skills/threatbook-intel",
+      "strict": false,
+      "skills": [
+        "./skills/threatbook-intel"
+      ],
       "keywords": [
         "threatbook",
         "threat-intel",

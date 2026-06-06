@@ -39,8 +39,9 @@ This is Esonhugh's private [Claude Code Plugin Marketplace](https://code.claude.
 | Plugin | Category | Author | Source | Description |
 |:---|:---:|:---:|:---:|:---|
 | [fofa-intel](#fofa-intel) | Security | Esonhugh | local | FOFA cyberspace search engine — asset mapping & threat intel |
-| [threatbook-intel](#threatbook-intel) | Security | Esonhugh | local | ThreatBook (微步) — IP/domain/hash threat intel with browser automation |
-| [macos-control-bypasser](#macos-control-bypasser) | Security | Esonhugh | local | macOS offensive security — TCC bypass, sandbox escape, dylib injection |
+| [threatbook-intel](#threatbook-intel) | Security | Esonhugh | [skills](skills/threatbook-intel/) | ThreatBook (微步) — IP/domain/hash threat intel with browser automation |
+| [macos-control-bypasser](#macos-control-bypasser) | Security | Esonhugh | [skills](skills/macos-control-bypasses/) | macOS offensive security — TCC bypass, sandbox escape, dylib injection |
+| [interactive-cli-systemic-debugging](#interactive-cli-systemic-debugging) | Development | Esonhugh | [skills](skills/interactive-cli-systemic-debugging/) | tmux workflow for debugging interactive CLI, REPL, TUI, and watch-mode processes |
 | [pydoll-antibot-bypasser](#pydoll-antibot-bypasser) | Automation | Esonhugh | [repo](https://github.com/Esonhugh/pydoll-cf-waf-bypasser-skills) | Stealth browser automation bypassing Cloudflare WAF & CAPTCHA |
 | [ibkr-trade-analyzer](#ibkr-trade-analyzer) | Finance | Esonhugh | [repo](https://github.com/Esonhugh/ibkr-trade-analyzer) | IBKR trading history analysis — P&L, portfolio, fees, Flex API + local import |
 | [detective](#detective) | Reasoning | Esonhugh | local | Investigation-driven problem solving with evidence chains |
@@ -104,6 +105,8 @@ ThreatBook (微步在线) threat intelligence plugin. Query IPs, domains, and fi
 
 **Requirements:** Chrome, [uv](https://docs.astral.sh/uv/), ThreatBook account, WeChat account
 
+**Skill path:** [`skills/threatbook-intel/`](skills/threatbook-intel/)
+
 ---
 
 ### macos-control-bypasser
@@ -126,6 +129,22 @@ Comprehensive macOS offensive security skill for authorized penetration testing 
 | System Components | IOKit/DriverKit, MDM exploitation, keychain attacks |
 
 **Intended use:** Authorized pentesting engagements, CTF, macOS security research.
+
+**Skill path:** [`skills/macos-control-bypasses/`](skills/macos-control-bypasses/)
+
+---
+
+### interactive-cli-systemic-debugging
+
+Systematic tmux-based debugging workflow for interactive CLI, REPL, TUI, prompt-loop, watch-mode, and long-running terminal programs.
+
+```bash
+/plugin install interactive-cli-systemic-debugging@Esonhugh-Marketplace
+```
+
+**Included Skill:** [`interactive-cli-systemic-debugging`](skills/interactive-cli-systemic-debugging/)
+
+**Use cases:** commands that hang after prompts, TUIs that render differently by terminal size, watch-mode failures after input, and any CLI behavior that needs preserved screen state with `tmux capture-pane` / `send-keys`.
 
 ---
 
@@ -393,7 +412,8 @@ This marketplace uses multiple source strategies:
 
 | Type | Example | When |
 |:---|:---|:---|
-| Local | `"./plugins/fofa-intel"` | Plugin lives in this repo |
+| Local plugin | `"./plugins/fofa-intel"` | Full plugin lives in this repo |
+| Local skills-only | `"source": "./"` + `"skills": ["./skills/name"]` | Pure skills entry stored under top-level `skills/` |
 | URL | `{"source": "url", "url": "https://...git"}` | Plugin has its own standalone repo |
 | Git Subdir | `{"source": "git-subdir", "url": "...", "path": "..."}` | Plugin is a subdirectory in another repo |
 
@@ -406,16 +426,18 @@ Plugins with standalone repos are both a **plugin** and a **marketplace** — th
 ```
 Marketplace/
 ├── .claude-plugin/
-│   └── marketplace.json              # Marketplace catalog (15 plugins)
+│   └── marketplace.json              # Marketplace catalog (16 plugins)
+├── skills/
+│   ├── interactive-cli-systemic-debugging/  # tmux CLI debugging skill
+│   ├── macos-control-bypasses/              # macOS security research skill
+│   └── threatbook-intel/                    # ThreatBook intel skill
 ├── plugins/
-│   ├── fofa-intel/                   # FOFA cyberspace search (local)
-│   ├── threatbook-intel/             # ThreatBook threat intel (local)
-│   ├── macos-control-bypasser/       # macOS offensive security (local)
-│   └── detective-plugin/             # Investigation framework (local)
+│   ├── fofa-intel/                   # FOFA cyberspace search (local plugin)
+│   └── detective-plugin/             # Investigation framework (local plugin)
 └── README.md
 ```
 
-Plugins not listed above are referenced via URL/git-subdir and fetched at install time.
+Pure skills-only entries are stored under top-level `skills/` and referenced from `marketplace.json` with `source: "./"` plus explicit `skills` relative paths. Plugins not listed above are referenced via URL/git-subdir and fetched at install time.
 
 ---
 

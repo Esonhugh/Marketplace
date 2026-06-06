@@ -23,7 +23,7 @@ ThreatBook (微步在线) threat intelligence plugin for Claude Code. Query IP, 
 ## Installation
 
 ```bash
-/plugin install threatbook-intel@Esonhugh/Marketplace
+/plugin install threatbook-intel@Esonhugh-Marketplace
 ```
 
 ## Usage

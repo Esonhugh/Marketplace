@@ -1,6 +1,6 @@
 # macOS Control Bypasser
 
-[![版本](https://img.shields.io/badge/版本-2.0.0-blue)](https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/macos-control-bypasser)
+[![版本](https://img.shields.io/badge/版本-2.0.0-blue)](https://github.com/Esonhugh/Marketplace/tree/Skyworship/skills/macos-control-bypasses)
 [![许可证](https://img.shields.io/badge/许可证-MIT-green)](LICENSE)
 
 一个用于 macOS 攻击性安全研究的 Claude Code / Ducc 技能插件，覆盖从系统内部机制、硬件协处理器到完整渗透测试攻击链的全部攻击面。
@@ -56,20 +56,13 @@ claude plugin install macos-control-bypasser
 
 ### 方式二：从 GitHub 克隆
 
-克隆整个 marketplace 仓库，并指定插件目录：
+克隆 marketplace 仓库并通过 marketplace entry 安装。这是纯 skills 插件：marketplace entry 使用 `source: "./"`，并在 `skills` 数组中列出 `./skills/macos-control-bypasses`。
 
 ```bash
 git clone https://github.com/Esonhugh/Marketplace.git
-claude --plugin-dir ./Marketplace/plugins/macos-control-bypasser
-```
-
-或仅克隆插件到插件目录：
-
-```bash
-git clone --depth 1 --filter=blob:none --sparse \
-  https://github.com/Esonhugh/Marketplace.git /tmp/marketplace
-cd /tmp/marketplace && git sparse-checkout set plugins/macos-control-bypasser
-cp -r plugins/macos-control-bypasser ~/.claude/plugins/macos-control-bypasser
+cd Marketplace
+/plugin marketplace add .
+/plugin install macos-control-bypasser
 ```
 
 安装后，本技能会在以下情况自动激活：
@@ -151,34 +144,30 @@ cp -r plugins/macos-control-bypasser ~/.claude/plugins/macos-control-bypasser
 ## 项目结构
 
 ```
-macos-control-bypasser/
-├── .claude-plugin/
-│   └── plugin.json
-├── skills/
-│   └── macos-control-bypasses/
-│       ├── SKILL.md                                  # 技能定义
-│       ├── evals/
-│       │   └── evals.json                            # 7 个评估测试用例
-│       └── references/
-│           ├── 01-macos-internals.md                 # 17 个均衡的参考文件
-│           ├── 02-binary-analysis.md                 # 覆盖完整的 macOS
-│           ├── 03-shellcode.md                       # 攻击面
-│           ├── 04-dylib-injection.md
-│           ├── 05-mach-ipc.md
-│           ├── 06-function-hooking.md
-│           ├── 07-xpc-attacks.md
-│           ├── 08-sandbox.md
-│           ├── 09-tcc-bypass.md
-│           ├── 10-symlink-hardlink.md
-│           ├── 11-kernel-execution.md
-│           ├── 12-pentesting.md
-│           ├── 13-persistence.md
-│           ├── 14-gatekeeper-amfi-macf.md
-│           ├── 15-app-runtime-injection.md
-│           ├── 16-red-teaming.md
-│           └── 17-iokit-kernel-enumeration.md
-├── README.md
-└── README-zh.md
+skills/macos-control-bypasses/
+├── SKILL.md                                  # 技能定义
+├── README.md                                 # 英文说明
+├── README-zh.md                              # 中文说明
+├── evals/
+│   └── evals.json                            # 7 个评估测试用例
+└── references/
+    ├── 01-macos-internals.md                 # 17 个均衡的参考文件
+    ├── 02-binary-analysis.md                 # 覆盖完整的 macOS
+    ├── 03-shellcode.md                       # 攻击面
+    ├── 04-dylib-injection.md
+    ├── 05-mach-ipc.md
+    ├── 06-function-hooking.md
+    ├── 07-xpc-attacks.md
+    ├── 08-sandbox.md
+    ├── 09-tcc-bypass.md
+    ├── 10-symlink-hardlink.md
+    ├── 11-kernel-execution.md
+    ├── 12-pentesting.md
+    ├── 13-persistence.md
+    ├── 14-gatekeeper-amfi-macf.md
+    ├── 15-app-runtime-injection.md
+    ├── 16-red-teaming.md
+    └── 17-iokit-kernel-enumeration.md
 ```
 
 ## 许可证
@@ -187,4 +176,4 @@ MIT
 
 ## 作者
 
-[Esonhugh](https://github.com/Esonhugh) — [插件主页](https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/macos-control-bypasser)
+[Esonhugh](https://github.com/Esonhugh) — [Skill 主页](https://github.com/Esonhugh/Marketplace/tree/Skyworship/skills/macos-control-bypasses)

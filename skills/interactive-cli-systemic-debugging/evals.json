@@ -1,0 +1,23 @@
+{
+  "skill_name": "interactive-cli-systemic-debugging",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "The repo has a Node CLI that starts an interactive wizard and sometimes appears to hang after printing 'Continue?'. Debug it without changing code yet.",
+      "expected_output": "Uses tmux as an observation lab, starts a named session, launches the CLI, captures pane output before sending input, identifies whether the process is waiting for input or actually hung, and reports evidence plus next steps.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "My Python curses TUI renders fine in a normal terminal but breaks in CI-like terminal dimensions. Reproduce and diagnose the issue.",
+      "expected_output": "Uses tmux with explicit dimensions, records terminal size and TERM-related context, captures output/screens, changes one variable at a time, and reports reproducible observations.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "A dev server in watch mode only fails after I edit a file and answer a prompt. Investigate the interactive flow and keep the process alive while testing.",
+      "expected_output": "Runs the watcher inside tmux, captures the ready state, triggers one external change, sends prompt input deliberately, captures the reaction, and reports cleanup status.",
+      "files": []
+    }
+  ]
+}

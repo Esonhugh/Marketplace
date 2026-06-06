@@ -1,6 +1,6 @@
 # macOS Control Bypasser
 
-[![Version](https://img.shields.io/badge/version-2.0.0-blue)](https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/macos-control-bypasser)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue)](https://github.com/Esonhugh/Marketplace/tree/Skyworship/skills/macos-control-bypasses)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 A Claude Code / Ducc skill plugin for macOS offensive security research, covering the full attack surface from system internals and hardware coprocessors to complete penetration testing attack chains.
@@ -56,20 +56,13 @@ claude plugin install macos-control-bypasser
 
 ### Method 2: Clone from GitHub
 
-Clone the entire marketplace repo and point Claude Code to the plugin directory:
+Clone the marketplace repo and install through the marketplace entry. This is a pure skills plugin: the marketplace entry uses `source: "./"` and lists `./skills/macos-control-bypasses` in its `skills` array.
 
 ```bash
 git clone https://github.com/Esonhugh/Marketplace.git
-claude --plugin-dir ./Marketplace/plugins/macos-control-bypasser
-```
-
-Or clone just the plugin into your plugins directory:
-
-```bash
-git clone --depth 1 --filter=blob:none --sparse \
-  https://github.com/Esonhugh/Marketplace.git /tmp/marketplace
-cd /tmp/marketplace && git sparse-checkout set plugins/macos-control-bypasser
-cp -r plugins/macos-control-bypasser ~/.claude/plugins/macos-control-bypasser
+cd Marketplace
+/plugin marketplace add .
+/plugin install macos-control-bypasser
 ```
 
 Once installed, the skill activates automatically when:
@@ -151,34 +144,30 @@ The reference materials include detailed analysis of real-world vulnerabilities:
 ## Project Structure
 
 ```
-macos-control-bypasser/
-├── .claude-plugin/
-│   └── plugin.json
-├── skills/
-│   └── macos-control-bypasses/
-│       ├── SKILL.md                                  # Skill definition
-│       ├── evals/
-│       │   └── evals.json                            # 7 evaluation test cases
-│       └── references/
-│           ├── 01-macos-internals.md                 # 17 balanced reference files
-│           ├── 02-binary-analysis.md                 # covering the full macOS
-│           ├── 03-shellcode.md                       # attack surface
-│           ├── 04-dylib-injection.md
-│           ├── 05-mach-ipc.md
-│           ├── 06-function-hooking.md
-│           ├── 07-xpc-attacks.md
-│           ├── 08-sandbox.md
-│           ├── 09-tcc-bypass.md
-│           ├── 10-symlink-hardlink.md
-│           ├── 11-kernel-execution.md
-│           ├── 12-pentesting.md
-│           ├── 13-persistence.md
-│           ├── 14-gatekeeper-amfi-macf.md
-│           ├── 15-app-runtime-injection.md
-│           ├── 16-red-teaming.md
-│           └── 17-iokit-kernel-enumeration.md
-├── README.md
-└── README-zh.md
+skills/macos-control-bypasses/
+├── SKILL.md                                  # Skill definition
+├── README.md                                 # English overview
+├── README-zh.md                              # Chinese overview
+├── evals/
+│   └── evals.json                            # 7 evaluation test cases
+└── references/
+    ├── 01-macos-internals.md                 # 17 balanced reference files
+    ├── 02-binary-analysis.md                 # covering the full macOS
+    ├── 03-shellcode.md                       # attack surface
+    ├── 04-dylib-injection.md
+    ├── 05-mach-ipc.md
+    ├── 06-function-hooking.md
+    ├── 07-xpc-attacks.md
+    ├── 08-sandbox.md
+    ├── 09-tcc-bypass.md
+    ├── 10-symlink-hardlink.md
+    ├── 11-kernel-execution.md
+    ├── 12-pentesting.md
+    ├── 13-persistence.md
+    ├── 14-gatekeeper-amfi-macf.md
+    ├── 15-app-runtime-injection.md
+    ├── 16-red-teaming.md
+    └── 17-iokit-kernel-enumeration.md
 ```
 
 ## License
@@ -187,4 +176,4 @@ MIT
 
 ## Author
 
-[Esonhugh](https://github.com/Esonhugh) — [Plugin Homepage](https://github.com/Esonhugh/Marketplace/tree/Skyworship/plugins/macos-control-bypasser)
+[Esonhugh](https://github.com/Esonhugh) — [Skill Homepage](https://github.com/Esonhugh/Marketplace/tree/Skyworship/skills/macos-control-bypasses)

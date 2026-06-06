@@ -23,7 +23,7 @@ Claude Code 的微步在线（ThreatBook）威胁情报插件。支持 IP、域�
 ## 安装
 
 ```bash
-/plugin install threatbook-intel@Esonhugh/Marketplace
+/plugin install threatbook-intel@Esonhugh-Marketplace
 ```
 
 ## 使用

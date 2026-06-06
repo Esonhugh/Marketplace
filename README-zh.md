@@ -39,8 +39,9 @@
 | 插件 | 类别 | 作者 | 来源 | 描述 |
 |:---|:---:|:---:|:---:|:---|
 | [fofa-intel](#fofa-intel) | 安全 | Esonhugh | 本地 | FOFA 网络空间搜索引擎 — 资产测绘与威胁情报 |
-| [threatbook-intel](#threatbook-intel) | 安全 | Esonhugh | 本地 | 微步在线 — IP/域名/哈希威胁情报 + 浏览器自动化 |
-| [macos-control-bypasser](#macos-control-bypasser) | 安全 | Esonhugh | 本地 | macOS 攻击安全 — TCC 绕过、沙箱逃逸、dylib 注入 |
+| [threatbook-intel](#threatbook-intel) | 安全 | Esonhugh | [skills](skills/threatbook-intel/) | 微步在线 — IP/域名/哈希威胁情报 + 浏览器自动化 |
+| [macos-control-bypasser](#macos-control-bypasser) | 安全 | Esonhugh | [skills](skills/macos-control-bypasses/) | macOS 攻击安全 — TCC 绕过、沙箱逃逸、dylib 注入 |
+| [interactive-cli-systemic-debugging](#interactive-cli-systemic-debugging) | 开发 | Esonhugh | [skills](skills/interactive-cli-systemic-debugging/) | 用 tmux 调试交互式 CLI、REPL、TUI 和 watch-mode 进程 |
 | [pydoll-antibot-bypasser](#pydoll-antibot-bypasser) | 自动化 | Esonhugh | [仓库](https://github.com/Esonhugh/pydoll-cf-waf-bypasser-skills) | 隐匿浏览器自动化 — 绕过 Cloudflare WAF 与 CAPTCHA |
 | [ibkr-trade-analyzer](#ibkr-trade-analyzer) | 金融 | Esonhugh | [仓库](https://github.com/Esonhugh/ibkr-trade-analyzer) | IBKR 交易历史分析 — 盈亏、持仓、费用，支持 Flex API + 本地导入 |
 | [detective](#detective) | 推理 | Esonhugh | 本地 | 基于证据链的调查推理框架 |
@@ -104,6 +105,8 @@ FOFA 网络空间搜索引擎插件。内置预编译的 GoFOFA 二进制文件�
 
 **依赖：** Chrome、[uv](https://docs.astral.sh/uv/)、微步账号、微信账号
 
+**Skill 路径：** [`skills/threatbook-intel/`](skills/threatbook-intel/)
+
 ---
 
 ### macos-control-bypasser
@@ -126,6 +129,22 @@ FOFA 网络空间搜索引擎插件。内置预编译的 GoFOFA 二进制文件�
 | 系统组件 | IOKit/DriverKit、MDM 利用、钥匙串攻击 |
 
 **适用场景：** 授权渗透测试、CTF、macOS 安全研究。
+
+**Skill 路径：** [`skills/macos-control-bypasses/`](skills/macos-control-bypasses/)
+
+---
+
+### interactive-cli-systemic-debugging
+
+基于 tmux 的系统化调试 workflow，适用于交互式 CLI、REPL、TUI、prompt loop、watch mode 和长时间运行的终端程序。
+
+```bash
+/plugin install interactive-cli-systemic-debugging@Esonhugh-Marketplace
+```
+
+**包含的 Skill：** [`interactive-cli-systemic-debugging`](skills/interactive-cli-systemic-debugging/)
+
+**适用场景：** 命令在 prompt 后 hang、TUI 在不同终端尺寸下显示异常、watch mode 在输入后失败，或任何需要用 `tmux capture-pane` / `send-keys` 保留屏幕状态的 CLI 调试。
 
 ---
 
@@ -393,7 +412,8 @@ Matt Pocock 的工程与生产力技能集合。包含 `grill-me`、`grill-with-
 
 | 类型 | 示例 | 适用场景 |
 |:---|:---|:---|
-| 本地 | `"./plugins/fofa-intel"` | 插件位于本仓库 |
+| 本地插件 | `"./plugins/fofa-intel"` | 完整插件位于本仓库 |
+| 本地纯 skills | `"source": "./"` + `"skills": ["./skills/name"]` | 纯 skills entry 存放在顶层 `skills/` |
 | URL | `{"source": "url", "url": "https://...git"}` | 插件有独立仓库 |
 | Git 子目录 | `{"source": "git-subdir", "url": "...", "path": "..."}` | 插件是其他仓库的子目录 |
 
@@ -406,16 +426,18 @@ Matt Pocock 的工程与生产力技能集合。包含 `grill-me`、`grill-with-
 ```
 Marketplace/
 ├── .claude-plugin/
-│   └── marketplace.json              # 市场目录（15 个插件）
+│   └── marketplace.json              # 市场目录（16 个插件）
+├── skills/
+│   ├── interactive-cli-systemic-debugging/  # tmux CLI 调试 skill
+│   ├── macos-control-bypasses/              # macOS 安全研究 skill
+│   └── threatbook-intel/                    # 微步情报 skill
 ├── plugins/
-│   ├── fofa-intel/                   # FOFA 网络空间搜索（本地）
-│   ├── threatbook-intel/             # 微步威胁情报（本地）
-│   ├── macos-control-bypasser/       # macOS 攻击安全（本地）
-│   └── detective-plugin/             # 调查推理框架（本地）
+│   ├── fofa-intel/                   # FOFA 网络空间搜索（本地插件）
+│   └── detective-plugin/             # 调查推理框架（本地插件）
 └── README.md
 ```
 
-未列出的插件通过 URL/git-subdir 引用，安装时拉取。
+纯 skills entry 存放在顶层 `skills/`，并在 `marketplace.json` 中通过 `source: "./"` 和显式 `skills` 相对路径引用。未列出的插件通过 URL/git-subdir 引用，安装时拉取。
 
 ---
 
