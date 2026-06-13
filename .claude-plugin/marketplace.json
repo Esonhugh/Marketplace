@@ -15,7 +15,6 @@
         "url": "https://github.com/Esonhugh/pydoll-cf-waf-bypasser-skills.git"
       },
       "description": "Stealth browser automation skill using Pydoll, specialized in bypassing Cloudflare WAF, Turnstile CAPTCHA, and other bot detection systems.",
-      "version": "1.0.0",
       "author": {
         "name": "Esonhugh"
       },
@@ -41,7 +40,6 @@
         "url": "https://github.com/Esonhugh/ibkr-trade-analyzer.git"
       },
       "description": "Analyze Interactive Brokers (IBKR) trading history with read-only access. Generates comprehensive reports on trading patterns, P&L performance, portfolio structure, and fee analysis. Supports Flex Web Service API and local CSV/XML file import.",
-      "version": "2.0.0",
       "author": {
         "name": "Esonhugh"
       },
@@ -68,7 +66,6 @@
         "path": "plugins/market-analysis"
       },
       "description": "Market analysis toolkit: earnings analysis (preview/recap/estimate revisions), portfolio risk (stock correlation, ETF premium/discount), and SEPA trend-following entry methodology.",
-      "version": "1.1.0",
       "author": {
         "name": "himself65"
       },
@@ -93,7 +90,6 @@
         "url": "https://github.com/Esonhugh/tradingview.git"
       },
       "description": "TradingView data access with persistent headless Chrome — K-line/candlestick history (1m to monthly), built-in technical indicators (MACD, RSI, KDJ, Bollinger Bands, EMA/SMA), spot quotes, options chains, screener, news, watchlists, alerts, chart state, and screenshots.",
-      "version": "0.4.1",
       "author": {
         "name": "Esonhugh"
       },
@@ -273,12 +269,10 @@
         "url": "https://github.com/Esonhugh/video_extractor.git"
       },
       "description": "Video tutorial to Markdown converter — uses mlx-whisper GPU-accelerated transcription + macOS native Vision OCR + intelligent keyframe extraction. Optimized for Apple Silicon.",
-      "version": "0.1.0",
       "author": {
         "name": "Esonhugh"
       },
       "category": "productivity",
-      "platforms": ["macos"],
       "homepage": "https://github.com/Esonhugh/video_extractor",
       "keywords": [
         "video",
