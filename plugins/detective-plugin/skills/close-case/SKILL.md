@@ -1,111 +1,86 @@
 ---
 name: close-case
-description: This skill should be used when the user asks to "close the case", "conclude the investigation", "wrap up", "present findings", or when the convergence check indicates the case has been solved. Produces the final resolution with complete evidence chain.
+description: The assistant should use this when the user asks to close, finalize, force-close, wrap up with a final conclusion, or produce final Detective case findings. It closes only after proof readiness or explicit force approval. Do not use for status-only review (review-board), further investigation (investigate), blocker discussion (discuss-case), new case creation (open-case), or pre-case scoping (brainstorm).
 ---
 
-# Close Case — Conclude Investigation with Resolution
+# Close Case
 
-Produce the final investigation resolution: a confirmed conclusion supported by a complete, traceable evidence chain from initial clues to final answer.
+Close a Detective MCP-backed case only through MCP tools. Follow `../references/detective-core-protocol.md` for proof completion semantics, canonical state, StopHook deactivation, handoffs, and export policy.
 
-## MCP-first closing
+<HARD_GATE_CLOSURE_AUTHORIZATION>
+Normal closure requires `detective_completion_gate` approval and a final summary naming conclusion, confidence, key evidence chain, completed coverage, and unresolved caveats. If the gate is blocked, do not close; present blockers and offer continue, discuss, or force-close options.
+</HARD_GATE_CLOSURE_AUTHORIZATION>
 
-For Detective v2/v2.1 cases:
+<HARD_GATE_FORCE_CLOSE_APPROVAL>
+`force=true` requires explicit user approval for a partial or forced close in the current conversation. Include the force reason and unresolved caveats in the summary; never infer force approval from frustration, silence, or a generic request to wrap up.
+</HARD_GATE_FORCE_CLOSE_APPROVAL>
 
-1. Call `detective_convergence_status`.
-2. If converged, call `detective_export_markdown` and `detective_export_mermaid`.
-3. If not converged, present unmet conditions and ask whether to continue, discuss, or force a partial close.
-4. Use Detective MCP tools for any conclusion, close marker, state change, or export artifact.
-5. Do not edit `case.json` directly.
+<IMPORTANT_PROOF_LIFECYCLE_ALIGNMENT>
+Before normal closure, verify exactly one confirmed hypothesis, at least one confirmed evidence node with a direct `supports` edge to it, questions and alternatives resolved/rejected/stale, actions done/cancelled, and coverage complete. Use `detective_completion_gate` as the readiness authority; use `detective_evaluate_proof` only when preserving a durable final proof snapshot.
+</IMPORTANT_PROOF_LIFECYCLE_ALIGNMENT>
 
-Do not create resolution files under `.detective/` by hand for v2/v2.1 cases. MCP export tools produce the Markdown and Mermaid outputs.
+<IMPORTANT_GOAL_COMPLETION_ALIGNMENT>
+When a SetGoal or equivalent goal tool is available, treat `detective_completion_gate` approval as the goal-completion gate. Session goals are orchestration hints and do not replace MCP closure state.
+</IMPORTANT_GOAL_COMPLETION_ALIGNMENT>
 
-## Closing Process
+<HARD_GATE_STOP_FALLBACK_DEACTIVATION_ON_CLOSE>
+When closure is completed, blocked waiting for user force-close approval, or paused by user request, emit `<DETECTIVE-STOP-FALLBACK status="inactive" case-id="<case_id>" reason="<closed|blocked|pause>">`. This only disengages the transcript-activated fallback and must not be written to `.detective/` files.
+</HARD_GATE_STOP_FALLBACK_DEACTIVATION_ON_CLOSE>
 
-### 1. Check Convergence
+## Required Inputs
 
-Call `detective_convergence_status` before closing.
+Obtain or draft `case_id`, `summary`, `approved_by` (user role/name if provided, else `assistant` after gate approval), and `force=false` unless explicitly approved.
 
-- If converged → proceed with MCP-backed closing.
-- If not converged → present the unmet conditions and ask: "Continue investigating, discuss the case, or force a partial close?"
-- If the MCP server is unavailable for a v2/v2.1 case → stop and ask the user to check `/mcp`.
+## Exact Workflow
 
-### 2. Identify the Conclusion
+1. Read final state:
+   - `detective_case_status(case_id="<case id>")`
+   - `detective_graph_overview(case_id="<case id>")`
+   - `detective_coverage_status(case_id="<case id>")`
+   - `detective_completion_gate(case_id="<case id>")`
+2. If a durable final proof snapshot is requested or needed for final reporting, call:
+   - `detective_evaluate_proof(case_id="<case id>", summary="<draft final summary>")`
+3. If the completion gate is blocked, present blockers and route:
+   - proof/coverage/action gaps → offer `/detective:investigate`;
+   - missing user decision/scope/caveat approval → offer `/detective:discuss-case`;
+   - explicit partial-finalization request → ask for force-close approval.
+4. For normal closure:
+   - `detective_close_case(case_id="<case id>", summary="<final summary>", approved_by="<approver>", force=false)`
+5. For explicit partial/forced closure:
+   - `detective_close_case(case_id="<case id>", summary="<summary including caveats and force reason>", approved_by="<approver>", force=true)`
+6. After successful close, export:
+   - `detective_export_markdown(case_id="<case id>")`
+   - `detective_export_mermaid(case_id="<case id>", diagram="full", focus_node_id=null)`
+   - Optional focused diagram only if useful: `detective_export_mermaid(case_id="<case id>", diagram="hypothesis-chain", focus_node_id="<node id>")`
+7. Emit inactive marker with reason `closed`, `blocked`, or `pause` as applicable:
+   - `<DETECTIVE-STOP-FALLBACK status="inactive" case-id="<case_id>" reason="closed">`
+   - `<DETECTIVE-STOP-FALLBACK status="inactive" case-id="<case_id>" reason="blocked">`
 
-Use MCP-provided graph state, not manual file inspection:
+## Final Summary Template
 
-1. Call `detective_graph_overview`.
-2. Call `detective_list_nodes` for active hypotheses, conclusions, constraints, open questions, and evidence.
-3. Call `detective_list_edges` to trace support, contradiction, derivation, and elimination relationships.
-4. Select the converged conclusion or the highest-confidence partial conclusion if the user explicitly chose partial close.
-
-### 3. Trace the Evidence Chain
-
-Build the explanation from MCP-returned nodes and edges:
-
-1. Start from the confirmed or partial conclusion.
-2. Follow supporting and deriving edges back to the evidence and initial observations.
-3. Include eliminated alternatives and the evidence or constraints that ruled them out.
-4. Call MCP tools for any conclusion state that must be recorded.
-
-Present the chain in conversation:
-
-```
-1. [Crime Scene] <initial observation>
-2. [Clue → Evidence] <first finding> (verified by: <action>)
-3. [Evidence] <second finding> (supports hypothesis via: <reasoning>)
-4. [Constraint] <elimination rule> (eliminated alternatives: <list>)
-5. [Conclusion] <final answer> (confidence: <X>)
-```
-
-### 4. Export Reports
-
-For v2/v2.1 cases, use MCP exports only:
-
-1. Call `detective_export_markdown`.
-2. Call `detective_export_mermaid`.
-3. Report the paths or artifact identifiers returned by those tools.
-
-### 5. Present to User
-
-Display the resolution in conversation:
-
-```
-## Case Closed: <title>
-
-**Conclusion**: <answer>
-**Confidence**: <X>%
-**Evidence Chain**: <count> links, fully traced
-
-<brief narrative of how we got here>
-
-Markdown export: <path returned by detective_export_markdown>
-Mermaid export: <path returned by detective_export_mermaid>
+```markdown
+Conclusion: <what happened / answer>
+Confidence: <low|medium|high> — <why>
+Key evidence chain:
+- <confirmed evidence> → supports → <confirmed hypothesis/conclusion>
+Coverage completed:
+- <areas>
+Unresolved caveats:
+- <caveat or "none known">
+Closure type: <normal|forced partial>
 ```
 
-## Forced Close (Partial Resolution)
+## Response Format
 
-When closing without full convergence:
-
-- State that this is a partial resolution.
-- Explicitly list unmet convergence conditions.
-- List remaining open questions and caveats.
-- Use MCP tools for any partial-close state or export.
-- Ask the user whether to continue, discuss, or accept the partial close.
-
-## Legacy v1 fallback
-
-The historical script workflow is a deprecated fallback for legacy v1 flat JSON case files only when MCP is unavailable. It is not valid for v2/v2.1 cases.
-
-For legacy v1 inspection only:
-
-```bash
-python $PLUGIN_ROOT/scripts/convergence.py .detective/cases/<case-id>.json
+```markdown
+**Case closed**: <case_id>
+**Closure type**: <normal|forced partial>
+**Conclusion**: <one paragraph>
+**Confidence**: <level and reason>
+**Caveats**: <bullets>
+**Goal completion**: <completion gate passed / forced with explicit approval>
+**Stop fallback**: <inactive marker emitted with reason>
+**Exports**:
+- Markdown: <path from MCP>
+- Mermaid: <path from MCP>
 ```
-
-If a legacy v1 close requires manual reporting or state changes, ask the user for explicit confirmation first and label the result as a legacy fallback. For v2/v2.1, use Detective MCP tools instead.
-
-## Additional Resources
-
-### Scripts
-- **`scripts/convergence.py`** — Legacy v1 convergence inspection
-- **`scripts/board.py`** — Legacy v1 board inspection and deprecated mutation helpers

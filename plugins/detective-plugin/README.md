@@ -1,247 +1,120 @@
-# Detective — Investigation-Driven Problem Solving
+# Detective v0.4 — OODA-Native Investigation MCP
 
-A Claude Code plugin that implements a general-purpose AI problem-solving framework based on detective investigation methodology. Every problem is a **case**; every conclusion is backed by a traceable **evidence chain**.
+Detective is a Claude Code plugin for structured investigations. v0.4 is a breaking release: the public surface is one MCP API, one project-local JSON case model, and one OODA-native lifecycle. Legacy v1 scripts, migration APIs, scheduler-next-action APIs, and separate convergence/deadlock APIs are not part of this release.
 
-## Core Concept
+## Model
 
-The AI maintains a **CaseBoard** — a directed labeled graph of **Fragments** (unified case entities) and **Threads** (logical connections). In shipped v2, the primary interface is the local MCP graph core for project-local case state, graph overview/query, shortest-path lookup, and Markdown/Mermaid exports.
+A case is stored at `.detective/cases/<case-id>/case.json` and is mutated only through MCP tools. The case contains:
 
-```text
-Current shipped v2 MCP core: local case storage + graph state + graph overview/query + shortest paths + exports
-Legacy v1 workflow label: Scan → Evolve → Focus → Act → File
-Current v2.1 orchestration support: scheduler memory + signals + specialist agents built on the MCP graph core
+- `nodes`: observations, clues, evidence, hypotheses, constraints, conclusions, questions, and tasks.
+- `edges`: directed reasoning links: `supports`, `contradicts`, `derives`, `requires`, `eliminates`, `related_to`.
+- `ooda`: current phase plus investigation intents.
+- `blackboard`: scratch notes that can be promoted to graph nodes.
+- `actions`: planned/active/done investigation work.
+- `coverage`: investigation areas and completion status.
+- `proofs`, `checkpoints`, `events`, and `closure`: audit trail and completion gate state.
+
+The lifecycle is OODA: Observe → Orient → Decide → Act → Review. Record phase changes with `detective_transition_phase`, track goals with intents, execute work as actions, and close only after `detective_completion_gate` allows it or the user explicitly forces closure. Investigation skills are designed to self-drive OODA loops until the completion gate passes or an explicit stop condition applies.
+
+When a SetGoal or equivalent goal tool is available in the harness, Detective skills may use it for session orchestration: after case creation, the goal should mention the case id, intent, completion criteria, and autonomous OODA advancement. This never replaces `detective_open_case` or MCP case state; `.detective/cases/<case-id>/case.json` remains canonical and is mutated only through MCP tools.
+
+## StopHook fallback
+
+SetGoal or an equivalent goal-driven continuation mechanism is preferred for keeping active investigations moving. The plugin also ships a prompt-based Stop hook as a safety fallback, but the static registration is inert by default: the hook immediately approves stopping unless the transcript contains an explicit activation marker.
+
+Dynamic activation is transcript-driven, not filesystem-driven. Skills must not edit `.detective/` files or hook files to control the fallback. When no SetGoal-equivalent tool is available, `/detective:open-case` or `/detective:investigate` may emit a concise visible marker after a durable MCP case exists:
+
+```xml
+<DETECTIVE-STOP-FALLBACK status="active" case-id="<case_id>">
 ```
 
-## The Fragment + Thread Model
+The matching deactivation marker is emitted on user pause/stop, blocked state, budget/timebox/step exhaustion, completion, or close:
 
-The board has only two primitives:
+```xml
+<DETECTIVE-STOP-FALLBACK status="inactive" case-id="<case_id>" reason="<pause|blocked|budget-exhausted|complete|closed>">
+```
 
-**Fragment** — a single case information unit described by two dimensions:
+For each case id, the latest marker wins. A case is fallback-active only when its latest marker is `status="active"`; a later `status="inactive"` for that case disengages it. The hook must not infer activation merely from an open or active Detective case. Brainstorming never emits activation before user approval and durable MCP case creation. Review and discussion preserve current status except when they identify a stop/deactivation condition.
 
-| Dimension | Values | Meaning |
-|-----------|--------|---------|
-| Maturity | Raw → Clue → Evidence → Anchor | How certain the information is |
-| Role | Observation, Hypothesis, Constraint, Conclusion | What function it serves in reasoning |
+When marker-active, the Stop hook still approves stopping when the case is closed or completion gate passed, the user asks to stop or pause, the assistant is waiting for a user-only decision, the case is blocked or no legal action remains, budget or `max_actions` is exhausted, a goal mechanism is active/available, non-Detective tasks/tests are complete, or repeated StopHook blocking/cycling is visible. It blocks only when the marked case is unfinished, no goal mechanism is available, and a concrete legal useful next OODA action remains.
 
-**Thread** — a directed labeled edge between fragments:
+Claude Code loads plugin hooks when a session starts. This marker protocol does not truly hot-add or hot-remove hooks; it only makes the already registered Stop hook fail open or engage based on transcript context. True hook loading changes require restarting Claude Code and are not attempted by Detective.
 
-| Type | Meaning |
-|------|---------|
-| `supports` | Source provides evidence for target |
-| `contradicts` | Source conflicts with target |
-| `derives` | Target was derived from source |
-| `eliminates` | Source definitively disproves target |
-| `requires` | Target depends on source |
+## Exact public MCP tools
 
-## Key Features
+- `detective_open_case`
+- `detective_load_case`
+- `detective_graph_overview`
+- `detective_case_status`
+- `detective_transition_phase`
+- `detective_add_intent`
+- `detective_list_intents`
+- `detective_add_node`
+- `detective_update_node`
+- `detective_delete_node`
+- `detective_get_node`
+- `detective_list_nodes`
+- `detective_search_nodes`
+- `detective_add_edge`
+- `detective_get_edge`
+- `detective_update_edge`
+- `detective_delete_edge`
+- `detective_list_edges`
+- `detective_neighbors`
+- `detective_shortest_path`
+- `detective_export_markdown`
+- `detective_export_mermaid`
+- `detective_add_action`
+- `detective_update_action`
+- `detective_list_actions`
+- `detective_add_checkpoint`
+- `detective_blackboard_add`
+- `detective_blackboard_list`
+- `detective_blackboard_update`
+- `detective_blackboard_promote`
+- `detective_coverage_add`
+- `detective_coverage_update`
+- `detective_coverage_status`
+- `detective_evaluate_proof`
+- `detective_completion_gate`
+- `detective_close_case`
+- `detective_list_events`
 
-- **MCP Graph Core**: Project-local case storage, graph overview/search, shortest paths, and Markdown/Mermaid exports
-- **Legacy Strategy Helpers**: v1 scoring, constraint propagation, direction pruning, and convergence helpers remain available as CLI compatibility wrappers over shared `detective_mcp` utilities
-- **Case Discussion**: Structured human-AI collaboration at deadlocks, ambiguity, or critical moments
-- **Full Traceability**: Every conclusion links back through evidence to initial observations
+## Removed in v0.4
+
+- Legacy public APIs are intentionally not restored.
+
+Completion requires exactly one `hypothesis` node with status `confirmed` and direct `supports` evidence from a `confirmed` `evidence` node, no open alternatives/questions/actions, and complete coverage.
+- Legacy v1 scripts and helper modules.
+- Load-time schema migration. v0.4 creates and accepts schema `4.0` cases only.
 
 ## Usage
 
-```
+```bash
 /detective:brainstorm
-/detective:open-case "Investigate the root cause of this performance regression"
+/detective:open-case "Investigate the root cause of this regression"
 /detective:investigate
 /detective:review-board
 /detective:discuss-case
 /detective:close-case
 ```
 
-| Skill | Purpose |
-|-------|---------|
-| `brainstorm` | Collaborative problem exploration before opening a case |
-| `open-case` | Initialize a new investigation, define crime scene and goal |
-| `investigate` | Run the Scan→Evolve→Focus→Act→File loop |
-| `review-board` | Display CaseBoard state, fragments, threads, hypotheses |
-| `discuss-case` | Structured discussion at key decision points |
-| `close-case` | Produce resolution with complete evidence chain |
+Skills and agents must use MCP tools and must not edit `.detective/` files directly.
 
-## v2 MCP Graph Core
+## Storage and exports
 
-Detective v2 includes a local stdio MCP server registered by `.mcp.json` and launched with `uv`. The v2 MCP graph core is the canonical current architecture, and the MCP server is the preferred state interface for new workflows.
-
-## v2.1 Autonomous Investigation
-
-Detective v2.1 adds orchestration support on top of the MCP graph core.
-
-New capabilities:
-
-- Case-local scheduler memory for attempted directions and next actions
-- Candidate action scoring
-- Cold direction detection
-- User guidance capture with priority over automation
-- Conservative convergence status
-- Deadlock status
-- Specialist agents for hypotheses, evidence, contradictions, graph paths, and reporting
-
-Default autonomy is `full_auto`, but user intervention always takes priority. The MCP server remains the state owner; agents and skills must use MCP tools rather than editing `.detective/` files directly.
-
-Core tools:
-
-- `detective_open_case`
-- `detective_load_case`
-- `detective_save_case`
-- `detective_graph_overview`
-- `detective_add_node`
-- `detective_update_node`
-- `detective_get_node`
-- `detective_list_nodes`
-- `detective_search_nodes`
-- `detective_add_edge`
-- `detective_list_edges`
-- `detective_neighbors`
-- `detective_shortest_path`
-- `detective_export_markdown`
-- `detective_export_mermaid`
-
-Canonical state is stored in the current project:
+Canonical state:
 
 ```text
 .detective/cases/<case-id>/case.json
+.detective/cases/<case-id>/events.jsonl
 ```
 
-Generated review artifacts are stored next to it:
+Generated projections:
 
 ```text
 .detective/cases/<case-id>/notes.md
 .detective/cases/<case-id>/graph.mmd
-.detective/cases/<case-id>/events.jsonl
 ```
 
-JSON is the only canonical state source. Markdown and Mermaid are generated projections.
-Legacy scripts remain available as thin CLI wrappers over shared detective_mcp utility modules.
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────┐
-│           Claude Code Session               │
-│                                             │
-│  ┌─────────┐   ┌──────────┐   ┌────────┐  │
-│  │ Skills  │←→│ v2 MCP   │←→│CaseBoard│  │
-│  │         │   │Graph Core│   │ (JSON) │  │
-│  └─────────┘   └──────────┘   └────────┘  │
-│       │              ↑                      │
-│       └──── Legacy CLI wrappers ───────────┘
-└─────────────────────────────────────────────┘
-```
-
-- **v2 MCP Graph Core**: The canonical current architecture for reading and writing project-local case graph state.
-- **CaseBoard**: Canonical JSON state at `.detective/cases/<case-id>/case.json`; generated `notes.md`, `graph.mmd`, and `events.jsonl` live beside it.
-- **Legacy CLI wrappers**: Older v1-style scripts remain for compatibility and delegate to shared `detective_mcp` utility modules for scoring, constraints, and convergence helpers.
-- **Action Executor**: Claude Code itself — bash, file ops, web search, MCP tools.
-
-## Legacy Scoring Compatibility
-
-The older Focus-phase helper logic answered: "What's the single most valuable next action?"
-
-```
-Score(action) = (Discrimination × Feasibility) / NormalizedCost
-```
-
-In shipped v2, this score is retained only as a legacy compatibility helper layered on shared MCP graph utilities. The shipped MCP graph core provides local case storage, graph state, graph overview/query, shortest-path lookup, and exports; autonomous pruning heuristics are not described as a current core behavior.
-
-## Installation
-
-```bash
-# Test locally
-claude --plugin-dir /path/to/detective-plugin
-
-# Or symlink into your plugins directory
-ln -s /path/to/detective-plugin ~/.claude/plugins/detective
-```
-
-## State Storage
-
-Current v2 case state is project-local and stored at:
-
-```text
-.detective/cases/<case-id>/case.json
-```
-
-Generated review artifacts are stored beside the canonical JSON file:
-
-```text
-.detective/cases/<case-id>/notes.md
-.detective/cases/<case-id>/graph.mmd
-.detective/cases/<case-id>/events.jsonl
-```
-
-Legacy v1 case files used the flat path `.detective/cases/<case-id>.json`; that path is retained only for compatibility with older data and scripts.
-
-## Applicable Domains
-
-| Domain | Hypotheses Are | Evidence Is |
-|--------|---------------|-------------|
-| Security Research | Attack vectors | Confirmed vulnerabilities |
-| Intelligence Analysis | Candidate explanations | Corroborated intelligence |
-| Root Cause Analysis | Failure modes | Diagnostic results |
-| Code Archaeology | Design intentions | Code patterns & history |
-
-## Relationship to PoJun
-
-| | PoJun | Detective Framework |
-|---|---|---|
-| Architecture | Three-process distributed system | Local MCP graph core + compatibility CLI wrappers |
-| State | SQLite + HTTP | Project-local JSON case graph |
-| Entities | origin/goal/fact/intent | Fragment + Thread (unified) |
-| Loop | OODA | Scan-Evolve-Focus-Act-File |
-| Strategy | Manual priority + reviewer | Formal scoring + constraint propagation helpers |
-| Convergence | LLM judgment with `complete: true` | MCP graph state + convergence/deadlock signals plus legacy compatibility helpers |
-| Concurrency | Multiple workers in parallel | Sequential case workflow |
-| Domain | CTF/security-focused | Domain-neutral + configuration adaptation |
-
-The Detective framework is a theoretical generalization and lightweight reduction of the PoJun OODA methodology.
-
-## Design Specification
-
-Design specs:
-
-- Current v2.0 MCP graph core: `docs/superpowers/specs/2026-06-03-detective-mcp-graph-core-design.md`
-- v2.1 autonomous investigation orchestration: `docs/superpowers/specs/2026-06-03-detective-v2-1-autonomous-investigation-design.md`
-
-## File Structure
-
-```
-detective-plugin/
-├── .claude-plugin/
-│   └── plugin.json              # Plugin manifest
-├── .mcp.json                    # Local MCP server registration
-├── .gitignore
-├── pyproject.toml               # Python package and uv configuration
-├── README.md                    # English documentation
-├── README-zh.md                 # Chinese documentation
-├── agents/
-│   ├── strategy-evaluator.md    # Legacy strategy scoring agent
-│   ├── lead-investigator.md     # v2.1 investigation coordinator
-│   ├── hypothesis-generator.md  # Hypothesis specialist
-│   ├── evidence-hunter.md       # Evidence specialist
-│   ├── contradiction-finder.md  # Falsification specialist
-│   ├── path-analyzer.md         # Graph topology specialist
-│   └── report-writer.md         # Artifact and resolution specialist
-├── detective_mcp/               # Shared v2 MCP graph core and utility modules
-│   ├── exports.py               # Markdown and Mermaid exports
-│   ├── graph.py                 # Graph operations and traversal
-│   ├── legacy_board.py          # Legacy board compatibility helpers
-│   ├── legacy_convergence.py    # Legacy convergence compatibility helpers
-│   ├── legacy_scoring.py        # Legacy scoring compatibility helpers
-│   ├── models.py                # Case graph data models
-│   ├── server.py                # stdio MCP server tools
-│   └── store.py                 # Project-local case storage
-├── scripts/                     # Legacy CLI wrappers over detective_mcp utilities
-│   ├── board.py
-│   ├── scoring.py
-│   └── convergence.py
-├── skills/
-│   ├── brainstorm/SKILL.md      # Pre-investigation problem exploration
-│   ├── open-case/SKILL.md       # Case initialization
-│   ├── investigate/SKILL.md     # Main loop
-│   ├── review-board/SKILL.md    # Board display
-│   ├── discuss-case/SKILL.md    # Case discussion
-│   └── close-case/SKILL.md      # Resolution
-└── tests/                       # MCP core, exports, storage, and legacy wrapper tests
-```
+JSON is the only canonical state. Markdown and Mermaid are regenerated views.

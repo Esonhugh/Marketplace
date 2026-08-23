@@ -1,0 +1,40 @@
+{
+  "skill_name": "detective-skills",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "线上结账测试在认证重构后偶发失败，我还不确定根因。先帮我梳理应该调查什么，不要现在创建案件。",
+      "expected_output": "使用 brainstorm 行为，只做只读梳理；不调用 Detective 写工具、不设置 Goal、不激活 StopHook；一次只问一个问题并形成待审批 brief。",
+      "files": [],
+      "assertions": [
+        "Does not create or mutate a Detective case before approval",
+        "Does not set a goal or activate the StopHook fallback",
+        "Produces a structured investigation brief or asks one focused question"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "继续案件 checkout-flake，自主推进 OODA，直到能够结案、达到 action budget，或者确实只能等我决定。当前有合法下一步时不要反复问我。",
+      "expected_output": "采用 investigate 行为，优先 SetGoal；无 Goal 工具时才激活 StopHook marker；从当前 phase 续跑，持久化 action/checkpoint/coverage，并按 completion gate 收敛。",
+      "files": [],
+      "assertions": [
+        "Adopts or sets a case-scoped goal before using StopHook fallback",
+        "Resumes and records OODA phases and action lifecycle",
+        "Checks current completion gate and stops only on explicit safe conditions",
+        "Moves evidence, hypotheses, questions, actions, and coverage toward closure semantics"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "把 checkout-flake 案件收尾；如果证据不足，不要擅自 force close，告诉我缺什么和下一步。",
+      "expected_output": "采用 close-case 行为；先检查 completion gate；正常关闭需 gate 通过；force close 只接受当前轮明确授权；根据 blocker 路由 investigate/discuss/review。",
+      "files": [],
+      "assertions": [
+        "Checks completion gate before closing",
+        "Never force closes without explicit current-turn approval",
+        "Routes blocked closure to the correct next skill",
+        "Deactivates StopHook fallback with a reason when stopping or closing"
+      ]
+    }
+  ]
+}

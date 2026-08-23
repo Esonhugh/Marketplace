@@ -3,7 +3,7 @@ from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
-from . import exports, graph, scheduler, signals, store
+from . import actions, blackboard, coverage, exports, graph, ooda, proof, store
 
 mcp = FastMCP("detective")
 
@@ -33,14 +33,28 @@ def detective_load_case(case_id: str, workspace: str | Path | None = None) -> di
 
 
 @mcp.tool()
-def detective_save_case(case_id: str, workspace: str | Path | None = None) -> dict[str, str]:
-    case = store.load_case(workspace, case_id)
-    return store.save_case(workspace, case)
+def detective_graph_overview(case_id: str, workspace: str | Path | None = None) -> dict[str, Any]:
+    return graph.graph_overview(workspace, case_id)
 
 
 @mcp.tool()
-def detective_graph_overview(case_id: str, workspace: str | Path | None = None) -> dict[str, Any]:
-    return graph.graph_overview(workspace, case_id)
+def detective_case_status(case_id: str, workspace: str | Path | None = None) -> dict[str, Any]:
+    return store.get_case_status(workspace, case_id)
+
+
+@mcp.tool()
+def detective_transition_phase(case_id: str, phase: str, reason: str = "", session: str | None = None, workspace: str | Path | None = None) -> dict[str, Any]:
+    return ooda.transition_phase(workspace, case_id, phase, reason, session)
+
+
+@mcp.tool()
+def detective_add_intent(case_id: str, intent: str, phase: str | None = None, created_by: str = "system", metadata: dict[str, Any] | None = None, workspace: str | Path | None = None) -> dict[str, Any]:
+    return ooda.add_intent(workspace, case_id, intent, phase, created_by, metadata)
+
+
+@mcp.tool()
+def detective_list_intents(case_id: str, phase: str | None = None, status: str | None = None, workspace: str | Path | None = None) -> list[dict[str, Any]]:
+    return ooda.list_intents(workspace, case_id, phase, status)
 
 
 @mcp.tool()
@@ -225,61 +239,78 @@ def detective_export_mermaid(
 
 
 @mcp.tool()
-def detective_record_direction_attempt(
-    case_id: str,
-    description: str,
-    target_node_ids: list[str],
-    new_evidence_count: int,
-    workspace: str | Path | None = None,
-) -> dict[str, Any]:
-    return scheduler.record_direction_attempt(workspace, case_id, description, target_node_ids, new_evidence_count)
+def detective_add_action(case_id: str, description: str, assigned_role: str = "agent", priority: float = 0.5, reason: str = "", workspace: str | Path | None = None) -> dict[str, Any]:
+    return actions.add_action(workspace, case_id, description, assigned_role, priority, reason)
 
 
 @mcp.tool()
-def detective_add_next_action(
-    case_id: str,
-    description: str,
-    assigned_role: str,
-    priority: float,
-    reason: str,
-    workspace: str | Path | None = None,
-) -> dict[str, Any]:
-    return scheduler.add_next_action(workspace, case_id, description, assigned_role, priority, reason)
+def detective_update_action(case_id: str, action_id: str, status: str | None = None, result: str | None = None, metadata: dict[str, Any] | None = None, workspace: str | Path | None = None) -> dict[str, Any]:
+    return actions.update_action(workspace, case_id, action_id, status, result, metadata)
 
 
 @mcp.tool()
-def detective_score_candidate_actions(
-    case_id: str,
-    candidates: list[dict[str, Any]],
-    workspace: str | Path | None = None,
-) -> list[dict[str, Any]]:
-    return scheduler.score_candidate_actions(workspace, case_id, candidates)
+def detective_list_actions(case_id: str, status: str | None = None, workspace: str | Path | None = None) -> list[dict[str, Any]]:
+    return actions.list_actions(workspace, case_id, status)
 
 
 @mcp.tool()
-def detective_apply_user_guidance(
-    case_id: str,
-    guidance_type: str,
-    content: str,
-    workspace: str | Path | None = None,
-) -> dict[str, Any]:
-    return scheduler.apply_user_guidance(workspace, case_id, guidance_type, content)
+def detective_add_checkpoint(case_id: str, summary: str, action_id: str | None = None, created_by: str = "system", metadata: dict[str, Any] | None = None, workspace: str | Path | None = None) -> dict[str, Any]:
+    return actions.add_checkpoint(workspace, case_id, summary, action_id, created_by, metadata)
 
 
 @mcp.tool()
-def detective_convergence_status(case_id: str, workspace: str | Path | None = None) -> dict[str, Any]:
-    return signals.convergence_status(workspace, case_id)
+def detective_blackboard_add(case_id: str, content: str, kind: str = "note", tags: list[str] | None = None, created_by: str = "system", workspace: str | Path | None = None) -> dict[str, Any]:
+    return blackboard.add_entry(workspace, case_id, content, kind, tags, created_by)
 
 
 @mcp.tool()
-def detective_deadlock_status(
-    case_id: str,
-    scored_actions: list[dict[str, Any]],
-    recent_new_nodes: int = 0,
-    recent_new_edges: int = 0,
-    workspace: str | Path | None = None,
-) -> dict[str, Any]:
-    return signals.deadlock_status(workspace, case_id, scored_actions, recent_new_nodes, recent_new_edges)
+def detective_blackboard_list(case_id: str, status: str | None = None, kind: str | None = None, workspace: str | Path | None = None) -> list[dict[str, Any]]:
+    return blackboard.list_entries(workspace, case_id, status, kind)
+
+
+@mcp.tool()
+def detective_blackboard_update(case_id: str, entry_id: str, content: str | None = None, status: str | None = None, tags: list[str] | None = None, workspace: str | Path | None = None) -> dict[str, Any]:
+    return blackboard.update_entry(workspace, case_id, entry_id, content, status, tags)
+
+
+@mcp.tool()
+def detective_blackboard_promote(case_id: str, entry_id: str, node_type: str = "observation", confidence: float = 0.6, workspace: str | Path | None = None) -> dict[str, Any]:
+    return blackboard.promote_entry(workspace, case_id, entry_id, node_type, confidence)
+
+
+@mcp.tool()
+def detective_coverage_add(case_id: str, area: str, status: str = "planned", notes: str = "", workspace: str | Path | None = None) -> dict[str, Any]:
+    return coverage.add_item(workspace, case_id, area, status, notes)
+
+
+@mcp.tool()
+def detective_coverage_update(case_id: str, coverage_id: str, status: str | None = None, notes: str | None = None, workspace: str | Path | None = None) -> dict[str, Any]:
+    return coverage.update_item(workspace, case_id, coverage_id, status, notes)
+
+
+@mcp.tool()
+def detective_coverage_status(case_id: str, workspace: str | Path | None = None) -> dict[str, Any]:
+    return coverage.status(workspace, case_id)
+
+
+@mcp.tool()
+def detective_evaluate_proof(case_id: str, summary: str = "", workspace: str | Path | None = None) -> dict[str, Any]:
+    return proof.evaluate(workspace, case_id, summary)
+
+
+@mcp.tool()
+def detective_completion_gate(case_id: str, workspace: str | Path | None = None) -> dict[str, Any]:
+    return proof.completion_gate(workspace, case_id)
+
+
+@mcp.tool()
+def detective_close_case(case_id: str, summary: str, approved_by: str = "system", force: bool = False, workspace: str | Path | None = None) -> dict[str, Any]:
+    return proof.close_case(workspace, case_id, summary, approved_by, force)
+
+
+@mcp.tool()
+def detective_list_events(case_id: str, limit: int | None = None, workspace: str | Path | None = None) -> list[dict[str, Any]]:
+    return store.list_events(workspace, case_id, limit)
 
 
 if __name__ == "__main__":

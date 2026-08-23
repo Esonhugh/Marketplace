@@ -18,13 +18,16 @@ def test_open_case_creates_project_local_case(tmp_path):
     assert case_path.exists()
 
     data = json.loads(case_path.read_text(encoding="utf-8"))
-    assert data["schema_version"] == "2.0"
+    assert data["schema_version"] == "4.0"
+    assert data["status"] == "open"
+    assert data["revision"] == 1
     assert data["id"] == "strange-behavior"
     assert data["title"] == "Investigate strange behavior"
     assert data["config"]["autonomy"] == "full_auto"
     assert data["nodes"] == []
     assert data["edges"] == []
     assert data["actions"] == []
+    assert "scheduler" not in data
 
 
 def test_open_case_generates_slug_when_case_id_missing(tmp_path):

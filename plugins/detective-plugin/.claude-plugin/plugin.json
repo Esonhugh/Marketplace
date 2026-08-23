@@ -1,7 +1,7 @@
 {
   "name": "detective",
-  "version": "0.3.0",
-  "description": "A general-purpose AI investigation framework with a local MCP graph core and autonomous investigation support. Maintains project-local CaseBoard state under .detective/, supports evidence chains, graph search, shortest paths, Markdown/Mermaid exports, scheduler memory, specialist agents, convergence signals, and user-priority guidance.",
+  "version": "0.4.0",
+  "description": "A general-purpose OODA-native investigation framework with a local MCP graph core. Maintains project-local case state under .detective/, supports transactional JSON storage, evidence chains, graph search, shortest paths, Markdown/Mermaid exports, blackboard notes, coverage, actions, checkpoints, events, proof gates, and specialist agents.",
   "author": {
     "name": "Esonhugh",
     "url": "https://github.com/esonhugh"

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from detective_mcp import exports, scheduler, store
+from detective_mcp import actions, exports, store
 
 
 def build_export_case(tmp_path):
@@ -47,50 +47,25 @@ def test_export_markdown_writes_notes_file(tmp_path):
 
 
 
-def test_export_markdown_includes_scheduler_details(tmp_path):
-    _, _, hypothesis = build_export_case(tmp_path)
-    scheduler.record_direction_attempt(
-        tmp_path,
-        "export-case",
-        description="Challenge primary theory",
-        target_node_ids=[hypothesis["id"]],
-        new_evidence_count=0,
-    )
-    scheduler.record_direction_attempt(
-        tmp_path,
-        "export-case",
-        description="Challenge primary theory",
-        target_node_ids=[hypothesis["id"]],
-        new_evidence_count=0,
-    )
-    scheduler.record_direction_attempt(
-        tmp_path,
-        "export-case",
-        description="Challenge primary theory",
-        target_node_ids=[hypothesis["id"]],
-        new_evidence_count=0,
-    )
-    scheduler.add_next_action(
+def test_export_markdown_includes_action_details(tmp_path):
+    build_export_case(tmp_path)
+    actions.add_action(
         tmp_path,
         "export-case",
         "Try to falsify the leading hypothesis",
         "contradiction-finder",
         0.9,
-        "Cold direction needs adversarial review",
+        "Adversarial review is high value",
     )
 
     result = exports.export_markdown(tmp_path, "export-case")
 
     text = Path(result["path"]).read_text(encoding="utf-8")
-    assert "## Scheduler" in text
-    assert "### Attempted Directions" in text
-    assert "Challenge primary theory" in text
-    assert "status: cold" in text
-    assert "new evidence: 0" in text
-    assert "### Next Actions" in text
+    assert "## Actions" in text
+    assert "Try to falsify the leading hypothesis" in text
     assert "assigned role: contradiction-finder" in text
     assert "priority: 0.90" in text
-    assert "reason: Cold direction needs adversarial review" in text
+    assert "reason: Adversarial review is high value" in text
 
 
 def test_export_mermaid_writes_graph_file(tmp_path):

@@ -243,8 +243,8 @@
     {
       "name": "detective",
       "source": "./plugins/detective-plugin",
-      "description": "General-purpose AI investigation framework with a local MCP graph core and v2.1 autonomous investigation support: project-local CaseBoard state, evidence chains, graph search, shortest paths, Markdown/Mermaid exports, scheduler memory, specialist agents, convergence/deadlock signals, and user-priority guidance.",
-      "version": "0.3.0",
+      "description": "General-purpose OODA-native investigation framework with a local MCP graph core, project-local case state, evidence chains, blackboard notes, coverage, actions, proof gates, specialist-agent orchestration, and Markdown/Mermaid exports.",
+      "version": "0.4.0",
       "author": {
         "name": "Esonhugh"
       },
@@ -257,7 +257,7 @@
         "detective",
         "hypothesis",
         "evidence-chain",
-        "convergence",
+        "ooda",
         "caseboard",
         "agent"
       ]

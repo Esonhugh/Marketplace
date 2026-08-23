@@ -225,7 +225,7 @@ Analyze Interactive Brokers trading history with **read-only** access. Generates
 
 ### detective
 
-Investigation-driven problem solving framework with a local MCP graph core for project-local case storage, graph query, shortest paths, and Markdown/Mermaid exports. Legacy scoring and convergence scripts remain available as compatibility CLI wrappers.
+OODA-native investigation framework with a local MCP graph core for project-local case storage, evidence chains, blackboard notes, coverage, actions, proof gates, specialist-agent orchestration, graph queries, and Markdown/Mermaid exports.
 
 ```bash
 /plugin install detective@Esonhugh-Marketplace
@@ -237,21 +237,21 @@ Investigation-driven problem solving framework with a local MCP graph core for p
 |:---|:---|
 | `brainstorm` | Pre-investigation: collaborative problem exploration, produce case brief |
 | `open-case` | Initialize a CaseBoard, define crime scene and goal |
-| `investigate` | Work with the v2 MCP graph core to review graph state, add evidence, and move the case forward; the loop phrasing remains as a legacy v1 workflow label and a v2.1 orchestration plan |
+| `investigate` | Autonomously run MCP-backed Observe → Orient → Decide → Act → Review cycles, including constrained specialist-agent delegation |
 | `review-board` | Display board state, fragments, threads, hypotheses |
 | `discuss-case` | Structured dialogue at deadlocks, ambiguity, or critical junctures |
 | `close-case` | Produce resolution with complete evidence chain traceback |
 
 **Core Concepts:**
 
-- **Fragment**: Information unit with maturity (Raw → Clue → Evidence → Anchor) and role (Observation, Hypothesis, Constraint, Conclusion)
-- **Thread**: Directed edge between fragments (supports, contradicts, derives, eliminates, requires)
-- **MCP Graph Core**: Stores cases locally, keeps project-local graph state, supports graph overview/query, shortest path lookup, and Markdown/Mermaid exports
-- **Legacy Scoring Compatibility**: Older scoring/convergence helpers remain available as CLI compatibility wrappers over shared MCP graph utilities; they are not the shipped v2 autonomous orchestration core
+- **Nodes**: Observations, clues, evidence, hypotheses, constraints, conclusions, questions, and tasks
+- **Edges**: Directed reasoning links such as supports, contradicts, derives, eliminates, and requires
+- **OODA Orchestration**: Records phase transitions, intents, actions, checkpoints, coverage, and specialist-agent work
+- **Proof Gate**: Requires confirmed direct evidence, resolved alternatives/questions/actions, and non-empty complete coverage before normal closure
 
 **Applicable Domains:** Security research, intelligence analysis, root cause analysis, code archaeology
 
-**MCP Graph Core Storage:** Current v2 case state is project-local and directory-based:
+**MCP Graph Core Storage:** Current v0.4 case state is project-local and directory-based:
 
 ```text
 .detective/cases/<case-id>/case.json
@@ -260,7 +260,7 @@ Investigation-driven problem solving framework with a local MCP graph core for p
 .detective/cases/<case-id>/events.jsonl
 ```
 
-The flat path `.detective/cases/<case-id>.json` is legacy v1 compatibility only.
+Detective v0.4 accepts schema `4.0` cases only; legacy flat files and compatibility scripts are not part of this release.
 
 ---
 

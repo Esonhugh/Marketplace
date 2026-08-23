@@ -1,71 +1,92 @@
 ---
 name: investigate
-description: This skill should be used when the user asks to "investigate", "continue the investigation", "run the detective loop", "next investigation step", or wants to execute the Scan-Evolve-Focus-Act-File cycle on an active case. Runs the core investigation loop with periodic checkpoints.
+description: The assistant should use this when the user asks to continue, resume, advance, work, or run the next step for an existing Detective case id. It autonomously drives MCP OODA cycles. Do not use to create a new case (use open-case), pre-scope a vague concern (use brainstorm), only show status/exports (use review-board), ask/record user guidance without investigation (use discuss-case), or finalize closure (use close-case).
 ---
 
-# Investigate — MCP-Backed Detective Loop
+# Investigate
 
-Execute the investigation cycle on an active MCP-backed case. Prefer Detective MCP tools over direct JSON edits or legacy scripts.
+Run Detective OODA cycles through MCP tools only. Follow `../references/detective-core-protocol.md` for exact enums, proof semantics, evidence lifecycle, SetGoal preference, StopHook markers, stop conditions, and handoffs.
 
-## Prerequisites
+<HARD_GATE_CASE_STATE_SAFETY>
+Use Detective MCP as the only source of case truth. Never edit `.detective/` files directly, never bypass MCP lifecycle tools, and never treat blackboard notes as verified graph evidence.
+</HARD_GATE_CASE_STATE_SAFETY>
 
-An active case must exist under `.detective/cases/`. If the MCP server is unavailable, explain that v2.1 investigation requires the detective MCP server and ask the user to check `/mcp`.
+<HARD_GATE_OODA_PHASE_DISCIPLINE>
+Every investigation step must pass through observe, orient, decide, act, and review in order, recording each transition with `detective_transition_phase`. On mid-cycle resume, read current phase/actions, close or repair interrupted work, transition to the next legal phase, and continue; do not restart the case or skip phase records.
+</HARD_GATE_OODA_PHASE_DISCIPLINE>
 
-## Loop
+<IMPORTANT_GOAL_TOOL_ADOPTION>
+When a SetGoal or equivalent goal tool is available, inspect the active session goal before work. Adopt it if it matches the case id, intent, completion criteria, and autonomous OODA instruction. If missing or clearly for another case, set a concise goal from current MCP intent and completion criteria. Do not overwrite a valid active goal merely to rephrase it.
+</IMPORTANT_GOAL_TOOL_ADOPTION>
 
-1. Call `detective_graph_overview`.
-2. List active hypotheses, open questions, and recent evidence with `detective_list_nodes`.
-3. Generate candidate actions and call `detective_score_candidate_actions`.
-4. In `full_auto`, dispatch specialist agents for independent actions; in `checkpoint`, run up to the checkpoint interval; in `manual`, ask the user before acting.
-5. Require all findings to be written through MCP tools.
-6. Call `detective_convergence_status` and `detective_deadlock_status`.
-7. Export Markdown and Mermaid with `detective_export_markdown` and `detective_export_mermaid` after meaningful graph changes.
-8. Stop on convergence, deadlock, budget exhaustion, or user intervention.
+<HARD_GATE_STOP_FALLBACK_MARKER_PROTOCOL>
+Prefer SetGoal or equivalent for autonomous continuation. Only when no goal tool is available, ensure the transcript contains `<DETECTIVE-STOP-FALLBACK status="active" case-id="<case_id>">` before self-driven work. The marker activates only the statically registered inert StopHook fallback; it is not MCP state and must not be written to `.detective/` files. Before stopping with fallback active, emit `<DETECTIVE-STOP-FALLBACK status="inactive" case-id="<case_id>" reason="<pause|blocked|budget-exhausted|complete|closed>">`.
+</HARD_GATE_STOP_FALLBACK_MARKER_PROTOCOL>
 
-## Legacy script fallback
+<HARD_GATE_SUBAGENT_DELEGATION>
+Delegate only bounded, independent investigation work. Every subagent dispatch must state the Detective case id, current OODA phase and action id, exact scope or target nodes, allowed tools and read/write boundaries, required Detective MCP writes, expected return format, and stop conditions. Subagents must obey the same evidence, state, scope, and closure gates as the coordinator: they must never edit `.detective/` directly, expand scope, force-close a case, treat blackboard notes as proof, or spawn further agents unless the dispatch explicitly permits it. The coordinator must validate returned evidence and MCP state before marking the parent action done or advancing the completion gate.
+</HARD_GATE_SUBAGENT_DELEGATION>
 
-This section is deprecated. Use it only for legacy v1 flat JSON case files when the Detective MCP server is unavailable. It is not the workflow for Detective v2/v2.1 cases.
+## Start-of-Turn Reads
 
-For v2/v2.1 cases:
-- Stop if required MCP tools are unavailable and ask the user to check `/mcp`.
-- Record findings, graph changes, convergence checks, and exports through Detective MCP tools.
-- Do not use legacy scripts to mutate case state.
+Call before deciding work:
 
-### Legacy v1 read-only inspection
+- `detective_case_status(case_id="<case id>")`
+- `detective_graph_overview(case_id="<case id>")`
+- `detective_list_nodes(case_id="<case id>", limit=<reasonable limit>)`
+- `detective_list_edges(case_id="<case id>")`
+- `detective_list_actions(case_id="<case id>")`
+- `detective_blackboard_list(case_id="<case id>")`
+- `detective_coverage_status(case_id="<case id>")`
+- `detective_list_intents(case_id="<case id>")` when needed for goal adoption.
 
-For legacy v1 flat case files, the old scripts can inspect status when MCP is unavailable:
+## Autonomous OODA Workflow
 
-```bash
-python $PLUGIN_ROOT/scripts/board.py status .detective/cases/<case-id>.json
-python $PLUGIN_ROOT/scripts/scoring.py suggest-phase .detective/cases/<case-id>.json
-python $PLUGIN_ROOT/scripts/convergence.py .detective/cases/<case-id>.json
+Continue cycles until a standard stop condition applies. Do not ask routine mid-loop questions when current state permits a legal high-value next action.
+
+1. **Observe**
+   - `detective_transition_phase(case_id="<case id>", phase="observe", reason="collect current facts")`
+   - Gather facts using read-only tools, specialist agents, or user data.
+   - Verified facts → `detective_add_node(..., type="evidence"|"observation")` with accurate `source` and status.
+   - Partial signals → `type="clue"`; scratch/speculation → `detective_blackboard_add(...)`.
+2. **Orient**
+   - `detective_transition_phase(case_id="<case id>", phase="orient", reason="relate evidence and hypotheses")`
+   - Add/update edges/statuses with exact edge enums; promote blackboard only when a graph node is warranted, not as proof.
+3. **Decide**
+   - `detective_transition_phase(case_id="<case id>", phase="decide", reason="select next action")`
+   - Choose the highest-value legal action and create exactly that item:
+     `detective_add_action(case_id="<case id>", description="<specific action>", assigned_role="<assistant|agent name>", priority=<0..1>, reason="<why highest value>")`.
+4. **Act**
+   - `detective_transition_phase(case_id="<case id>", phase="act", reason="execute selected action <action_id>")`
+   - Execute the action; when delegating, apply every field and boundary in `<HARD_GATE_SUBAGENT_DELEGATION>`.
+   - Record evidence, contradictions, resolved/rejected questions, rejected/resolved alternatives, or blackboard notes through MCP.
+5. **Review**
+   - `detective_transition_phase(case_id="<case id>", phase="review", reason="record results and check readiness")`
+   - Close action lifecycle: `detective_update_action(..., status="done|blocked|cancelled", result="<result>")`.
+   - Add checkpoint: `detective_add_checkpoint(case_id="<case id>", summary="<what changed>", action_id="<action id>", created_by="assistant")`.
+   - Update coverage using `detective_coverage_add` or `detective_coverage_update` with `unknown|planned|partial|complete|blocked`.
+   - Check readiness with read-only `detective_completion_gate(case_id="<case id>")`; call `detective_evaluate_proof` only when a durable formal proof snapshot is requested or needed.
+
+## Proof Alignment
+
+Before suggesting closure, ensure exactly one confirmed hypothesis, at least one confirmed evidence node with a direct `supports` edge to it, alternatives rejected/stale/resolved, questions resolved/rejected, actions done/cancelled, and coverage complete.
+
+<HARD_GATE_AUTONOMY_STOP_CONDITIONS>
+Stop before another action only when closure is allowed, user intervention is required, no legal action remains, budget/timebox/step count is exhausted, critical coverage needs approval, requested step count is reached, handoff is required, or the user asks to pause. Report the reason and deactivate fallback if active.
+</HARD_GATE_AUTONOMY_STOP_CONDITIONS>
+
+Export with `detective_export_markdown` and `detective_export_mermaid(..., diagram="full", focus_node_id=null)` only after meaningful graph changes or when requested.
+
+## Response Format
+
+```markdown
+**Phase completed**: review
+**Action**: <description and status>
+**OODA cycles run**: <n and stop reason>
+**Goal tool**: <adopted/set/unavailable/no change>
+**Stop fallback**: <inactive due to goal tool | active marker emitted | inactive marker emitted with reason | unchanged>
+**New evidence / graph changes**: <bullets>
+**Coverage**: <statuses>
+**Proof gate**: <allowed/blocked and key reason>
+**Next recommended action**: <specific next action, handoff, or ask>
 ```
-
-Use the output to assess:
-- Which Fragments are isolated or unsupported.
-- Which Threads are broken or contradictory.
-- Which Hypotheses remain active or eliminated.
-- Whether the legacy case appears converged.
-
-### Legacy v1 reasoning cycle
-
-When reviewing a legacy v1 flat case without MCP, treat the old Scan → Evolve → Focus → Act → File loop as a reasoning model only:
-
-1. **Scan**: inspect the board status and current phase.
-2. **Evolve**: identify constraints or maturity changes that would matter.
-3. **Focus**: generate candidate actions and score them conceptually, or with the legacy scorer for v1 files only.
-4. **Act**: execute the selected investigation action with available tools.
-5. **File**: for v2/v2.1, write findings through MCP tools; for legacy v1 fallback, summarize findings without mutating the flat case file.
-
-Legacy mutation commands such as fragment creation, thread creation, maturity changes, and propagation are deprecated. Do not use them for v2/v2.1 cases.
-
-### Checkpoints and termination
-
-For legacy v1 fallback, stop when convergence is reported, the user asks to pause, the action budget is exhausted, or discussion is needed. For v2/v2.1, use `detective_convergence_status`, `detective_deadlock_status`, and MCP exports instead of script-based checkpointing.
-
-### Additional resources
-
-These scripts are legacy v1 fallback references only:
-- **`scripts/board.py`** — Legacy board inspection and deprecated mutation helpers
-- **`scripts/scoring.py`** — Legacy phase suggestion and scoring helpers
-- **`scripts/convergence.py`** — Legacy convergence inspection

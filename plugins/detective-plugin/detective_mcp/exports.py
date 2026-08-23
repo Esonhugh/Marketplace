@@ -34,9 +34,7 @@ def export_markdown(workspace: str | Path | None, case_id: str) -> dict[str, Any
     ]
     evidence_nodes = [node for node in case["nodes"] if node["type"] == "evidence"]
     nodes_by_id = {node["id"]: node for node in case["nodes"]}
-    scheduler_state = case.get("scheduler", {})
-    attempted_directions = scheduler_state.get("attempted_directions", [])
-    next_actions = scheduler_state.get("next_actions", [])
+    actions = case.get("actions", [])
 
     lines = [
         f"# Case: {case['title']}",
@@ -75,23 +73,9 @@ def export_markdown(workspace: str | Path | None, case_id: str) -> dict[str, Any
     else:
         lines.append("- None")
 
-    lines.extend(["", "## Scheduler", "", "### Attempted Directions"])
-    if attempted_directions:
-        for direction in attempted_directions:
-            lines.append(
-                "- "
-                f"id: {direction['id']}; "
-                f"description: {_markdown_list_text(direction.get('description', ''))}; "
-                f"attempts: {int(direction.get('attempts', 0))}; "
-                f"status: {_markdown_list_text(direction.get('status', 'open'))}; "
-                f"new evidence: {int(direction.get('new_evidence_count', 0))}"
-            )
-    else:
-        lines.append("- None")
-
-    lines.extend(["", "### Next Actions"])
-    if next_actions:
-        for action in next_actions:
+    lines.extend(["", "## Actions"])
+    if actions:
+        for action in actions:
             lines.append(
                 "- "
                 f"id: {action['id']}; "
@@ -104,7 +88,7 @@ def export_markdown(workspace: str | Path | None, case_id: str) -> dict[str, Any
     else:
         lines.append("- None")
 
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    store._atomic_write_text(path, "\n".join(lines) + "\n")
     return {"case_id": case["id"], "path": str(path)}
 
 
@@ -121,7 +105,13 @@ def export_mermaid(
     nodes = case["nodes"]
     edges = case["edges"]
 
+    if diagram not in {"full", "hypothesis-chain"}:
+        raise ValueError("diagram must be one of: full, hypothesis-chain")
+    if diagram == "hypothesis-chain" and focus_node_id is None:
+        raise ValueError("focus_node_id is required for hypothesis-chain diagrams")
+
     if diagram == "hypothesis-chain" and focus_node_id is not None:
+        store.find_node(case, focus_node_id)
         focused_edges = [
             edge
             for edge in case["edges"]
@@ -143,5 +133,5 @@ def export_mermaid(
         label = _escape_mermaid(edge["type"])
         lines.append(f'    {edge["from_id"]} -- {label} --> {edge["to_id"]}')
 
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    store._atomic_write_text(path, "\n".join(lines) + "\n")
     return {"case_id": case["id"], "path": str(path)}

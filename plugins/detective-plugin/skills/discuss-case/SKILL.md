@@ -1,107 +1,70 @@
 ---
 name: discuss-case
-description: This skill should be used when the user asks to "discuss the case", "brainstorm about the investigation", "I'm stuck", "what do you think", or when the investigation loop detects a deadlock, hypothesis ambiguity, or needs user input to break a tie. Facilitates structured case discussion.
+description: The assistant should use this when the user wants to discuss an existing Detective case, resolve a blocker, answer a targeted question, provide guidance/facts/theories, change scope, or choose between alternatives. It records guidance without running investigation. Do not use for new case creation (open-case), vague pre-case scoping (brainstorm), autonomous investigation (investigate), read-only status review (review-board), or closure (close-case).
 ---
 
-# Discuss Case — Structured Investigation Dialogue
+# Discuss Case
 
-Conduct a case discussion with the user at critical investigation junctures. Present the situation clearly, surface key uncertainties, and integrate user input as high-weight evidence.
+Hold a structured case discussion and record useful guidance through Detective MCP tools. Follow `../references/detective-core-protocol.md` for canonical state, evidence labels, enums, StopHook status preservation, and handoffs.
 
-## MCP-first user guidance
+<IMPORTANT_USER_GUIDANCE_BOUNDARY>
+Discussion is for clarifying decisions, blockers, boundaries, and user-provided context. Ask one targeted question, record only useful guidance, and do not run investigation actions unless the user explicitly asks to switch back to investigation.
+</IMPORTANT_USER_GUIDANCE_BOUNDARY>
 
-When the user provides guidance, write it through `detective_apply_user_guidance`:
+<IMPORTANT_EVIDENCE_INTEGRITY>
+Separate blackboard notes from verified graph state. User theories, guesses, preferences, and unverified memories are not evidence. Use `clue`, `verified`, and `confirmed` deliberately: only authoritative or corroborated user facts may become `evidence` with `status="confirmed"`.
+</IMPORTANT_EVIDENCE_INTEGRITY>
 
-- Facts → `guidance_type="fact"`
-- Theories → `guidance_type="theory"`
-- Boundaries or disallowed directions → `guidance_type="constraint"`
-- New uncertainties → `guidance_type="question"`
+<IMPORTANT_GOAL_TOOL_SCOPE_CHANGE>
+When a SetGoal or equivalent goal tool is available, do not overwrite a valid active case goal during discussion. Update it only if the user changes scope, intent, completion criteria, or stop conditions. Session goals remain orchestration hints; MCP state remains canonical.
+</IMPORTANT_GOAL_TOOL_SCOPE_CHANGE>
 
-After applying guidance, call `detective_graph_overview` before continuing. User guidance has priority over automated scheduling.
+<IMPORTANT_STOP_FALLBACK_STATUS_PRESERVATION>
+Discussion preserves the current Stop fallback marker status. Do not emit a new active marker merely for discussion. If the discussion ends with a user pause/stop request or a blocker waiting for user input, emit `<DETECTIVE-STOP-FALLBACK status="inactive" case-id="<case_id>" reason="<pause|blocked>">`.
+</IMPORTANT_STOP_FALLBACK_STATUS_PRESERVATION>
 
-## When This Triggers
+## Brief Before Asking
 
-Automatic triggers (from investigate loop):
-- Multiple hypotheses with confidence spread < 0.1 (ambiguity)
-- All candidate actions scoring below 0.3 (deadlock)
-- Previously strong hypothesis just eliminated (direction change)
-- Budget > 80% consumed (approaching limit)
-- Phase regression detected (new evidence contradicted main theory)
+Read enough state to ask one targeted question:
 
-Manual trigger: user explicitly calls `/detective:discuss-case`
+- `detective_graph_overview(case_id="<case id>")`
+- `detective_list_nodes(case_id="<case id>", limit=<reasonable limit>)`
+- `detective_list_actions(case_id="<case id>")`
+- `detective_blackboard_list(case_id="<case id>")`
+- `detective_coverage_status(case_id="<case id>")`
+- `detective_completion_gate(case_id="<case id>")`
 
-## Discussion Structure
+Summarize only the relevant uncertainty, fork, or blocker.
 
-Every case discussion follows this four-part format:
+## Recording User Input
 
-### Part 1: Case Summary (Brief)
+Use the exact MCP tool that matches the input:
 
-One paragraph summarizing the current state in plain language. No jargon, no fragment IDs — speak like a detective briefing a colleague:
+- Authoritative/confirmed user fact:
+  - `detective_add_node(case_id="<case id>", type="evidence", content="<fact>", status="confirmed", confidence=<0..1>, source="user", tags=["user-provided"], created_by="assistant")`
+- Believed but not fully confirmed user fact:
+  - `detective_add_node(case_id="<case id>", type="clue", content="<signal>", status="verified", confidence=<0..1>, source="user", tags=["user-provided"], created_by="assistant")`
+- User theory:
+  - `detective_add_node(case_id="<case id>", type="hypothesis", content="<theory>", status="open", confidence=<0..1>, source="user", tags=["user-theory"], created_by="assistant")`
+- Boundary or exclusion:
+  - `detective_add_node(case_id="<case id>", type="constraint", content="<constraint>", status="open", confidence=1.0, source="user", tags=["boundary"], created_by="assistant")`
+- Unverified note:
+  - `detective_blackboard_add(case_id="<case id>", content="<note>", kind="note", tags=["unverified","user-provided"], created_by="assistant")`
+- Relationship:
+  - `detective_add_edge(case_id="<case id>", from_id="<node id>", to_id="<node id>", type="supports|contradicts|derives|requires|eliminates|related_to", confidence=<0..1>, rationale="<why>", created_by="assistant")`
+- Follow-up work:
+  - `detective_add_action(case_id="<case id>", description="<specific action>", assigned_role="assistant", priority=<0..1>, reason="<why this follows>")`
+- Existing action update:
+  - `detective_update_action(case_id="<case id>", action_id="<action id>", status="pending|active|blocked|done|cancelled", result="<discussion outcome>")`
 
-> "We're investigating [problem]. So far we've established [key facts]. Our leading theory is [hypothesis] but [complication]."
+When a blocker is resolved, hand off based on blocker type: proof/coverage/action gap → `investigate`; missing user decision/scope/approval → continue `discuss-case`; completion-ready → `close-case`; artifact-only → `review-board`.
 
-### Part 2: Key Uncertainty (The Fork)
+## Response Format
 
-Identify the 1-2 most critical points of uncertainty that are blocking progress:
-
-> "The main question right now is: [specific question]. This matters because [why it's blocking]."
-
-If there's a tie between hypotheses, present them as alternatives:
-
-> "Two theories are equally plausible right now:
-> 1. [Hypothesis A] — supported by [evidence], confidence [X]
-> 2. [Hypothesis B] — supported by [evidence], confidence [Y]"
-
-### Part 3: Detective's Inclination
-
-State what the system would do next if acting autonomously, and why:
-
-> "My instinct says [direction] because [reasoning]. But I'm [X]% confident in this — [what could be wrong]."
-
-### Part 4: Ask the User
-
-Pose a specific, actionable question. Prefer structured options when possible:
-
-- "Do you have any domain knowledge that could distinguish between these two theories?"
-- "Should I prioritize [A] or [B] given your context?"
-- "Is there a source of information I haven't considered?"
-- "Should I abandon [direction] and try something new?"
-
-## Processing User Response
-
-For v2/v2.1 cases, user input enters the graph only through `detective_apply_user_guidance`:
-
-| User Says | MCP Guidance Mapping |
-|-----------|----------------------|
-| States a fact | `guidance_type="fact"` |
-| Suggests a theory | `guidance_type="theory"` |
-| Eliminates a direction | `guidance_type="constraint"` |
-| Points to a clue or uncertainty | `guidance_type="question"` |
-| Adjusts priority | Apply through MCP-backed scheduling or guidance; do not mutate files directly |
-
-User-authority fragments have elevated status:
-- `source: user_authority` fragments start at higher maturity
-- Constraints from user are treated as hard constraints (anchor-level)
-- User hypotheses get a confidence boost (+0.2 over default)
-
-## After Discussion
-
-1. Apply any user input with `detective_apply_user_guidance` if it was not already applied.
-2. Call `detective_graph_overview` to review the updated MCP-backed graph state.
-3. Use Detective MCP tools for any follow-up state changes, exports, or scheduling updates.
-4. Report what changed:
-
-> "Based on your input, I've [updated X, eliminated Y, added Z]. The investigation now points toward [direction]. Continuing with `/detective:investigate`."
-
-5. Return control to the investigate loop (or pause if user prefers)
-
-## Tone
-
-Speak as a detective colleague — professional, direct, no unnecessary formality. Acknowledge uncertainty honestly. Never pretend confidence that doesn't exist in the data.
-
-## Legacy v1 fallback resources
-
-These scripts are deprecated fallback references only for legacy v1 flat JSON case files when the Detective MCP server is unavailable. For v2/v2.1 cases, user guidance and any state changes must go through Detective MCP tools.
-
-### Scripts
-- **`scripts/board.py`** — Legacy v1 board inspection and deprecated user-fragment helpers
-- **`scripts/scoring.py`** — Legacy v1 scoring and deprecated propagation helpers
+```markdown
+**Discussion point**: <uncertainty or fork>
+**What I recorded**: <node/action ids or "nothing yet">
+**Goal tool**: <unchanged/updated/unavailable>
+**Stop fallback**: <preserved | inactive marker emitted with reason>
+**Current decision needed**: <one question only>
+```

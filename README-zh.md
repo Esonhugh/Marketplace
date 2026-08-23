@@ -225,7 +225,7 @@ FOFA 网络空间搜索引擎插件。内置预编译的 GoFOFA 二进制文件�
 
 ### detective
 
-基于调查驱动的问题解决框架，提供用于项目本地案件存储、图查询、最短路径和 Markdown/Mermaid 导出的本地 MCP 图核心。旧版评分与收敛 scripts 仍作为兼容 CLI wrappers 可用。
+OODA 原生调查框架，提供本地 MCP 图核心、项目内案件状态、证据链、黑板记录、覆盖范围、行动、证明门、受约束的专家 agent 调度，以及图查询和 Markdown/Mermaid 导出。
 
 ```bash
 /plugin install detective@Esonhugh-Marketplace
@@ -237,21 +237,21 @@ FOFA 网络空间搜索引擎插件。内置预编译的 GoFOFA 二进制文件�
 |:---|:---|
 | `brainstorm` | 预调查：协作式问题探索，产出案件简报 |
 | `open-case` | 初始化 CaseBoard，定义案发现场和目标 |
-| `investigate` | 围绕 v2 MCP 图核心查看图状态、补充证据并推进案件；循环表述仅作为旧版 v1 工作流标签与 v2.1 编排规划保留 |
+| `investigate` | 自主执行 MCP 支持的观察 → 定向 → 决策 → 行动 → 复盘循环，并按约束调度专家 agent |
 | `review-board` | 展示面板状态、碎片、线索、假设 |
 | `discuss-case` | 在僵局、歧义或关键节点进行结构化对话 |
 | `close-case` | 产出含完整证据链溯源的结案报告 |
 
 **核心概念：**
 
-- **Fragment**：信息单元，成熟度（Raw → Clue → Evidence → Anchor），角色（Observation、Hypothesis、Constraint、Conclusion）
-- **Thread**：碎片间的有向边（supports、contradicts、derives、eliminates、requires）
-- **MCP 图核心**：在本地存储案件，维护项目本地的图状态，支持图概览/查询、最短路径，以及 Markdown/Mermaid 导出
-- **旧版评分兼容**：旧版评分/收敛辅助逻辑仍以 CLI 兼容 wrapper 形式复用共享 MCP 图工具，但它们并不是已交付的 v2 自主编排核心
+- **节点**：观察、线索、证据、假设、约束、结论、问题和任务
+- **关系**：supports、contradicts、derives、eliminates、requires 等有向推理边
+- **OODA 编排**：记录阶段转换、意图、行动、检查点、覆盖范围与专家 agent 工作
+- **证明门**：正常结案前要求已确认的直接证据、已处理的替代假设/问题/行动，以及非空且完整的覆盖范围
 
 **适用领域：** 安全研究、情报分析、根因分析、代码考古
 
-**MCP 图核心存储：** 当前 v2 案件状态存储在项目本地，并采用目录结构：
+**MCP 图核心存储：** 当前 v0.4 案件状态存储在项目本地，并采用目录结构：
 
 ```text
 .detective/cases/<case-id>/case.json
@@ -260,7 +260,7 @@ FOFA 网络空间搜索引擎插件。内置预编译的 GoFOFA 二进制文件�
 .detective/cases/<case-id>/events.jsonl
 ```
 
-扁平路径 `.detective/cases/<case-id>.json` 仅用于旧版 v1 兼容。
+Detective v0.4 只接受 schema `4.0` 案件；旧版扁平文件和兼容 scripts 不属于本版本。
 
 ---
 

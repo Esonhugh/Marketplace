@@ -3,6 +3,8 @@ from pathlib import Path
 from typing import Any
 
 from . import store
+from .models import EDGE_TYPES, NODE_TYPES, NODE_STATUSES
+from .validation import positive_limit, require_text, validate_choice
 
 
 def _case(workspace: str | Path | None, case_id: str) -> dict[str, Any]:
@@ -37,6 +39,11 @@ def list_nodes(
     tag: str | None = None,
     limit: int | None = None,
 ) -> list[dict[str, Any]]:
+    limit = positive_limit(limit)
+    if node_type is not None:
+        validate_choice(node_type, NODE_TYPES, "node type")
+    if status is not None:
+        validate_choice(status, NODE_STATUSES, "node status")
     case = _case(workspace, case_id)
     nodes = case["nodes"]
     if node_type is not None:
@@ -68,6 +75,11 @@ def search_nodes(
     types: list[str] | None = None,
     limit: int | None = None,
 ) -> list[dict[str, Any]]:
+    limit = positive_limit(limit)
+    require_text(query, "query")
+    if types is not None:
+        for node_type in types:
+            validate_choice(node_type, NODE_TYPES, "node type")
     case = _case(workspace, case_id)
     needle = query.lower()
     nodes = case["nodes"]
@@ -90,6 +102,8 @@ def list_edges(
     from_id: str | None = None,
     to_id: str | None = None,
 ) -> list[dict[str, Any]]:
+    if edge_type is not None:
+        validate_choice(edge_type, EDGE_TYPES, "edge type")
     case = _case(workspace, case_id)
     edges = case["edges"]
     if edge_type is not None:
