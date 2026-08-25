@@ -7,21 +7,21 @@ description: The assistant should use this when the user wants to discuss an exi
 
 Hold a structured case discussion and record useful guidance through Detective MCP tools. Follow `../references/detective-core-protocol.md` for canonical state, evidence labels, enums, StopHook status preservation, and handoffs.
 
-<IMPORTANT_USER_GUIDANCE_BOUNDARY>
+<IMPORTANT name="user-guidance-boundary">
 Discussion is for clarifying decisions, blockers, boundaries, and user-provided context. Ask one targeted question, record only useful guidance, and do not run investigation actions unless the user explicitly asks to switch back to investigation.
-</IMPORTANT_USER_GUIDANCE_BOUNDARY>
+</IMPORTANT>
 
-<IMPORTANT_EVIDENCE_INTEGRITY>
+<IMPORTANT name="evidence-integrity">
 Separate blackboard notes from verified graph state. User theories, guesses, preferences, and unverified memories are not evidence. Use `clue`, `verified`, and `confirmed` deliberately: only authoritative or corroborated user facts may become `evidence` with `status="confirmed"`.
-</IMPORTANT_EVIDENCE_INTEGRITY>
+</IMPORTANT>
 
-<IMPORTANT_GOAL_TOOL_SCOPE_CHANGE>
+<IMPORTANT name="goal-tool-scope-change">
 When a SetGoal or equivalent goal tool is available, do not overwrite a valid active case goal during discussion. Update it only if the user changes scope, intent, completion criteria, or stop conditions. Session goals remain orchestration hints; MCP state remains canonical.
-</IMPORTANT_GOAL_TOOL_SCOPE_CHANGE>
+</IMPORTANT>
 
-<IMPORTANT_STOP_FALLBACK_STATUS_PRESERVATION>
+<IMPORTANT name="stop-fallback-status-preservation">
 Discussion preserves the current Stop fallback marker status. Do not emit a new active marker merely for discussion. If the discussion ends with a user pause/stop request or a blocker waiting for user input, emit `<DETECTIVE-STOP-FALLBACK status="inactive" case-id="<case_id>" reason="<pause|blocked>">`.
-</IMPORTANT_STOP_FALLBACK_STATUS_PRESERVATION>
+</IMPORTANT>
 
 ## Brief Before Asking
 

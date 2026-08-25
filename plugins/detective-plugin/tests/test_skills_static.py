@@ -1,10 +1,17 @@
+import re
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS = ROOT / "skills"
+AGENTS = ROOT / "agents"
 REFERENCE = SKILLS / "references" / "detective-core-protocol.md"
 SKILL_NAMES = ["brainstorm", "open-case", "investigate", "discuss-case", "review-board", "close-case"]
+ATTENTION_MD_PATHS = [*SKILLS.glob("**/*.md"), *AGENTS.glob("**/*.md")]
+ALLOWED_ATTENTION_TAGS = {"HARD_GATE", "IMPORTANT"}
+ATTENTION_OPEN_RE = re.compile(r"<(HARD_GATE|IMPORTANT)\s+name=\"([a-z0-9]+(?:-[a-z0-9]+)*)\">([\s\S]*?)</\1>")
+XMLISH_TAG_RE = re.compile(r"</?([A-Za-z][A-Za-z0-9_-]*)(?:\s[^>]*)?>")
+LEGACY_ATTENTION_RE = re.compile(r"</?(?:HARD-GATE|HARD_GATE_[A-Z0-9_]+|IMPORTANT_[A-Z0-9_]+)\b")
 
 
 def read_skill(name: str) -> str:
@@ -31,7 +38,7 @@ def test_shared_reference_contains_core_protocol_requirements():
         "Prefer SetGoal or an equivalent goal tool",
         "<DETECTIVE-STOP-FALLBACK status=\"active\" case-id=\"<case_id>\">",
         "Mid-cycle resume is allowed",
-        "<HARD_GATE_SUBAGENT_DELEGATION>",
+        '<HARD_GATE name="subagent-delegation">',
         "Subagents inherit the coordinator's evidence, state, scope, and closure constraints",
         "Cross-skill handoff matrix",
         "Exports are artifacts, not state",
@@ -46,13 +53,64 @@ def test_skill_descriptions_are_pushy_and_have_near_miss_exclusions():
         assert "Do not use" in description
 
 
-def test_each_skill_keeps_paired_semantic_gates_without_attribute_dependent_emphasis():
+def test_each_skill_references_shared_protocol_and_uses_attention_wrappers():
     for name in SKILL_NAMES:
         text = read_skill(name)
         assert "../references/detective-core-protocol.md" in text
-        assert "<HARD_GATE_" in text or "<IMPORTANT_" in text
-        assert '<HARD-GATE name=' not in text
-        assert '<IMPORTANT name=' not in text
+        assert '<HARD_GATE name="' in text or '<IMPORTANT name="' in text
+
+
+def test_each_agent_with_mandatory_constraints_uses_attention_wrappers():
+    for path in AGENTS.glob("*.md"):
+        text = path.read_text(encoding="utf-8")
+        if "do not" in text.lower() or "must" in text.lower():
+            assert '<HARD_GATE name="' in text or '<IMPORTANT name="' in text
+
+
+def test_agent_tools_support_assigned_state_transitions():
+    lead = (AGENTS / "lead-investigator.md").read_text(encoding="utf-8")
+    contradiction = (AGENTS / "contradiction-finder.md").read_text(encoding="utf-8")
+    report = (AGENTS / "report-writer.md").read_text(encoding="utf-8")
+    for tool in [
+        "detective_add_node",
+        "detective_update_node",
+        "detective_add_edge",
+        "detective_blackboard_list",
+        "detective_blackboard_add",
+        "detective_coverage_add",
+        "detective_coverage_update",
+    ]:
+        assert tool in lead
+    assert "detective_update_node" in contradiction
+    assert "detective_evaluate_proof" not in report
+    assert "read-only completion gate" in report
+
+
+def test_attention_xml_wrappers_are_current_valid_and_nonempty():
+    for path in ATTENTION_MD_PATHS:
+        text = path.read_text(encoding="utf-8")
+        assert not LEGACY_ATTENTION_RE.search(text), f"legacy attention tag in {path}"
+
+        tags = [match for match in XMLISH_TAG_RE.finditer(text) if match.group(1).startswith(("HARD", "IMPORTANT"))]
+        stack: list[tuple[str, str]] = []
+        for tag in tags:
+            raw = tag.group(0)
+            tag_name = tag.group(1)
+            if raw.startswith("</"):
+                assert stack, f"unmatched closing tag {raw} in {path}"
+                expected_name, expected_raw = stack.pop()
+                assert tag_name == expected_name, f"{expected_raw} closed by {raw} in {path}"
+                continue
+
+            assert tag_name in ALLOWED_ATTENTION_TAGS, f"invalid attention tag {raw} in {path}"
+            assert re.fullmatch(rf'<{tag_name} name="[a-z0-9]+(?:-[a-z0-9]+)*">', raw), (
+                f"attention tag must have nonempty kebab-case name in {path}: {raw}"
+            )
+            stack.append((tag_name, raw))
+        assert not stack, f"unclosed attention tag(s) in {path}: {stack}"
+
+        for match in ATTENTION_OPEN_RE.finditer(text):
+            assert match.group(3).strip(), f"empty attention wrapper in {path}: {match.group(0)}"
 
 
 def test_review_board_uses_completion_gate_read_only_by_default():
@@ -69,10 +127,27 @@ def test_investigate_states_mid_cycle_resume_and_proof_lifecycle():
     assert "questions resolved/rejected" in text
 
 
+def test_missing_sources_are_blockers_not_counterevidence():
+    reference = REFERENCE.read_text(encoding="utf-8")
+    investigate = read_skill("investigate")
+    assert "does not contradict, eliminate, weaken, or reduce the confidence" in reference
+    assert "Missing expected evidence proves only the source/coverage limitation" in investigate
+    assert "independent evidence" in investigate
+
+
+def test_investigate_repairs_existing_gate_state_without_duplicates():
+    text = read_skill("investigate")
+    assert "never create a second item with the same area" in text
+    assert "original open `question` nodes" in text
+    assert "do not add a separate answer question" in text
+    assert "Re-read actions, questions, and coverage" in text
+    assert "failed gate is feedback to repair existing state" in text
+
+
 def test_investigate_constrains_subagent_delegation_and_inheritance():
     text = read_skill("investigate")
-    assert "<HARD_GATE_SUBAGENT_DELEGATION>" in text
-    assert "</HARD_GATE_SUBAGENT_DELEGATION>" in text
+    assert '<HARD_GATE name="subagent-delegation">' in text
+    assert "</HARD_GATE>" in text
     for required in [
         "case id",
         "OODA phase and action id",

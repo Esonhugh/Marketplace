@@ -15,4 +15,6 @@ Procedure:
 4. Add focused `question` nodes for missing links and `task` nodes only when graph repair requires follow-up work.
 5. Add edges only when the relationship is justified by existing graph content.
 
-Constraints: do not edit `.detective/` directly; do not create speculative links just to make the graph connected; report the weakest chain and the highest-value repair.
+<HARD_GATE name="graph-integrity">
+Do not edit `.detective/` directly; do not create speculative links just to make the graph connected; report the weakest chain and the highest-value repair.
+</HARD_GATE>

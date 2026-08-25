@@ -7,21 +7,21 @@ description: The assistant should use this when the user has a vague concern, hu
 
 Turn an unclear concern into a concise case brief. Follow the shared protocol in `../references/detective-core-protocol.md` for enums, evidence labels, handoffs, and orchestration boundaries.
 
-<HARD_GATE_PRE_APPROVAL_NO_MUTATION>
+<HARD_GATE name="pre-approval-no-mutation">
 Brainstorm is pre-approval only. Do not call `detective_open_case`, `detective_add_node`, `detective_add_edge`, `detective_add_intent`, `detective_add_action`, or any other case-mutating MCP tool until the user explicitly approves the brief and asks to proceed. Read-only code/file/log inspection is allowed when it helps frame the problem.
-</HARD_GATE_PRE_APPROVAL_NO_MUTATION>
+</HARD_GATE>
 
-<HARD_GATE_EXPLICIT_OPEN_APPROVAL>
+<HARD_GATE name="explicit-open-approval">
 User approval must be explicit and current-turn clear, for example "open it", "proceed", or "create the case". Ambiguous interest, agreement with the brief, or continued brainstorming is not permission to mutate Detective MCP state.
-</HARD_GATE_EXPLICIT_OPEN_APPROVAL>
+</HARD_GATE>
 
-<IMPORTANT_GOAL_AND_STOP_TIMING>
+<IMPORTANT name="goal-and-stop-timing">
 Do not call SetGoal or emit `<DETECTIVE-STOP-FALLBACK ...>` markers during unapproved brainstorming. After approval, hand off to `/detective:open-case` when available; open-case handles durable MCP creation, SetGoal, and fallback markers.
-</IMPORTANT_GOAL_AND_STOP_TIMING>
+</IMPORTANT>
 
-<HARD_GATE_NO_STOP_FALLBACK_BEFORE_APPROVAL>
+<HARD_GATE name="no-stop-fallback-before-approval">
 Do not emit `<DETECTIVE-STOP-FALLBACK ...>` markers during brainstorm pre-approval. Stop fallback activation is allowed only after a durable MCP case exists and only as a fallback when no SetGoal or equivalent goal tool is available.
-</HARD_GATE_NO_STOP_FALLBACK_BEFORE_APPROVAL>
+</HARD_GATE>
 
 ## Workflow
 

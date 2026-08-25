@@ -7,17 +7,17 @@ description: The assistant should use this when the user explicitly asks to open
 
 Create a Detective MCP-backed case. Follow `../references/detective-core-protocol.md` for canonical MCP-only state, enums, evidence lifecycle, SetGoal preference, StopHook fallback, and handoffs.
 
-<HARD_GATE_CASE_STATE_SAFETY>
+<HARD_GATE name="case-state-safety">
 All case state creation and updates must go through Detective MCP tools. Never create, edit, rename, delete, or infer truth from `.detective/` files as a substitute for MCP state. Preserve exact MCP tool names, enums, parameters, and signatures.
-</HARD_GATE_CASE_STATE_SAFETY>
+</HARD_GATE>
 
-<IMPORTANT_GOAL_TOOL_BOUNDARY>
+<IMPORTANT name="goal-tool-boundary">
 When a SetGoal or equivalent goal tool is available, use it only for harness/session orchestration after `detective_open_case` returns the case id. It does not create durable Detective case state and must not be treated as MCP truth.
-</IMPORTANT_GOAL_TOOL_BOUNDARY>
+</IMPORTANT>
 
-<HARD_GATE_STOP_FALLBACK_MARKER_PROTOCOL>
+<HARD_GATE name="stop-fallback-marker-protocol">
 Prefer SetGoal or an equivalent goal tool. Only when no goal tool is available, emit exactly once after `detective_open_case` returns: `<DETECTIVE-STOP-FALLBACK status="active" case-id="<case_id>">`. This only activates the statically registered inert StopHook fallback and must not be written to `.detective/` files.
-</HARD_GATE_STOP_FALLBACK_MARKER_PROTOCOL>
+</HARD_GATE>
 
 ## Required Inputs
 

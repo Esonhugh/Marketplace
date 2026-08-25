@@ -7,25 +7,25 @@ description: The assistant should use this when the user asks to close, finalize
 
 Close a Detective MCP-backed case only through MCP tools. Follow `../references/detective-core-protocol.md` for proof completion semantics, canonical state, StopHook deactivation, handoffs, and export policy.
 
-<HARD_GATE_CLOSURE_AUTHORIZATION>
+<HARD_GATE name="closure-authorization">
 Normal closure requires `detective_completion_gate` approval and a final summary naming conclusion, confidence, key evidence chain, completed coverage, and unresolved caveats. If the gate is blocked, do not close; present blockers and offer continue, discuss, or force-close options.
-</HARD_GATE_CLOSURE_AUTHORIZATION>
+</HARD_GATE>
 
-<HARD_GATE_FORCE_CLOSE_APPROVAL>
+<HARD_GATE name="force-close-approval">
 `force=true` requires explicit user approval for a partial or forced close in the current conversation. Include the force reason and unresolved caveats in the summary; never infer force approval from frustration, silence, or a generic request to wrap up.
-</HARD_GATE_FORCE_CLOSE_APPROVAL>
+</HARD_GATE>
 
-<IMPORTANT_PROOF_LIFECYCLE_ALIGNMENT>
+<IMPORTANT name="proof-lifecycle-alignment">
 Before normal closure, verify exactly one confirmed hypothesis, at least one confirmed evidence node with a direct `supports` edge to it, questions and alternatives resolved/rejected/stale, actions done/cancelled, and coverage complete. Use `detective_completion_gate` as the readiness authority; use `detective_evaluate_proof` only when preserving a durable final proof snapshot.
-</IMPORTANT_PROOF_LIFECYCLE_ALIGNMENT>
+</IMPORTANT>
 
-<IMPORTANT_GOAL_COMPLETION_ALIGNMENT>
+<IMPORTANT name="goal-completion-alignment">
 When a SetGoal or equivalent goal tool is available, treat `detective_completion_gate` approval as the goal-completion gate. Session goals are orchestration hints and do not replace MCP closure state.
-</IMPORTANT_GOAL_COMPLETION_ALIGNMENT>
+</IMPORTANT>
 
-<HARD_GATE_STOP_FALLBACK_DEACTIVATION_ON_CLOSE>
+<HARD_GATE name="stop-fallback-deactivation-on-close">
 When closure is completed, blocked waiting for user force-close approval, or paused by user request, emit `<DETECTIVE-STOP-FALLBACK status="inactive" case-id="<case_id>" reason="<closed|blocked|pause>">`. This only disengages the transcript-activated fallback and must not be written to `.detective/` files.
-</HARD_GATE_STOP_FALLBACK_DEACTIVATION_ON_CLOSE>
+</HARD_GATE>
 
 ## Required Inputs
 

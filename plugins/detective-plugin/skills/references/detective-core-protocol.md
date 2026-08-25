@@ -50,6 +50,7 @@ Case statuses: `open`, `paused`, `closed`.
   - Unverified user memory or theory → blackboard or `hypothesis`.
   - User-provided fact believed but not externally checked → `clue` or `evidence` with `status="open"`/`verified` as appropriate.
   - Explicitly verified or authoritative user fact → `evidence`, `source="user"`, `status="confirmed"` when strong enough.
+- Missing, inaccessible, or unexamined expected evidence may establish a blocker or coverage gap, but it does not contradict, eliminate, weaken, or reduce the confidence of a causal hypothesis. Record the missing source as an observation/constraint and keep affected hypotheses unresolved unless independent contrary evidence exists.
 - Promotion from blackboard creates a graph node but does not make it verified; choose node type/status/source conservatively.
 
 ## 4. Proof completion semantics
@@ -87,15 +88,15 @@ Cycle duties:
 - Orient: relate nodes; add/update edges and statuses.
 - Decide: choose the highest-value legal next action; add exactly that action.
 - Act: execute the action using tools/agents and write findings through MCP.
-- Review: update action status, add checkpoint, update coverage, check completion gate.
+- Review: update action status, add checkpoint, update the existing coverage item by id (do not add a duplicate area), resolve/reject the original open question nodes by id, then check completion gate.
 
 Do not ask routine mid-loop questions when a legal high-value action can be chosen from state.
 
 ## 7. Subagent delegation
 
-<HARD_GATE_SUBAGENT_DELEGATION>
+<HARD_GATE name="subagent-delegation">
 Delegate only bounded, independent work. Every dispatch must include the Detective case id, OODA phase and action id, scope or target nodes, allowed tools and read/write boundaries, required MCP writes, expected return format, and stop conditions. Subagents inherit the coordinator's evidence, state, scope, and closure constraints. They must never edit `.detective/` directly, expand scope, force-close, convert scratch into proof, or spawn further agents unless explicitly allowed. The coordinator validates returned evidence and MCP state before completing the parent action.
-</HARD_GATE_SUBAGENT_DELEGATION>
+</HARD_GATE>
 
 ## 8. Standard stop conditions
 

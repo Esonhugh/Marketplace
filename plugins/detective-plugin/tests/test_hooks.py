@@ -33,13 +33,23 @@ def test_hooks_json_uses_plugin_wrapper_format():
     assert hook["timeout"] <= 30
 
 
-def test_stop_prompt_requires_exact_decision_json_semantics():
+def test_stop_prompt_requires_exact_prompt_hook_json_semantics():
     prompt = _stop_prompt()
 
-    assert '"decision":"approve"|"block"' in prompt
-    assert '"reason":"concise reason"' in prompt
+    assert '"ok":true' in prompt
+    assert '"ok":false' in prompt
+    assert '"reason":"concise next action Claude must take before stopping"' in prompt
+    assert '"decision"' not in prompt
+    assert "Claude Code prompt-hook schema" in prompt
     assert "Return only valid JSON" in prompt
     assert "Do not include markdown or extra keys" in prompt
+
+
+def test_stop_prompt_uses_current_attention_wrapper():
+    prompt = _stop_prompt()
+    assert '<HARD_GATE name="explicit-transcript-activation">' in prompt
+    assert "</HARD_GATE>" in prompt
+    assert "<HARD-GATE" not in prompt
 
 
 def test_stop_prompt_is_inert_without_marker():
@@ -48,7 +58,7 @@ def test_stop_prompt_is_inert_without_marker():
     assert "inert by default" in prompt
     assert "no latest unmatched active" in prompt
     assert "immediately return" in prompt
-    assert "detective stop fallback inactive" in prompt
+    assert 'immediately return {"ok":true}' in prompt
     assert "do not infer activation" in prompt
     assert "open/active detective case" in prompt
 
@@ -132,8 +142,8 @@ def test_skills_activate_fallback_only_when_goal_tool_unavailable():
 def test_brainstorm_does_not_activate_fallback_pre_approval():
     text = _skill("brainstorm")
 
-    assert "<HARD_GATE_NO_STOP_FALLBACK_BEFORE_APPROVAL>" in text
-    assert "</HARD_GATE_NO_STOP_FALLBACK_BEFORE_APPROVAL>" in text
+    assert '<HARD_GATE name="no-stop-fallback-before-approval">' in text
+    assert "</HARD_GATE>" in text
     assert "Do not emit `<DETECTIVE-STOP-FALLBACK ...>` markers during brainstorm pre-approval" in text
     assert "only after a durable MCP case exists" in text
 
@@ -141,8 +151,8 @@ def test_brainstorm_does_not_activate_fallback_pre_approval():
 def test_review_and_discussion_preserve_or_deactivate_fallback():
     for name in ["review-board", "discuss-case"]:
         text = _skill(name)
-        assert "<IMPORTANT_STOP_FALLBACK_STATUS_PRESERVATION>" in text
-        assert "</IMPORTANT_STOP_FALLBACK_STATUS_PRESERVATION>" in text
+        assert '<IMPORTANT name="stop-fallback-status-preservation">' in text
+        assert "</IMPORTANT>" in text
         assert "preserves the current Stop fallback marker status" in text
         assert '<DETECTIVE-STOP-FALLBACK status="inactive" case-id="<case_id>"' in text
         assert "Do not emit a new active marker" in text
@@ -156,8 +166,8 @@ def test_investigate_and_close_deactivate_on_stop_conditions():
         assert reason in investigate
     assert '<DETECTIVE-STOP-FALLBACK status="inactive" case-id="<case_id>" reason="<pause|blocked|budget-exhausted|complete|closed>">' in investigate
 
-    assert "<HARD_GATE_STOP_FALLBACK_DEACTIVATION_ON_CLOSE>" in close_case
-    assert "</HARD_GATE_STOP_FALLBACK_DEACTIVATION_ON_CLOSE>" in close_case
+    assert '<HARD_GATE name="stop-fallback-deactivation-on-close">' in close_case
+    assert "</HARD_GATE>" in close_case
     assert '<DETECTIVE-STOP-FALLBACK status="inactive" case-id="<case_id>" reason="closed">' in close_case
     assert '<DETECTIVE-STOP-FALLBACK status="inactive" case-id="<case_id>" reason="blocked">' in close_case
 

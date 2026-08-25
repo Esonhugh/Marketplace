@@ -7,25 +7,25 @@ description: The assistant should use this when the user asks to show, summarize
 
 Display current Detective MCP case state. Follow `../references/detective-core-protocol.md` for canonical state, enums, proof semantics, evidence lifecycle, and export policy.
 
-<HARD_GATE_READ_ONLY_BOUNDARY>
+<HARD_GATE name="read-only-boundary">
 Default to reads only. Do not add, update, close, or otherwise mutate cases during board review. Exports are the only allowed write-like side effect, and only when the user asks for files/artifacts or the review will be handed off.
-</HARD_GATE_READ_ONLY_BOUNDARY>
+</HARD_GATE>
 
-<IMPORTANT_COMPLETION_GATE_DEFAULT>
+<IMPORTANT name="completion-gate-default">
 Use `detective_completion_gate(case_id="<case id>")` as the default read-only proof readiness check. Do not call `detective_evaluate_proof` during routine review; call it only when the user requests a durable formal proof snapshot or a closure/reporting workflow needs one.
-</IMPORTANT_COMPLETION_GATE_DEFAULT>
+</IMPORTANT>
 
-<IMPORTANT_EVIDENCE_INTEGRITY>
+<IMPORTANT name="evidence-integrity">
 Present blackboard content as unverified scratch, not verified graph evidence. Clearly label clues, confirmed evidence, direct `supports` edges, contradictions, caveats, proof-gate blockers, and coverage gaps.
-</IMPORTANT_EVIDENCE_INTEGRITY>
+</IMPORTANT>
 
-<IMPORTANT_GOAL_TOOL_REVIEW_BOUNDARY>
+<IMPORTANT name="goal-tool-review-boundary">
 When a SetGoal or equivalent goal tool is available, do not overwrite a valid active case goal during review. Update it only if the user explicitly changes investigation scope, intent, completion criteria, or stop conditions.
-</IMPORTANT_GOAL_TOOL_REVIEW_BOUNDARY>
+</IMPORTANT>
 
-<IMPORTANT_STOP_FALLBACK_STATUS_PRESERVATION>
+<IMPORTANT name="stop-fallback-status-preservation">
 Board review preserves the current Stop fallback marker status. Do not emit a new active marker merely for review. If review shows completion is allowed, the case is blocked waiting for user input, budget is exhausted, or the user asked to pause/stop after the review, emit `<DETECTIVE-STOP-FALLBACK status="inactive" case-id="<case_id>" reason="<complete|blocked|budget-exhausted|pause>">`.
-</IMPORTANT_STOP_FALLBACK_STATUS_PRESERVATION>
+</IMPORTANT>
 
 ## Required Reads
 

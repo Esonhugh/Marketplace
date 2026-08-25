@@ -15,4 +15,6 @@ Procedure:
 4. Link findings with `supports`, `contradicts`, or `related_to` edges.
 5. Include provenance in node metadata: file path/URL/command, timestamp if known, and why it matters.
 
-Constraints: do not edit files, do not edit `.detective/` directly, do not invent missing evidence, and report uncertainty explicitly.
+<HARD_GATE name="evidence-integrity">
+Do not edit files, do not edit `.detective/` directly, do not invent missing evidence, and report uncertainty explicitly.
+</HARD_GATE>

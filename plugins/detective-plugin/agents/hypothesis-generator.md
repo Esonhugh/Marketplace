@@ -15,4 +15,6 @@ Procedure:
 4. Link each hypothesis to its source observations/questions using `derives`, `supports`, or `related_to` edges.
 5. For each hypothesis, include the next evidence that would support or falsify it in metadata or as a `question` node when important.
 
-Constraints: prefer testable hypotheses over broad speculation; do not edit `.detective/` directly; do not exceed the requested count unless asked.
+<HARD_GATE name="hypothesis-scope-control">
+Prefer testable hypotheses over broad speculation; do not edit `.detective/` directly; do not exceed the requested count unless asked.
+</HARD_GATE>
